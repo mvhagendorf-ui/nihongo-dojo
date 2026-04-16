@@ -83,6 +83,53 @@ if (typeof window !== "undefined" && "speechSynthesis" in window) {
   speechSynthesis.addEventListener("voiceschanged", initVoices);
 }
 
+const CONN_COLORS = [
+  { pattern: /V[るない可能意向条件]|Vた形|Vます形|Vて形|Vた\+|V辞書形|V普通形|V(?=[てもたる＋])/g, color: "#2563eb", bg: "rgba(37,99,235,0.1)" },  // Verb → blue
+  { pattern: /N(?![0-9a-zA-Z])/g, color: "#16a34a", bg: "rgba(22,163,74,0.1)" },  // Noun → green
+  { pattern: /い形[容詞a-z]*/g, color: "#ea580c", bg: "rgba(234,88,12,0.1)" },  // i-adj → orange
+  { pattern: /な形[容詞a-z]*/g, color: "#d946ef", bg: "rgba(217,70,239,0.1)" },  // na-adj → pink
+  { pattern: /普通形[（(][^)）]*[)）]?/g, color: "#0891b2", bg: "rgba(8,145,178,0.1)" },  // plain form → teal
+  { pattern: /普通形/g, color: "#0891b2", bg: "rgba(8,145,178,0.1)" },  // plain form → teal
+  { pattern: /尊敬語|謙譲語/g, color: "#7c3aed", bg: "rgba(124,58,237,0.1)" },  // honorific → purple
+  { pattern: /助数詞/g, color: "#b45309", bg: "rgba(180,83,9,0.1)" },  // counter → amber
+  { pattern: /疑問詞/g, color: "#0d9488", bg: "rgba(13,148,136,0.1)" },  // question word → teal
+];
+
+function ColoredConn({ conn }) {
+  if (!conn) return null;
+  const tokens = [];
+  let remaining = conn;
+  let key = 0;
+  while (remaining.length > 0) {
+    let earliest = null;
+    let earliestIdx = remaining.length;
+    let matchedRule = null;
+    for (const rule of CONN_COLORS) {
+      rule.pattern.lastIndex = 0;
+      const m = rule.pattern.exec(remaining);
+      if (m && m.index < earliestIdx) {
+        earliest = m;
+        earliestIdx = m.index;
+        matchedRule = rule;
+      }
+    }
+    if (!earliest) {
+      tokens.push(<span key={key++} style={{ color: "#4c1d95" }}>{remaining}</span>);
+      break;
+    }
+    if (earliestIdx > 0) {
+      tokens.push(<span key={key++} style={{ color: "#4c1d95" }}>{remaining.slice(0, earliestIdx)}</span>);
+    }
+    tokens.push(
+      <span key={key++} style={{ color: matchedRule.color, background: matchedRule.bg, padding: "1px 4px", borderRadius: 4, fontWeight: 800 }}>
+        {earliest[0]}
+      </span>
+    );
+    remaining = remaining.slice(earliestIdx + earliest[0].length);
+  }
+  return <>{tokens}</>;
+}
+
 function speak(text) {
   if (!("speechSynthesis" in window)) return;
   speechSynthesis.cancel();
@@ -526,7 +573,7 @@ export default function App() {
             <div style={{ fontSize: 42, fontWeight: 900, color: "#1a1a1a", lineHeight: 1.3, letterSpacing: 1 }}>
               {q.jp} <SpeakBtn text={q.jp} size={26} />
             </div>
-            {q.conn && <div style={{ fontSize: 14, marginTop: 12, fontWeight: 700, background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1))", display: "inline-block", padding: "6px 14px", borderRadius: 10, border: "1px solid rgba(139,92,246,0.2)" }}><span style={{ color: "#8b5cf6" }}>接続:</span> <span style={{ color: "#4c1d95" }}>{q.conn}</span></div>}
+            {q.conn && <div style={{ fontSize: 14, marginTop: 12, fontWeight: 700, background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08))", display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 10, border: "1px solid rgba(139,92,246,0.2)", flexWrap: "wrap" }}><span style={{ color: "#8b5cf6", fontSize: 13 }}>接続:</span> <ColoredConn conn={q.conn} /></div>}
           </div>
           <div className="fade-in" key={current + "_choices"} style={{ display: "grid", gridTemplateColumns: wide ? "1fr 1fr" : "1fr", gap: 8 }}>
             {choices.map((c, i) => {
