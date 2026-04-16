@@ -232,6 +232,8 @@ export default function App() {
   const [history, setHistory] = useState(loadHistory);
   const [historyModal, setHistoryModal] = useState(null);
   const [numQuestions, setNumQuestions] = useState(QUESTIONS_PER_TEST);
+  const [timerMin, setTimerMin] = useState(Math.floor(TIMER_SECONDS / 60));
+  const [timerSec, setTimerSec] = useState(TIMER_SECONDS % 60);
   const savedRef = useRef(false);
 
   useEffect(() => {
@@ -269,12 +271,12 @@ export default function App() {
     setWrongList([]);
     setRetryQueue([]);
     setShowNext(false);
-    setTimeLeft(TIMER_SECONDS);
+    setTimeLeft(timerMin * 60 + timerSec);
     setTimerActive(true);
     setChoices(generateChoices(picked[0], ALL_DATA));
     savedRef.current = false;
     setScreen("quiz");
-  }, [selectedCats, numQuestions]);
+  }, [selectedCats, numQuestions, timerMin, timerSec]);
 
   const toggleCat = (cat) => setSelectedCats(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
 
@@ -354,19 +356,25 @@ export default function App() {
         <div style={CARD}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
             <span style={{ color: "#888", fontSize: 13 }}>Questions</span>
-            <span style={{ color: RED, fontWeight: 900, fontSize: 18 }}>{Math.min(numQuestions, filteredCount)}</span>
+            <input type="number" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => { const v = Number(e.target.value); if (v >= 1 && v <= filteredCount) setNumQuestions(v); }} style={{ width: 60, textAlign: "center", color: RED, fontWeight: 900, fontSize: 18, border: `1px solid #e5e5e5`, borderRadius: 8, padding: "2px 6px", outline: "none", background: "#fff" }} />
           </div>
           <input type="range" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => setNumQuestions(Number(e.target.value))} style={{ width: "100%", accentColor: RED, cursor: "pointer" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, marginBottom: 10 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, marginBottom: 14 }}>
             <span style={{ color: "#bbb", fontSize: 10 }}>{Math.min(10, filteredCount)}</span>
             <span style={{ color: "#bbb", fontSize: 10 }}>{filteredCount}</span>
           </div>
-          {[["Pass", PASS_SCORE + "%"], ["Timer", "15:00"]].map(([l, v]) => (
-            <div key={l} style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-              <span style={{ color: "#888", fontSize: 13 }}>{l}</span>
-              <span style={{ color: "#1a1a1a", fontWeight: 800 }}>{v}</span>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ color: "#888", fontSize: 13 }}>Pass</span>
+            <span style={{ color: "#1a1a1a", fontWeight: 800 }}>{PASS_SCORE}%</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ color: "#888", fontSize: 13 }}>Timer</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <input type="number" min={0} max={99} value={timerMin} onChange={e => setTimerMin(Math.max(0, Math.min(99, Number(e.target.value) || 0)))} style={{ width: 44, textAlign: "center", fontWeight: 800, fontSize: 16, border: `1px solid #e5e5e5`, borderRadius: 8, padding: "4px 2px", outline: "none", background: "#fff" }} />
+              <span style={{ fontWeight: 800, fontSize: 16 }}>:</span>
+              <input type="number" min={0} max={59} value={timerSec.toString().padStart(2, "0")} onChange={e => setTimerSec(Math.max(0, Math.min(59, Number(e.target.value) || 0)))} style={{ width: 44, textAlign: "center", fontWeight: 800, fontSize: 16, border: `1px solid #e5e5e5`, borderRadius: 8, padding: "4px 2px", outline: "none", background: "#fff" }} />
             </div>
-          ))}
+          </div>
         </div>
         <button onClick={startQuiz} disabled={filteredCount < 4} style={{ width: "100%", padding: 16, fontSize: 18, fontWeight: 900, background: filteredCount >= 4 ? RED : "#ddd", color: "#fff", border: "none", borderRadius: 14, cursor: filteredCount >= 4 ? "pointer" : "not-allowed", letterSpacing: 3, boxShadow: filteredCount >= 4 ? "0 4px 14px rgba(188,0,45,0.3)" : "none" }}>
           START TEST
@@ -394,7 +402,7 @@ export default function App() {
           <div style={{ fontSize: 52, fontWeight: 900, color: passed ? GREEN : RED }}>{pct}%</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: passed ? GREEN : RED }}>{passed ? "合格！PASSED!" : "不合格 — RETRY"}</div>
           <p style={{ color: "#888", fontSize: 14 }}>{score} / {total} correct</p>
-          <p style={{ color: "#aaa", fontSize: 12 }}>Best streak: {bestStreak} · Time: {formatTime(TIMER_SECONDS - timeLeft)}</p>
+          <p style={{ color: "#aaa", fontSize: 12 }}>Best streak: {bestStreak} · Time: {formatTime((timerMin * 60 + timerSec) - timeLeft)}</p>
         </div>
         {wrongList.length > 0 && (
           <div style={{ ...CARD, marginTop: 20, background: "#fff8f8", border: "1px solid rgba(188,0,45,0.15)" }}>
