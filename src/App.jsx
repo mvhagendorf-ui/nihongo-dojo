@@ -8,7 +8,18 @@ const RED_LIGHT = "rgba(188,0,45,0.08)";
 const GREEN = "#16a34a";
 const GREEN_LIGHT = "rgba(22,163,74,0.08)";
 
-const PAGE = { minHeight: "100dvh", background: "linear-gradient(160deg, #f8f0f2 0%, #f5f5f9 40%, #eef0f5 100%)", color: "#1a1a1a", fontFamily: "'Noto Sans JP', 'Hiragino Sans', sans-serif", padding: "20px 20px 40px", maxWidth: 700, margin: "0 auto" };
+function useIsWide() {
+  const [wide, setWide] = useState(() => typeof window !== "undefined" && window.innerWidth >= 768);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const handler = (e) => setWide(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return wide;
+}
+
+const PAGE_BASE = { minHeight: "100dvh", background: "linear-gradient(160deg, #f8f0f2 0%, #f5f5f9 40%, #eef0f5 100%)", color: "#1a1a1a", fontFamily: "'Noto Sans JP', 'Hiragino Sans', sans-serif" };
 const CARD = { background: "rgba(255,255,255,0.75)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderRadius: 22, padding: 20, marginBottom: 14, border: "1px solid rgba(255,255,255,0.6)", boxShadow: "0 4px 24px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02)" };
 
 function shuffle(arr) {
@@ -214,6 +225,8 @@ function HistoryModal({ session, onClose }) {
 }
 
 export default function App() {
+  const wide = useIsWide();
+  const PAGE = { ...PAGE_BASE, padding: wide ? "28px 40px 48px" : "20px 20px 40px", maxWidth: wide ? 960 : 700, margin: "0 auto" };
   const [screen, setScreen] = useState("menu");
   const [selectedCats, setSelectedCats] = useState(Object.keys(CATEGORIES));
   const [questions, setQuestions] = useState([]);
@@ -334,84 +347,92 @@ export default function App() {
         <div style={{ textAlign: "center", marginBottom: 16, paddingTop: 8 }}>
           <img src="/logo.png" alt="日本語道場 Nihongo Dojo" style={{ width: 260, display: "block", margin: "0 auto", mixBlendMode: "multiply" }} />
         </div>
-        <div style={CARD}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-            <h3 style={{ margin: 0, fontSize: 13, color: RED, fontWeight: 700 }}>📚 Categories</h3>
-            <div style={{ display: "flex", gap: 5 }}>
-              <button className="btn-hover" onClick={() => setSelectedCats(Object.keys(CATEGORIES))} style={{ background: "rgba(188,0,45,0.06)", border: "none", color: RED, borderRadius: 8, padding: "4px 10px", fontSize: 10, cursor: "pointer", fontWeight: 600 }}>All</button>
-              <button className="btn-hover" onClick={() => setSelectedCats([])} style={{ background: "rgba(0,0,0,0.04)", border: "none", color: "#888", borderRadius: 8, padding: "4px 10px", fontSize: 10, cursor: "pointer", fontWeight: 600 }}>None</button>
+        <div style={wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, alignItems: "start" } : {}}>
+          <div style={CARD}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <h3 style={{ margin: 0, fontSize: 13, color: RED, fontWeight: 700 }}>📚 Categories</h3>
+              <div style={{ display: "flex", gap: 5 }}>
+                <button className="btn-hover" onClick={() => setSelectedCats(Object.keys(CATEGORIES))} style={{ background: "rgba(188,0,45,0.06)", border: "none", color: RED, borderRadius: 8, padding: "4px 10px", fontSize: 10, cursor: "pointer", fontWeight: 600 }}>All</button>
+                <button className="btn-hover" onClick={() => setSelectedCats([])} style={{ background: "rgba(0,0,0,0.04)", border: "none", color: "#888", borderRadius: 8, padding: "4px 10px", fontSize: 10, cursor: "pointer", fontWeight: 600 }}>None</button>
+              </div>
             </div>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-            {CATEGORY_GROUPS.map((group, gi) => {
-              const groupCount = group.cats.reduce((s, c) => s + ALL_DATA.filter(d => d.cat === c).length, 0);
-              const allOn = group.cats.every(c => selectedCats.includes(c));
-              const someOn = group.cats.some(c => selectedCats.includes(c));
-              const expanded = expandedGroups.includes(gi);
-              const toggleGroup = () => {
-                if (allOn) setSelectedCats(prev => prev.filter(c => !group.cats.includes(c)));
-                else setSelectedCats(prev => [...new Set([...prev, ...group.cats])]);
-              };
-              const toggleExpand = (e) => { e.stopPropagation(); setExpandedGroups(prev => prev.includes(gi) ? prev.filter(i => i !== gi) : [...prev, gi]); };
-              const isSingle = group.cats.length <= 1;
-              return (
-                <div key={gi} style={{ gridColumn: expanded ? "1 / -1" : "auto" }}>
-                  <div onClick={toggleGroup} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", padding: "8px 10px", borderRadius: 12, background: allOn ? `linear-gradient(135deg, rgba(188,0,45,0.1), rgba(188,0,45,0.05))` : someOn ? "rgba(188,0,45,0.03)" : "rgba(0,0,0,0.02)", border: allOn ? `1.5px solid rgba(188,0,45,0.4)` : someOn ? `1.5px solid rgba(188,0,45,0.15)` : "1.5px solid rgba(0,0,0,0.06)", transition: "all 0.2s" }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: allOn ? RED : someOn ? "#c44" : "#999", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{group.label}</span>
-                    <span style={{ fontSize: 11, color: allOn ? RED : "#bbb", fontWeight: 700, minWidth: 20, textAlign: "right" }}>{groupCount}</span>
-                    {!isSingle && <span onClick={toggleExpand} style={{ fontSize: 9, color: "#bbb", padding: "1px 5px", borderRadius: 4, background: "rgba(0,0,0,0.04)", userSelect: "none", lineHeight: 1.4 }}>{expanded ? "▲" : "▼"}</span>}
-                  </div>
-                  {expanded && !isSingle && (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4, paddingLeft: 8, paddingTop: 5, paddingBottom: 2 }}>
-                      {group.cats.map(key => {
-                        const count = ALL_DATA.filter(d => d.cat === key).length;
-                        const on = selectedCats.includes(key);
-                        return (
-                          <button key={key} onClick={() => toggleCat(key)} style={{ background: on ? RED_LIGHT : "rgba(255,255,255,0.6)", border: on ? `1px solid rgba(188,0,45,0.3)` : "1px solid rgba(0,0,0,0.06)", color: on ? RED : "#999", borderRadius: 8, padding: "3px 8px", fontSize: 10, cursor: "pointer", fontWeight: on ? 600 : 400, transition: "all 0.15s" }}>
-                            {CATEGORIES[key]} ({count})
-                          </button>
-                        );
-                      })}
+            <div style={{ display: "grid", gridTemplateColumns: wide ? "1fr 1fr 1fr" : "1fr 1fr", gap: 6 }}>
+              {CATEGORY_GROUPS.map((group, gi) => {
+                const groupCount = group.cats.reduce((s, c) => s + ALL_DATA.filter(d => d.cat === c).length, 0);
+                const allOn = group.cats.every(c => selectedCats.includes(c));
+                const someOn = group.cats.some(c => selectedCats.includes(c));
+                const expanded = expandedGroups.includes(gi);
+                const toggleGroup = () => {
+                  if (allOn) setSelectedCats(prev => prev.filter(c => !group.cats.includes(c)));
+                  else setSelectedCats(prev => [...new Set([...prev, ...group.cats])]);
+                };
+                const toggleExpand = (e) => { e.stopPropagation(); setExpandedGroups(prev => prev.includes(gi) ? prev.filter(i => i !== gi) : [...prev, gi]); };
+                const isSingle = group.cats.length <= 1;
+                return (
+                  <div key={gi} style={{ gridColumn: expanded ? "1 / -1" : "auto" }}>
+                    <div onClick={toggleGroup} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", padding: "8px 10px", borderRadius: 12, background: allOn ? `linear-gradient(135deg, rgba(188,0,45,0.1), rgba(188,0,45,0.05))` : someOn ? "rgba(188,0,45,0.03)" : "rgba(0,0,0,0.02)", border: allOn ? `1.5px solid rgba(188,0,45,0.4)` : someOn ? `1.5px solid rgba(188,0,45,0.15)` : "1.5px solid rgba(0,0,0,0.06)", transition: "all 0.2s" }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: allOn ? RED : someOn ? "#c44" : "#999", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{group.label}</span>
+                      <span style={{ fontSize: 11, color: allOn ? RED : "#bbb", fontWeight: 700, minWidth: 20, textAlign: "right" }}>{groupCount}</span>
+                      {!isSingle && <span onClick={toggleExpand} style={{ fontSize: 9, color: "#bbb", padding: "1px 5px", borderRadius: 4, background: "rgba(0,0,0,0.04)", userSelect: "none", lineHeight: 1.4 }}>{expanded ? "▲" : "▼"}</span>}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        <div style={CARD}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <span style={{ color: "#888", fontSize: 13 }}>Questions</span>
-            <input type="number" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => { const v = Number(e.target.value); if (v >= 1 && v <= filteredCount) setNumQuestions(v); }} style={{ width: 56, textAlign: "center", color: RED, fontWeight: 900, fontSize: 18, border: "none", borderRadius: 10, padding: "4px 6px", outline: "none", background: "rgba(188,0,45,0.06)" }} />
-          </div>
-          <input type="range" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => setNumQuestions(Number(e.target.value))} style={{ width: "100%", accentColor: RED, cursor: "pointer" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, marginBottom: 14 }}>
-            <span style={{ color: "#bbb", fontSize: 10 }}>{Math.min(10, filteredCount)}</span>
-            <span style={{ color: "#bbb", fontSize: 10 }}>{filteredCount}</span>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ color: "#888", fontSize: 13 }}>Pass</span>
-            <span style={{ color: "#1a1a1a", fontWeight: 800 }}>{PASS_SCORE}%</span>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ color: "#888", fontSize: 13 }}>Timer</span>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <input type="number" min={0} max={99} value={timerMin} onChange={e => setTimerMin(Math.max(0, Math.min(99, Number(e.target.value) || 0)))} style={{ width: 42, textAlign: "center", fontWeight: 800, fontSize: 16, border: "none", borderRadius: 10, padding: "5px 2px", outline: "none", background: "rgba(0,0,0,0.04)" }} />
-              <span style={{ fontWeight: 800, fontSize: 16, color: "#999" }}>:</span>
-              <input type="number" min={0} max={59} value={timerSec.toString().padStart(2, "0")} onChange={e => setTimerSec(Math.max(0, Math.min(59, Number(e.target.value) || 0)))} style={{ width: 42, textAlign: "center", fontWeight: 800, fontSize: 16, border: "none", borderRadius: 10, padding: "5px 2px", outline: "none", background: "rgba(0,0,0,0.04)" }} />
+                    {expanded && !isSingle && (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, paddingLeft: 8, paddingTop: 5, paddingBottom: 2 }}>
+                        {group.cats.map(key => {
+                          const count = ALL_DATA.filter(d => d.cat === key).length;
+                          const on = selectedCats.includes(key);
+                          return (
+                            <button key={key} onClick={() => toggleCat(key)} style={{ background: on ? RED_LIGHT : "rgba(255,255,255,0.6)", border: on ? `1px solid rgba(188,0,45,0.3)` : "1px solid rgba(0,0,0,0.06)", color: on ? RED : "#999", borderRadius: 8, padding: "3px 8px", fontSize: 10, cursor: "pointer", fontWeight: on ? 600 : 400, transition: "all 0.15s" }}>
+                              {CATEGORIES[key]} ({count})
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
+          <div>
+            <div style={CARD}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span style={{ color: "#888", fontSize: 13 }}>Questions</span>
+                <input type="number" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => { const v = Number(e.target.value); if (v >= 1 && v <= filteredCount) setNumQuestions(v); }} style={{ width: 56, textAlign: "center", color: RED, fontWeight: 900, fontSize: 18, border: "none", borderRadius: 10, padding: "4px 6px", outline: "none", background: "rgba(188,0,45,0.06)" }} />
+              </div>
+              <input type="range" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => setNumQuestions(Number(e.target.value))} style={{ width: "100%", accentColor: RED, cursor: "pointer" }} />
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, marginBottom: 14 }}>
+                <span style={{ color: "#bbb", fontSize: 10 }}>{Math.min(10, filteredCount)}</span>
+                <span style={{ color: "#bbb", fontSize: 10 }}>{filteredCount}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ color: "#888", fontSize: 13 }}>Pass</span>
+                <span style={{ color: "#1a1a1a", fontWeight: 800 }}>{PASS_SCORE}%</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ color: "#888", fontSize: 13 }}>Timer</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <input type="number" min={0} max={99} value={timerMin} onChange={e => setTimerMin(Math.max(0, Math.min(99, Number(e.target.value) || 0)))} style={{ width: 42, textAlign: "center", fontWeight: 800, fontSize: 16, border: "none", borderRadius: 10, padding: "5px 2px", outline: "none", background: "rgba(0,0,0,0.04)" }} />
+                  <span style={{ fontWeight: 800, fontSize: 16, color: "#999" }}>:</span>
+                  <input type="number" min={0} max={59} value={timerSec.toString().padStart(2, "0")} onChange={e => setTimerSec(Math.max(0, Math.min(59, Number(e.target.value) || 0)))} style={{ width: 42, textAlign: "center", fontWeight: 800, fontSize: 16, border: "none", borderRadius: 10, padding: "5px 2px", outline: "none", background: "rgba(0,0,0,0.04)" }} />
+                </div>
+              </div>
+            </div>
+            <button className={filteredCount >= 4 ? "btn-hover" : ""} onClick={startQuiz} disabled={filteredCount < 4} style={{ width: "100%", padding: 18, fontSize: 19, fontWeight: 900, background: filteredCount >= 4 ? `linear-gradient(135deg, ${RED}, #e0103a)` : "#ddd", color: "#fff", border: "none", borderRadius: 16, cursor: filteredCount >= 4 ? "pointer" : "not-allowed", letterSpacing: 3, boxShadow: filteredCount >= 4 ? "0 6px 24px rgba(188,0,45,0.3)" : "none", transition: "all 0.2s" }}>
+              START TEST
+            </button>
+          </div>
         </div>
-        <button className={filteredCount >= 4 ? "btn-hover" : ""} onClick={startQuiz} disabled={filteredCount < 4} style={{ width: "100%", padding: 18, fontSize: 19, fontWeight: 900, background: filteredCount >= 4 ? `linear-gradient(135deg, ${RED}, #e0103a)` : "#ddd", color: "#fff", border: "none", borderRadius: 16, cursor: filteredCount >= 4 ? "pointer" : "not-allowed", letterSpacing: 3, boxShadow: filteredCount >= 4 ? "0 6px 24px rgba(188,0,45,0.3)" : "none", transition: "all 0.2s" }}>
-          START TEST
-        </button>
-        <HistoryChart history={history} onBarClick={(idx) => setHistoryModal(history[idx])} />
-        {history.length > 0 && (
-          <p style={{ textAlign: "center", color: "#999", fontSize: 11, marginTop: 10 }}>
-            {history.length} tests · avg {Math.round(history.reduce((s, h) => s + (h.score / h.total) * 100, 0) / history.length)}%
-          </p>
-        )}
-        <Leaderboard history={history} />
+        <div style={wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 14 } : {}}>
+          <div>
+            <HistoryChart history={history} onBarClick={(idx) => setHistoryModal(history[idx])} />
+            {history.length > 0 && (
+              <p style={{ textAlign: "center", color: "#999", fontSize: 11, marginTop: 10 }}>
+                {history.length} tests · avg {Math.round(history.reduce((s, h) => s + (h.score / h.total) * 100, 0) / history.length)}%
+              </p>
+            )}
+          </div>
+          <Leaderboard history={history} />
+        </div>
         {historyModal && <HistoryModal session={historyModal} onClose={() => setHistoryModal(null)} />}
       </div>
     );
@@ -434,7 +455,7 @@ export default function App() {
           <div style={{ fontSize: 56, fontWeight: 900, color: passed ? GREEN : RED, lineHeight: 1, textShadow: passed ? "0 2px 20px rgba(22,163,74,0.2)" : "0 2px 20px rgba(188,0,45,0.2)" }}>{pct}%</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: passed ? GREEN : RED, marginTop: 4 }}>{passed ? "合格！PASSED!" : "不合格 — RETRY"}</div>
         </div>
-        <div className="slide-up" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
+        <div className="slide-up" style={{ display: "grid", gridTemplateColumns: wide ? "1fr 1fr 1fr 1fr" : "1fr 1fr", gap: 8, marginBottom: 16 }}>
           {statsData.map(s => (
             <div key={s.label} style={{ ...CARD, marginBottom: 0, textAlign: "center", padding: "12px 8px" }}>
               <div style={{ fontSize: 20 }}>{s.icon}</div>
@@ -507,7 +528,7 @@ export default function App() {
             </div>
             {q.conn && <div style={{ color: "#666", fontSize: 14, marginTop: 12, fontWeight: 600, background: "#f8f8f8", display: "inline-block", padding: "4px 12px", borderRadius: 8 }}>接続: {q.conn}</div>}
           </div>
-          <div className="fade-in" key={current + "_choices"} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="fade-in" key={current + "_choices"} style={{ display: "grid", gridTemplateColumns: wide ? "1fr 1fr" : "1fr", gap: 8 }}>
             {choices.map((c, i) => {
               const isCorrect = c.jp === q.jp;
               const isWrong = selected && c.jp === selected.jp && !isCorrect;
