@@ -526,7 +526,7 @@ export default function App() {
             <div style={{ fontSize: 42, fontWeight: 900, color: "#1a1a1a", lineHeight: 1.3, letterSpacing: 1 }}>
               {q.jp} <SpeakBtn text={q.jp} size={26} />
             </div>
-            {q.conn && <div style={{ color: "#666", fontSize: 14, marginTop: 12, fontWeight: 600, background: "#f8f8f8", display: "inline-block", padding: "4px 12px", borderRadius: 8 }}>接続: {q.conn}</div>}
+            {q.conn && <div style={{ fontSize: 14, marginTop: 12, fontWeight: 700, background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1))", display: "inline-block", padding: "6px 14px", borderRadius: 10, border: "1px solid rgba(139,92,246,0.2)" }}><span style={{ color: "#8b5cf6" }}>接続:</span> <span style={{ color: "#4c1d95" }}>{q.conn}</span></div>}
           </div>
           <div className="fade-in" key={current + "_choices"} style={{ display: "grid", gridTemplateColumns: wide ? "1fr 1fr" : "1fr", gap: 8 }}>
             {choices.map((c, i) => {
