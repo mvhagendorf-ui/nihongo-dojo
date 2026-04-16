@@ -404,17 +404,17 @@ export default function App() {
                 <span style={{ color: "#bbb", fontSize: 10 }}>{Math.min(10, filteredCount)}</span>
                 <span style={{ color: "#bbb", fontSize: 10 }}>{filteredCount}</span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                <span style={{ color: "#888", fontSize: 13 }}>Pass</span>
-                <span style={{ color: "#1a1a1a", fontWeight: 800 }}>{PASS_SCORE}%</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                 <span style={{ color: "#888", fontSize: 13 }}>Timer</span>
                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                   <input type="number" min={0} max={99} value={timerMin} onChange={e => setTimerMin(Math.max(0, Math.min(99, Number(e.target.value) || 0)))} style={{ width: 42, textAlign: "center", fontWeight: 800, fontSize: 16, border: "none", borderRadius: 10, padding: "5px 2px", outline: "none", background: "rgba(0,0,0,0.04)" }} />
                   <span style={{ fontWeight: 800, fontSize: 16, color: "#999" }}>:</span>
                   <input type="number" min={0} max={59} value={timerSec.toString().padStart(2, "0")} onChange={e => setTimerSec(Math.max(0, Math.min(59, Number(e.target.value) || 0)))} style={{ width: 42, textAlign: "center", fontWeight: 800, fontSize: 16, border: "none", borderRadius: 10, padding: "5px 2px", outline: "none", background: "rgba(0,0,0,0.04)" }} />
                 </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "#888", fontSize: 13 }}>Pass</span>
+                <span style={{ color: "#1a1a1a", fontWeight: 800 }}>{PASS_SCORE}%</span>
               </div>
             </div>
             <button className={filteredCount >= 4 ? "btn-hover" : ""} onClick={startQuiz} disabled={filteredCount < 4} style={{ width: "100%", padding: 18, fontSize: 19, fontWeight: 900, background: filteredCount >= 4 ? `linear-gradient(135deg, ${RED}, #e0103a)` : "#ddd", color: "#fff", border: "none", borderRadius: 16, cursor: filteredCount >= 4 ? "pointer" : "not-allowed", letterSpacing: 3, boxShadow: filteredCount >= 4 ? "0 6px 24px rgba(188,0,45,0.3)" : "none", transition: "all 0.2s" }}>
