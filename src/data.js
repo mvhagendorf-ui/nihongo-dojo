@@ -1,19 +1,28 @@
 export const CATEGORIES = {
-  N2_GRAMMAR: "上級I 文法 (N2)",
-  N1_GRAMMAR: "上級II 文法 (N1 TRY!)",
-  ELITE_ADVERBS: "会話 Elite Adverbs",
-  CONNECTORS: "会話 Connectors",
+  N2_GRAMMAR: "上級I (N2)",
+  N1_GRAMMAR: "上級II (N1 TRY!)",
+  ELITE_ADVERBS: "Elite Adverbs",
+  CONNECTORS: "Connectors",
   BUSINESS_VOCAB: "ビジネス語彙",
   N2_VERBS: "N2 動詞セット",
-  CH01_VOCAB: "読解 CH.01 アリ",
-  CH02_VOCAB: "読解 CH.02 血液型",
-  CH04_VOCAB: "読解 CH.04 IT社会",
-  CH05_VOCAB: "読解 CH.05 ゲーム",
-  UNIT1_KANJI: "漢字 Unit 1",
-  UNIT2_KANJI: "漢字 Unit 2",
-  UNIT2_VOCAB: "Unit2 新出語彙",
+  CH01_VOCAB: "CH.01 アリ",
+  CH02_VOCAB: "CH.02 血液型",
+  CH04_VOCAB: "CH.04 IT社会",
+  CH05_VOCAB: "CH.05 ゲーム",
+  UNIT1_KANJI: "Unit 1",
+  UNIT2_KANJI: "Unit 2",
+  UNIT2_VOCAB: "新出語彙",
   MY_WORDS: "My Saved Words 🗾",
 };
+
+export const CATEGORY_GROUPS = [
+  { label: "文法 Grammar", cats: ["N2_GRAMMAR", "N1_GRAMMAR"] },
+  { label: "会話 Conversation", cats: ["ELITE_ADVERBS", "CONNECTORS"] },
+  { label: "語彙 Vocabulary", cats: ["BUSINESS_VOCAB", "N2_VERBS", "UNIT2_VOCAB"] },
+  { label: "読解 Reading", cats: ["CH01_VOCAB", "CH02_VOCAB", "CH04_VOCAB", "CH05_VOCAB"] },
+  { label: "漢字 Kanji", cats: ["UNIT1_KANJI", "UNIT2_KANJI"] },
+  { label: "My Words 🗾", cats: ["MY_WORDS"] },
+];
 
 export const SIM_GROUPS = {
   contrast: ["一方（いっぽう）","反面（はんめん）","～にしろ～にしろ","といっても"],

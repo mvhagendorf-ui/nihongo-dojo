@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { CATEGORIES, SIM_GROUPS, ALL_DATA, PASS_SCORE, QUESTIONS_PER_TEST, TIMER_SECONDS } from "./data";
+import { CATEGORIES, CATEGORY_GROUPS, SIM_GROUPS, ALL_DATA, PASS_SCORE, QUESTIONS_PER_TEST, TIMER_SECONDS } from "./data";
 import { playSound } from "./audio";
 import { loadHistory, saveSession, updateSRS, getSRSWeights } from "./storage";
 
@@ -234,6 +234,7 @@ export default function App() {
   const [numQuestions, setNumQuestions] = useState(QUESTIONS_PER_TEST);
   const [timerMin, setTimerMin] = useState(Math.floor(TIMER_SECONDS / 60));
   const [timerSec, setTimerSec] = useState(TIMER_SECONDS % 60);
+  const [expandedGroups, setExpandedGroups] = useState([]);
   const savedRef = useRef(false);
 
   useEffect(() => {
@@ -341,17 +342,39 @@ export default function App() {
               <button onClick={() => setSelectedCats([])} style={{ background: "#f5f5f5", border: "1px solid #e0e0e0", color: "#666", borderRadius: 6, padding: "3px 8px", fontSize: 10, cursor: "pointer" }}>None</button>
             </div>
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-            {Object.entries(CATEGORIES).map(([key, label]) => {
-              const count = ALL_DATA.filter(d => d.cat === key).length;
-              const on = selectedCats.includes(key);
-              return (
-                <button key={key} onClick={() => toggleCat(key)} style={{ background: on ? RED_LIGHT : "#f9f9f9", border: on ? `1px solid ${RED}` : "1px solid #e5e5e5", color: on ? RED : "#999", borderRadius: 8, padding: "5px 9px", fontSize: 11, cursor: "pointer", fontWeight: on ? 600 : 400 }}>
-                  {label} ({count})
-                </button>
-              );
-            })}
-          </div>
+          {CATEGORY_GROUPS.map((group, gi) => {
+            const groupCount = group.cats.reduce((s, c) => s + ALL_DATA.filter(d => d.cat === c).length, 0);
+            const allOn = group.cats.every(c => selectedCats.includes(c));
+            const someOn = group.cats.some(c => selectedCats.includes(c));
+            const expanded = expandedGroups.includes(gi);
+            const toggleGroup = () => {
+              if (allOn) setSelectedCats(prev => prev.filter(c => !group.cats.includes(c)));
+              else setSelectedCats(prev => [...new Set([...prev, ...group.cats])]);
+            };
+            const toggleExpand = (e) => { e.stopPropagation(); setExpandedGroups(prev => prev.includes(gi) ? prev.filter(i => i !== gi) : [...prev, gi]); };
+            return (
+              <div key={gi} style={{ marginBottom: 6 }}>
+                <div onClick={toggleGroup} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", padding: "7px 10px", borderRadius: 10, background: allOn ? RED_LIGHT : someOn ? "rgba(188,0,45,0.03)" : "#f9f9f9", border: allOn ? `1.5px solid ${RED}` : someOn ? `1.5px solid rgba(188,0,45,0.3)` : "1.5px solid #e5e5e5", transition: "all 0.15s" }}>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: allOn ? RED : someOn ? "#c44" : "#888", flex: 1 }}>{group.label}</span>
+                  <span style={{ fontSize: 12, color: allOn ? RED : "#aaa", fontWeight: 600 }}>{groupCount}</span>
+                  {group.cats.length > 1 && <span onClick={toggleExpand} style={{ fontSize: 11, color: "#aaa", padding: "2px 6px", borderRadius: 4, background: "#f0f0f0", userSelect: "none" }}>{expanded ? "▲" : "▼"}</span>}
+                </div>
+                {expanded && group.cats.length > 1 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4, paddingLeft: 14, paddingTop: 5 }}>
+                    {group.cats.map(key => {
+                      const count = ALL_DATA.filter(d => d.cat === key).length;
+                      const on = selectedCats.includes(key);
+                      return (
+                        <button key={key} onClick={() => toggleCat(key)} style={{ background: on ? RED_LIGHT : "#fff", border: on ? `1px solid ${RED}` : "1px solid #e5e5e5", color: on ? RED : "#999", borderRadius: 7, padding: "4px 8px", fontSize: 10, cursor: "pointer", fontWeight: on ? 600 : 400 }}>
+                          {CATEGORIES[key]} ({count})
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
         <div style={CARD}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
