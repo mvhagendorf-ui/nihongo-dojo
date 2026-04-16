@@ -11,6 +11,27 @@
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <title>日本語道場</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; -webkit-tap-highlight-color: transparent; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+      @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+      @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+      @keyframes confetti { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(-200px) rotate(720deg); } }
+      .fade-in { animation: fadeIn 0.35s ease-out both; }
+      .slide-up { animation: slideUp 0.4s ease-out both; }
+      .pop-in { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+      .btn-hover { transition: all 0.2s ease; }
+      .btn-hover:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.08) !important; }
+      .btn-hover:active { transform: translateY(0); }
+      input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+      input[type="number"] { -moz-appearance: textfield; }
+      input[type="range"] { height: 6px; border-radius: 3px; }
+      ::-webkit-scrollbar { width: 4px; }
+      ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

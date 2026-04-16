@@ -8,8 +8,8 @@ const RED_LIGHT = "rgba(188,0,45,0.08)";
 const GREEN = "#16a34a";
 const GREEN_LIGHT = "rgba(22,163,74,0.08)";
 
-const PAGE = { minHeight: "100dvh", background: "#f5f5f7", color: "#1a1a1a", fontFamily: "'Noto Sans JP', 'Hiragino Sans', sans-serif", padding: 20, maxWidth: 700, margin: "0 auto" };
-const CARD = { background: "#ffffff", borderRadius: 18, padding: 18, marginBottom: 14, border: "1px solid #e5e5e5", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" };
+const PAGE = { minHeight: "100dvh", background: "linear-gradient(180deg, #f8f8fa 0%, #f0f0f4 100%)", color: "#1a1a1a", fontFamily: "'Noto Sans JP', 'Hiragino Sans', sans-serif", padding: "20px 20px 40px", maxWidth: 700, margin: "0 auto" };
+const CARD = { background: "#ffffff", borderRadius: 20, padding: 20, marginBottom: 14, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 2px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02)" };
 
 function shuffle(arr) {
   const a = [...arr];
@@ -85,7 +85,7 @@ function speak(text) {
 
 function SpeakBtn({ text, size }) {
   return (
-    <span role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); speak(text); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); speak(text); } }} style={{ cursor: "pointer", fontSize: size || 18, padding: "0 4px", verticalAlign: "middle", lineHeight: 1, userSelect: "none" }}>
+    <span role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); speak(text); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); speak(text); } }} style={{ cursor: "pointer", fontSize: size || 18, padding: "2px 4px", verticalAlign: "middle", lineHeight: 1, userSelect: "none", opacity: 0.7, transition: "opacity 0.2s, transform 0.15s", display: "inline-block" }} onMouseEnter={e => { e.target.style.opacity = 1; e.target.style.transform = "scale(1.15)"; }} onMouseLeave={e => { e.target.style.opacity = 0.7; e.target.style.transform = "scale(1)"; }}>
       🔊
     </span>
   );
@@ -146,9 +146,9 @@ function HistoryChart({ history, onBarClick }) {
   const recent = history.slice(-5);
   const offset = history.length - recent.length;
   return (
-    <div style={{ ...CARD, marginTop: 16, marginBottom: 0 }}>
-      <h3 style={{ color: RED, margin: "0 0 10px", fontSize: 13, fontWeight: 700 }}>📊 Score History (last {recent.length})</h3>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 90 }}>
+    <div className="fade-in" style={{ ...CARD, marginTop: 16, marginBottom: 0 }}>
+      <h3 style={{ color: RED, margin: "0 0 12px", fontSize: 13, fontWeight: 700 }}>📊 Score History (last {recent.length})</h3>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 100 }}>
         {recent.map((s, i) => {
           const pct = Math.round((s.score / s.total) * 100);
           const passed = pct >= PASS_SCORE;
@@ -156,14 +156,14 @@ function HistoryChart({ history, onBarClick }) {
           return (
             <div key={i} onClick={() => hasDetail && onBarClick(offset + i)} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", cursor: hasDetail ? "pointer" : "default" }}>
               <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-                <div style={{ width: "100%", maxWidth: 28, height: `${pct}%`, minHeight: 4, background: passed ? GREEN : RED, opacity: hasDetail ? 0.85 : 0.45, borderRadius: "4px 4px 0 0", transition: "opacity 0.2s" }} />
+                <div style={{ width: "100%", maxWidth: 32, height: `${pct}%`, minHeight: 6, background: passed ? `linear-gradient(180deg, ${GREEN}, #0d8a3a)` : `linear-gradient(180deg, ${RED}, #8a0020)`, opacity: hasDetail ? 0.9 : 0.4, borderRadius: "6px 6px 0 0", transition: "all 0.3s ease" }} />
               </div>
-              <span style={{ fontSize: 9, marginTop: 3, fontWeight: 700, color: passed ? GREEN : RED }}>{pct}%</span>
+              <span style={{ fontSize: 10, marginTop: 4, fontWeight: 700, color: passed ? GREEN : RED }}>{pct}%</span>
             </div>
           );
         })}
       </div>
-      <div style={{ height: 1, marginTop: 4, background: "#eee" }} />
+      <div style={{ height: 1, marginTop: 6, background: "linear-gradient(90deg, transparent, #e0e0e0, transparent)" }} />
     </div>
   );
 }
@@ -399,7 +399,7 @@ export default function App() {
             </div>
           </div>
         </div>
-        <button onClick={startQuiz} disabled={filteredCount < 4} style={{ width: "100%", padding: 16, fontSize: 18, fontWeight: 900, background: filteredCount >= 4 ? RED : "#ddd", color: "#fff", border: "none", borderRadius: 14, cursor: filteredCount >= 4 ? "pointer" : "not-allowed", letterSpacing: 3, boxShadow: filteredCount >= 4 ? "0 4px 14px rgba(188,0,45,0.3)" : "none" }}>
+        <button className={filteredCount >= 4 ? "btn-hover" : ""} onClick={startQuiz} disabled={filteredCount < 4} style={{ width: "100%", padding: 18, fontSize: 19, fontWeight: 900, background: filteredCount >= 4 ? `linear-gradient(135deg, ${RED}, #e0103a)` : "#ddd", color: "#fff", border: "none", borderRadius: 16, cursor: filteredCount >= 4 ? "pointer" : "not-allowed", letterSpacing: 3, boxShadow: filteredCount >= 4 ? "0 6px 24px rgba(188,0,45,0.3)" : "none", transition: "all 0.2s" }}>
           START TEST
         </button>
         <HistoryChart history={history} onBarClick={(idx) => setHistoryModal(history[idx])} />
@@ -418,28 +418,41 @@ export default function App() {
   if (screen === "results") {
     const pct = total > 0 ? Math.round((score / total) * 100) : 0;
     const passed = pct >= PASS_SCORE;
+    const statsData = [
+      { icon: "✅", label: "Correct", value: `${score}/${total}` },
+      { icon: "🔥", label: "Best Streak", value: bestStreak },
+      { icon: "⏱", label: "Time", value: formatTime((timerMin * 60 + timerSec) - timeLeft) },
+      { icon: "❌", label: "Mistakes", value: wrongList.length },
+    ];
     return (
       <div style={PAGE}>
-        <div style={{ textAlign: "center", marginTop: 28 }}>
-          <div style={{ fontSize: 52 }}>{passed ? "🏆" : "📖"}</div>
-          <div style={{ fontSize: 52, fontWeight: 900, color: passed ? GREEN : RED }}>{pct}%</div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: passed ? GREEN : RED }}>{passed ? "合格！PASSED!" : "不合格 — RETRY"}</div>
-          <p style={{ color: "#888", fontSize: 14 }}>{score} / {total} correct</p>
-          <p style={{ color: "#aaa", fontSize: 12 }}>Best streak: {bestStreak} · Time: {formatTime((timerMin * 60 + timerSec) - timeLeft)}</p>
+        <div className="pop-in" style={{ textAlign: "center", marginTop: 24, marginBottom: 20 }}>
+          <div style={{ fontSize: 56, marginBottom: 4 }}>{passed ? "🏆" : "📖"}</div>
+          <div style={{ fontSize: 56, fontWeight: 900, color: passed ? GREEN : RED, lineHeight: 1, textShadow: passed ? "0 2px 20px rgba(22,163,74,0.2)" : "0 2px 20px rgba(188,0,45,0.2)" }}>{pct}%</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: passed ? GREEN : RED, marginTop: 4 }}>{passed ? "合格！PASSED!" : "不合格 — RETRY"}</div>
+        </div>
+        <div className="slide-up" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
+          {statsData.map(s => (
+            <div key={s.label} style={{ ...CARD, marginBottom: 0, textAlign: "center", padding: "12px 8px" }}>
+              <div style={{ fontSize: 20 }}>{s.icon}</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: "#1a1a1a", marginTop: 2 }}>{s.value}</div>
+              <div style={{ fontSize: 10, color: "#999", fontWeight: 600, marginTop: 1 }}>{s.label}</div>
+            </div>
+          ))}
         </div>
         {wrongList.length > 0 && (
-          <div style={{ ...CARD, marginTop: 20, background: "#fff8f8", border: "1px solid rgba(188,0,45,0.15)" }}>
-            <h3 style={{ color: RED, margin: "0 0 10px", fontSize: 14 }}>❌ Review ({wrongList.length})</h3>
+          <div className="slide-up" style={{ ...CARD, marginTop: 4, background: "linear-gradient(135deg, #fff8f8, #fff)", border: "1px solid rgba(188,0,45,0.12)" }}>
+            <h3 style={{ color: RED, margin: "0 0 12px", fontSize: 14, fontWeight: 700 }}>❌ Review ({wrongList.length})</h3>
             {wrongList.map((w, i) => (
-              <div key={i} style={{ borderBottom: "1px solid #f0e0e0", padding: "12px 0" }}>
+              <div key={i} style={{ borderBottom: i < wrongList.length - 1 ? "1px solid #f0e0e0" : "none", padding: "14px 0" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: RED, fontSize: 10, fontWeight: 600 }}>{CATEGORIES[w.cat]}{w.num ? ` · #${w.num}` : ""}</span>
+                  <span style={{ color: RED, fontSize: 10, fontWeight: 600, background: RED_LIGHT, padding: "2px 8px", borderRadius: 4 }}>{CATEGORIES[w.cat]}{w.num ? ` · #${w.num}` : ""}</span>
                   <SpeakBtn text={w.jp} size={16} />
                 </div>
-                <div style={{ color: "#1a1a1a", fontWeight: 800, fontSize: 20, marginTop: 2 }}>{w.jp}</div>
+                <div style={{ color: "#1a1a1a", fontWeight: 800, fontSize: 20, marginTop: 4 }}>{w.jp}</div>
                 <div style={{ color: "#333", fontSize: 14, marginTop: 3, fontWeight: 600 }}>{w.en}</div>
                 {w.heb && <HebText style={{ color: "#555", fontSize: 13, marginTop: 2 }}>{w.heb}</HebText>}
-                {w.conn && <div style={{ color: "#444", fontSize: 12, marginTop: 6, fontWeight: 700 }}>接続: {w.conn}</div>}
+                {w.conn && <div style={{ color: "#444", fontSize: 12, marginTop: 6, fontWeight: 700, background: "#f8f8f8", padding: "4px 8px", borderRadius: 6, display: "inline-block" }}>接続: {w.conn}</div>}
                 {w.ex && (
                   <div style={{ fontSize: 12, marginTop: 4, fontWeight: 600, color: "#333", display: "flex", alignItems: "center", gap: 4 }}>
                     📝 {w.ex} <SpeakBtn text={w.ex} size={14} />
@@ -451,9 +464,9 @@ export default function App() {
             ))}
           </div>
         )}
-        <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-          <button onClick={() => setScreen("menu")} style={{ flex: 1, padding: 14, fontSize: 14, background: "#f0f0f0", color: "#333", border: "1px solid #e0e0e0", borderRadius: 12, cursor: "pointer", fontWeight: 600 }}>Menu</button>
-          <button onClick={startQuiz} style={{ flex: 1, padding: 14, fontSize: 14, fontWeight: 800, background: RED, color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", boxShadow: "0 4px 14px rgba(188,0,45,0.3)" }}>{passed ? "Next Test" : "Retry"}</button>
+        <div className="slide-up" style={{ display: "flex", gap: 10, marginTop: 16 }}>
+          <button className="btn-hover" onClick={() => setScreen("menu")} style={{ flex: 1, padding: 15, fontSize: 14, background: "#fff", color: "#333", border: "1px solid #e0e0e0", borderRadius: 14, cursor: "pointer", fontWeight: 700, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>Menu</button>
+          <button className="btn-hover" onClick={startQuiz} style={{ flex: 2, padding: 15, fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, ${RED}, #e0103a)`, color: "#fff", border: "none", borderRadius: 14, cursor: "pointer", boxShadow: "0 4px 16px rgba(188,0,45,0.3)" }}>{passed ? "Next Test →" : "Retry →"}</button>
         </div>
       </div>
     );
@@ -462,70 +475,75 @@ export default function App() {
   // ── QUIZ ──
   const nums = ["①", "②", "③", "④"];
   const timerWarn = timeLeft < 120;
+  const timerTotal = timerMin * 60 + timerSec;
+  const timerPct = timerTotal > 0 ? (timeLeft / timerTotal) * 100 : 100;
   return (
     <div style={PAGE}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <button onClick={() => { setTimerActive(false); setScreen("results"); }} style={{ background: "none", border: "none", color: "#999", fontSize: 14, cursor: "pointer", padding: 0 }}>← End</button>
-        <div style={{ color: timerWarn ? RED : "#666", fontSize: 18, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>⏱ {formatTime(timeLeft)}</div>
+        <button onClick={() => { setTimerActive(false); setScreen("results"); }} style={{ background: "none", border: "none", color: "#999", fontSize: 14, cursor: "pointer", padding: "4px 0", fontFamily: "inherit" }}>← End</button>
+        <div style={{ color: timerWarn ? RED : "#666", fontSize: 18, fontWeight: 800, fontVariantNumeric: "tabular-nums", animation: timerWarn ? "pulse 1s infinite" : "none" }}>⏱ {formatTime(timeLeft)}</div>
         <div style={{ color: "#666", fontSize: 14, fontWeight: 600 }}>{current + 1}/{questions.length}</div>
       </div>
-      <div style={{ height: 4, background: "#e0e0e0", borderRadius: 2, marginBottom: 6, overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${progress}%`, background: RED, borderRadius: 2, transition: "width 0.3s" }} />
+      <div style={{ height: 5, background: "#e8e8ec", borderRadius: 3, marginBottom: 6, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${progress}%`, background: `linear-gradient(90deg, ${RED}, #e0103a)`, borderRadius: 3, transition: "width 0.4s ease" }} />
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <div style={{ color: "#888", fontSize: 14 }}>{score}/{total} {total > 0 ? `(${Math.round((score / total) * 100)}%)` : ""}</div>
-        <div style={{ color: RED, fontSize: 16, fontWeight: 800 }}>{streak > 2 ? `🔥 ${streak}` : ""}</div>
+        <div style={{ color: "#888", fontSize: 14, fontWeight: 500 }}>{score}/{total} {total > 0 ? `(${Math.round((score / total) * 100)}%)` : ""}</div>
+        <div style={{ color: "#e85d04", fontSize: 16, fontWeight: 800, animation: streak > 2 ? "pulse 0.6s" : "none" }}>{streak > 2 ? `🔥 ${streak}` : ""}</div>
       </div>
       {q && (
         <>
-          <div style={{ textAlign: "center", marginBottom: 8 }}>
-            <span style={{ background: RED_LIGHT, color: RED, fontSize: 12, padding: "4px 14px", borderRadius: 8, fontWeight: 600 }}>
+          <div className="fade-in" key={current + "_badge"} style={{ textAlign: "center", marginBottom: 8 }}>
+            <span style={{ background: RED_LIGHT, color: RED, fontSize: 11, padding: "4px 14px", borderRadius: 20, fontWeight: 600, display: "inline-block" }}>
               {CATEGORIES[q.cat]}{q.num ? ` · #${q.num}` : ""}
             </span>
           </div>
-          <div style={{ background: "#fff", borderRadius: 20, padding: "30px 22px", textAlign: "center", marginBottom: 14, border: "1px solid #e5e5e5", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
-            <div style={{ fontSize: 42, fontWeight: 900, color: "#1a1a1a", lineHeight: 1.3 }}>
+          <div className="pop-in" key={current + "_q"} style={{ background: "#fff", borderRadius: 22, padding: "32px 24px", textAlign: "center", marginBottom: 14, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 4px 20px rgba(0,0,0,0.05)" }}>
+            <div style={{ fontSize: 42, fontWeight: 900, color: "#1a1a1a", lineHeight: 1.3, letterSpacing: 1 }}>
               {q.jp} <SpeakBtn text={q.jp} size={26} />
             </div>
-            {q.conn && <div style={{ color: "#555", fontSize: 15, marginTop: 12, fontWeight: 700 }}>接続: {q.conn}</div>}
+            {q.conn && <div style={{ color: "#666", fontSize: 14, marginTop: 12, fontWeight: 600, background: "#f8f8f8", display: "inline-block", padding: "4px 12px", borderRadius: 8 }}>接続: {q.conn}</div>}
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="fade-in" key={current + "_choices"} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {choices.map((c, i) => {
+              const isCorrect = c.jp === q.jp;
+              const isWrong = selected && c.jp === selected.jp && !isCorrect;
               let bg = "#ffffff";
-              let border = "1px solid #e5e5e5";
+              let border = "1px solid rgba(0,0,0,0.08)";
               let col = "#1a1a1a";
               let fw = 500;
-              let shadow = "0 1px 3px rgba(0,0,0,0.04)";
+              let shadow = "0 2px 8px rgba(0,0,0,0.03)";
+              let anim = "";
               if (selected) {
-                if (c.jp === q.jp) { bg = GREEN_LIGHT; border = `2px solid ${GREEN}`; col = GREEN; fw = 700; shadow = "0 2px 8px rgba(22,163,74,0.15)"; }
-                else if (c.jp === selected.jp && c.jp !== q.jp) { bg = RED_LIGHT; border = `2px solid ${RED}`; col = RED; shadow = "0 2px 8px rgba(188,0,45,0.15)"; }
-                else { col = "#bbb"; bg = "#fafafa"; border = "1px solid #eee"; shadow = "none"; }
+                if (isCorrect) { bg = GREEN_LIGHT; border = `2px solid ${GREEN}`; col = GREEN; fw = 700; shadow = "0 4px 16px rgba(22,163,74,0.15)"; }
+                else if (isWrong) { bg = RED_LIGHT; border = `2px solid ${RED}`; col = RED; shadow = "0 4px 16px rgba(188,0,45,0.15)"; anim = "shake 0.4s"; }
+                else { col = "#ccc"; bg = "#fafafa"; border = "1px solid #f0f0f0"; shadow = "none"; }
               }
               return (
-                <button key={i} onClick={() => handleChoice(c)} style={{ background: bg, border, color: col, borderRadius: 14, padding: "14px 18px", fontSize: 16, cursor: selected ? "default" : "pointer", textAlign: "left", transition: "all 0.2s", fontWeight: fw, display: "flex", gap: 12, alignItems: "flex-start", fontFamily: "inherit", boxShadow: shadow }}>
-                  <span style={{ color: selected ? col : "#bbb", fontWeight: 700, fontSize: 18, minWidth: 26 }}>{nums[i]}</span>
+                <button className={selected ? "" : "btn-hover"} key={i} onClick={() => handleChoice(c)} style={{ background: bg, border, color: col, borderRadius: 14, padding: "14px 18px", fontSize: 16, cursor: selected ? "default" : "pointer", textAlign: "left", transition: "all 0.2s", fontWeight: fw, display: "flex", gap: 12, alignItems: "flex-start", fontFamily: "inherit", boxShadow: shadow, animation: anim }}>
+                  <span style={{ color: selected ? col : "#ccc", fontWeight: 700, fontSize: 18, minWidth: 26 }}>{nums[i]}</span>
                   <div>
                     <div style={{ fontSize: 16, fontWeight: fw }}>{c.en}</div>
-                    {c.heb && <HebText style={{ fontSize: 14, marginTop: 3, color: selected ? col : "#888" }}>{c.heb}</HebText>}
+                    {c.heb && <HebText style={{ fontSize: 14, marginTop: 3, color: selected ? col : "#999" }}>{c.heb}</HebText>}
                   </div>
                 </button>
               );
             })}
           </div>
           {selected && (
-            <div style={{ background: "#fff", borderRadius: 14, padding: "14px 18px", marginTop: 12, border: "1px solid #e5e5e5", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-              {q.conn && <div style={{ fontSize: 15, color: "#444", fontWeight: 800, marginBottom: 6 }}>接続: {q.conn}</div>}
+            <div className="slide-up" style={{ background: "#fff", borderRadius: 16, padding: "16px 18px", marginTop: 12, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+              {q.conn && <div style={{ fontSize: 14, color: "#555", fontWeight: 700, marginBottom: 8, background: "#f8f8f8", display: "inline-block", padding: "3px 10px", borderRadius: 6 }}>接続: {q.conn}</div>}
               {q.ex && (
                 <div style={{ fontSize: 16, color: "#1a1a1a", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
                   📝 {q.ex} <SpeakBtn text={q.ex} size={18} />
                 </div>
               )}
-              {q.exHeb && <HebText style={{ fontSize: 15, color: "#666", marginTop: 4 }}>🔤 {q.exHeb}</HebText>}
-              {q.kanjiStory && <div style={{ fontSize: 15, color: "#8b5cf6", marginTop: 5, fontWeight: 600 }}>🧠 {q.kanjiStory}</div>}
+              {q.exHeb && <HebText style={{ fontSize: 15, color: "#666", marginTop: 5 }}>🔤 {q.exHeb}</HebText>}
+              {q.kanjiStory && <div style={{ fontSize: 14, color: "#8b5cf6", marginTop: 6, fontWeight: 600, background: "rgba(139,92,246,0.06)", padding: "6px 10px", borderRadius: 8 }}>🧠 {q.kanjiStory}</div>}
             </div>
           )}
           {showNext && (
-            <button onClick={next} style={{ width: "100%", marginTop: 12, padding: 16, fontSize: 18, fontWeight: 800, background: RED, color: "#fff", border: "none", borderRadius: 16, cursor: "pointer", letterSpacing: 1, fontFamily: "inherit", boxShadow: "0 4px 14px rgba(188,0,45,0.3)" }}>
+            <button className="btn-hover slide-up" onClick={next} style={{ width: "100%", marginTop: 12, padding: 16, fontSize: 18, fontWeight: 800, background: `linear-gradient(135deg, ${RED}, #e0103a)`, color: "#fff", border: "none", borderRadius: 16, cursor: "pointer", letterSpacing: 1, fontFamily: "inherit", boxShadow: "0 4px 20px rgba(188,0,45,0.3)" }}>
               {current + 1 >= questions.length && retryQueue.length === 0 ? "Results →" : retryQueue.length > 0 && current + 1 >= questions.length ? `Retry (${retryQueue.length}) →` : "Next →"}
             </button>
           )}
