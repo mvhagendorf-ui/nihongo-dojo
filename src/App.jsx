@@ -369,8 +369,8 @@ export default function App() {
                 const toggleExpand = (e) => { e.stopPropagation(); setExpandedGroups(prev => prev.includes(gi) ? prev.filter(i => i !== gi) : [...prev, gi]); };
                 const isSingle = group.cats.length <= 1;
                 return (
-                  <div key={gi} style={{ gridColumn: expanded ? "1 / -1" : "auto" }}>
-                    <div onClick={toggleGroup} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", padding: "8px 10px", borderRadius: 12, background: allOn ? `linear-gradient(135deg, rgba(188,0,45,0.1), rgba(188,0,45,0.05))` : someOn ? "rgba(188,0,45,0.03)" : "rgba(0,0,0,0.02)", border: allOn ? `1.5px solid rgba(188,0,45,0.4)` : someOn ? `1.5px solid rgba(188,0,45,0.15)` : "1.5px solid rgba(0,0,0,0.06)", transition: "all 0.2s" }}>
+                  <div key={gi} style={{ gridColumn: expanded ? "1 / -1" : "auto", minWidth: 0 }}>
+                    <div onClick={toggleGroup} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", padding: "8px 10px", borderRadius: 12, overflow: "hidden", background: allOn ? `linear-gradient(135deg, rgba(188,0,45,0.1), rgba(188,0,45,0.05))` : someOn ? "rgba(188,0,45,0.03)" : "rgba(0,0,0,0.02)", border: allOn ? `1.5px solid rgba(188,0,45,0.4)` : someOn ? `1.5px solid rgba(188,0,45,0.15)` : "1.5px solid rgba(0,0,0,0.06)", transition: "all 0.2s" }}>
                       <span style={{ fontSize: 13, fontWeight: 700, color: allOn ? RED : someOn ? "#c44" : "#999", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{group.label}</span>
                       <span style={{ fontSize: 11, color: allOn ? RED : "#bbb", fontWeight: 700, minWidth: 20, textAlign: "right" }}>{groupCount}</span>
                       {!isSingle && <span onClick={toggleExpand} style={{ fontSize: 9, color: "#bbb", padding: "1px 5px", borderRadius: 4, background: "rgba(0,0,0,0.04)", userSelect: "none", lineHeight: 1.4 }}>{expanded ? "▲" : "▼"}</span>}
