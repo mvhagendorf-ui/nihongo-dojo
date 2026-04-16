@@ -8,8 +8,8 @@ const RED_LIGHT = "rgba(188,0,45,0.08)";
 const GREEN = "#16a34a";
 const GREEN_LIGHT = "rgba(22,163,74,0.08)";
 
-const PAGE = { minHeight: "100dvh", background: "linear-gradient(180deg, #f8f8fa 0%, #f0f0f4 100%)", color: "#1a1a1a", fontFamily: "'Noto Sans JP', 'Hiragino Sans', sans-serif", padding: "20px 20px 40px", maxWidth: 700, margin: "0 auto" };
-const CARD = { background: "#ffffff", borderRadius: 20, padding: 20, marginBottom: 14, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 2px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02)" };
+const PAGE = { minHeight: "100dvh", background: "linear-gradient(160deg, #f8f0f2 0%, #f5f5f9 40%, #eef0f5 100%)", color: "#1a1a1a", fontFamily: "'Noto Sans JP', 'Hiragino Sans', sans-serif", padding: "20px 20px 40px", maxWidth: 700, margin: "0 auto" };
+const CARD = { background: "rgba(255,255,255,0.75)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderRadius: 22, padding: 20, marginBottom: 14, border: "1px solid rgba(255,255,255,0.6)", boxShadow: "0 4px 24px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02)" };
 
 function shuffle(arr) {
   const a = [...arr];
@@ -337,49 +337,52 @@ export default function App() {
         <div style={CARD}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
             <h3 style={{ margin: 0, fontSize: 13, color: RED, fontWeight: 700 }}>📚 Categories</h3>
-            <div style={{ display: "flex", gap: 6 }}>
-              <button onClick={() => setSelectedCats(Object.keys(CATEGORIES))} style={{ background: "#f5f5f5", border: "1px solid #e0e0e0", color: "#666", borderRadius: 6, padding: "3px 8px", fontSize: 10, cursor: "pointer" }}>All</button>
-              <button onClick={() => setSelectedCats([])} style={{ background: "#f5f5f5", border: "1px solid #e0e0e0", color: "#666", borderRadius: 6, padding: "3px 8px", fontSize: 10, cursor: "pointer" }}>None</button>
+            <div style={{ display: "flex", gap: 5 }}>
+              <button className="btn-hover" onClick={() => setSelectedCats(Object.keys(CATEGORIES))} style={{ background: "rgba(188,0,45,0.06)", border: "none", color: RED, borderRadius: 8, padding: "4px 10px", fontSize: 10, cursor: "pointer", fontWeight: 600 }}>All</button>
+              <button className="btn-hover" onClick={() => setSelectedCats([])} style={{ background: "rgba(0,0,0,0.04)", border: "none", color: "#888", borderRadius: 8, padding: "4px 10px", fontSize: 10, cursor: "pointer", fontWeight: 600 }}>None</button>
             </div>
           </div>
-          {CATEGORY_GROUPS.map((group, gi) => {
-            const groupCount = group.cats.reduce((s, c) => s + ALL_DATA.filter(d => d.cat === c).length, 0);
-            const allOn = group.cats.every(c => selectedCats.includes(c));
-            const someOn = group.cats.some(c => selectedCats.includes(c));
-            const expanded = expandedGroups.includes(gi);
-            const toggleGroup = () => {
-              if (allOn) setSelectedCats(prev => prev.filter(c => !group.cats.includes(c)));
-              else setSelectedCats(prev => [...new Set([...prev, ...group.cats])]);
-            };
-            const toggleExpand = (e) => { e.stopPropagation(); setExpandedGroups(prev => prev.includes(gi) ? prev.filter(i => i !== gi) : [...prev, gi]); };
-            return (
-              <div key={gi} style={{ marginBottom: 6 }}>
-                <div onClick={toggleGroup} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", padding: "7px 10px", borderRadius: 10, background: allOn ? RED_LIGHT : someOn ? "rgba(188,0,45,0.03)" : "#f9f9f9", border: allOn ? `1.5px solid ${RED}` : someOn ? `1.5px solid rgba(188,0,45,0.3)` : "1.5px solid #e5e5e5", transition: "all 0.15s" }}>
-                  <span style={{ fontSize: 15, fontWeight: 700, color: allOn ? RED : someOn ? "#c44" : "#888", flex: 1 }}>{group.label}</span>
-                  <span style={{ fontSize: 12, color: allOn ? RED : "#aaa", fontWeight: 600 }}>{groupCount}</span>
-                  {group.cats.length > 1 && <span onClick={toggleExpand} style={{ fontSize: 11, color: "#aaa", padding: "2px 6px", borderRadius: 4, background: "#f0f0f0", userSelect: "none" }}>{expanded ? "▲" : "▼"}</span>}
-                </div>
-                {expanded && group.cats.length > 1 && (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4, paddingLeft: 14, paddingTop: 5 }}>
-                    {group.cats.map(key => {
-                      const count = ALL_DATA.filter(d => d.cat === key).length;
-                      const on = selectedCats.includes(key);
-                      return (
-                        <button key={key} onClick={() => toggleCat(key)} style={{ background: on ? RED_LIGHT : "#fff", border: on ? `1px solid ${RED}` : "1px solid #e5e5e5", color: on ? RED : "#999", borderRadius: 7, padding: "4px 8px", fontSize: 10, cursor: "pointer", fontWeight: on ? 600 : 400 }}>
-                          {CATEGORIES[key]} ({count})
-                        </button>
-                      );
-                    })}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+            {CATEGORY_GROUPS.map((group, gi) => {
+              const groupCount = group.cats.reduce((s, c) => s + ALL_DATA.filter(d => d.cat === c).length, 0);
+              const allOn = group.cats.every(c => selectedCats.includes(c));
+              const someOn = group.cats.some(c => selectedCats.includes(c));
+              const expanded = expandedGroups.includes(gi);
+              const toggleGroup = () => {
+                if (allOn) setSelectedCats(prev => prev.filter(c => !group.cats.includes(c)));
+                else setSelectedCats(prev => [...new Set([...prev, ...group.cats])]);
+              };
+              const toggleExpand = (e) => { e.stopPropagation(); setExpandedGroups(prev => prev.includes(gi) ? prev.filter(i => i !== gi) : [...prev, gi]); };
+              const isSingle = group.cats.length <= 1;
+              return (
+                <div key={gi} style={{ gridColumn: expanded ? "1 / -1" : "auto" }}>
+                  <div onClick={toggleGroup} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", padding: "8px 10px", borderRadius: 12, background: allOn ? `linear-gradient(135deg, rgba(188,0,45,0.1), rgba(188,0,45,0.05))` : someOn ? "rgba(188,0,45,0.03)" : "rgba(0,0,0,0.02)", border: allOn ? `1.5px solid rgba(188,0,45,0.4)` : someOn ? `1.5px solid rgba(188,0,45,0.15)` : "1.5px solid rgba(0,0,0,0.06)", transition: "all 0.2s" }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: allOn ? RED : someOn ? "#c44" : "#999", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{group.label}</span>
+                    <span style={{ fontSize: 11, color: allOn ? RED : "#bbb", fontWeight: 700, minWidth: 20, textAlign: "right" }}>{groupCount}</span>
+                    {!isSingle && <span onClick={toggleExpand} style={{ fontSize: 9, color: "#bbb", padding: "1px 5px", borderRadius: 4, background: "rgba(0,0,0,0.04)", userSelect: "none", lineHeight: 1.4 }}>{expanded ? "▲" : "▼"}</span>}
                   </div>
-                )}
-              </div>
-            );
-          })}
+                  {expanded && !isSingle && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4, paddingLeft: 8, paddingTop: 5, paddingBottom: 2 }}>
+                      {group.cats.map(key => {
+                        const count = ALL_DATA.filter(d => d.cat === key).length;
+                        const on = selectedCats.includes(key);
+                        return (
+                          <button key={key} onClick={() => toggleCat(key)} style={{ background: on ? RED_LIGHT : "rgba(255,255,255,0.6)", border: on ? `1px solid rgba(188,0,45,0.3)` : "1px solid rgba(0,0,0,0.06)", color: on ? RED : "#999", borderRadius: 8, padding: "3px 8px", fontSize: 10, cursor: "pointer", fontWeight: on ? 600 : 400, transition: "all 0.15s" }}>
+                            {CATEGORIES[key]} ({count})
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
         <div style={CARD}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
             <span style={{ color: "#888", fontSize: 13 }}>Questions</span>
-            <input type="number" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => { const v = Number(e.target.value); if (v >= 1 && v <= filteredCount) setNumQuestions(v); }} style={{ width: 60, textAlign: "center", color: RED, fontWeight: 900, fontSize: 18, border: `1px solid #e5e5e5`, borderRadius: 8, padding: "2px 6px", outline: "none", background: "#fff" }} />
+            <input type="number" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => { const v = Number(e.target.value); if (v >= 1 && v <= filteredCount) setNumQuestions(v); }} style={{ width: 56, textAlign: "center", color: RED, fontWeight: 900, fontSize: 18, border: "none", borderRadius: 10, padding: "4px 6px", outline: "none", background: "rgba(188,0,45,0.06)" }} />
           </div>
           <input type="range" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => setNumQuestions(Number(e.target.value))} style={{ width: "100%", accentColor: RED, cursor: "pointer" }} />
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, marginBottom: 14 }}>
@@ -393,9 +396,9 @@ export default function App() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ color: "#888", fontSize: 13 }}>Timer</span>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <input type="number" min={0} max={99} value={timerMin} onChange={e => setTimerMin(Math.max(0, Math.min(99, Number(e.target.value) || 0)))} style={{ width: 44, textAlign: "center", fontWeight: 800, fontSize: 16, border: `1px solid #e5e5e5`, borderRadius: 8, padding: "4px 2px", outline: "none", background: "#fff" }} />
-              <span style={{ fontWeight: 800, fontSize: 16 }}>:</span>
-              <input type="number" min={0} max={59} value={timerSec.toString().padStart(2, "0")} onChange={e => setTimerSec(Math.max(0, Math.min(59, Number(e.target.value) || 0)))} style={{ width: 44, textAlign: "center", fontWeight: 800, fontSize: 16, border: `1px solid #e5e5e5`, borderRadius: 8, padding: "4px 2px", outline: "none", background: "#fff" }} />
+              <input type="number" min={0} max={99} value={timerMin} onChange={e => setTimerMin(Math.max(0, Math.min(99, Number(e.target.value) || 0)))} style={{ width: 42, textAlign: "center", fontWeight: 800, fontSize: 16, border: "none", borderRadius: 10, padding: "5px 2px", outline: "none", background: "rgba(0,0,0,0.04)" }} />
+              <span style={{ fontWeight: 800, fontSize: 16, color: "#999" }}>:</span>
+              <input type="number" min={0} max={59} value={timerSec.toString().padStart(2, "0")} onChange={e => setTimerSec(Math.max(0, Math.min(59, Number(e.target.value) || 0)))} style={{ width: 42, textAlign: "center", fontWeight: 800, fontSize: 16, border: "none", borderRadius: 10, padding: "5px 2px", outline: "none", background: "rgba(0,0,0,0.04)" }} />
             </div>
           </div>
         </div>
