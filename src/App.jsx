@@ -459,7 +459,7 @@ export default function App() {
                 <button className="btn-hover" onClick={() => setSelectedCats([])} style={{ background: "rgba(0,0,0,0.04)", border: "none", color: "#888", borderRadius: 8, padding: "4px 10px", fontSize: 10, cursor: "pointer", fontWeight: 600 }}>None</button>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: wide ? "1fr 1fr 1fr" : "1fr 1fr", gap: 6 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               {CATEGORY_GROUPS.map((group, gi) => {
                 const groupCount = group.cats.reduce((s, c) => s + ALL_DATA.filter(d => d.cat === c).length, 0);
                 const allOn = group.cats.every(c => selectedCats.includes(c));
@@ -628,9 +628,11 @@ export default function App() {
             <span style={{ background: RED_LIGHT, color: RED, fontSize: 11, padding: "4px 14px", borderRadius: 20, fontWeight: 600, display: "inline-block" }}>
               {CATEGORIES[q.cat]}{q.num ? ` · #${q.num}` : ""}
             </span>
-            <span style={{ background: isFill ? "rgba(8,145,178,0.1)" : "rgba(139,92,246,0.1)", color: isFill ? "#0891b2" : "#7c3aed", fontSize: 11, padding: "4px 14px", borderRadius: 20, fontWeight: 700, display: "inline-block", border: isFill ? "1px solid rgba(8,145,178,0.25)" : "1px solid rgba(139,92,246,0.25)" }}>
-              {isFill ? "📝 Usage" : "💭 Meaning"}
-            </span>
+            {isFill && (
+              <span style={{ background: "rgba(8,145,178,0.1)", color: "#0891b2", fontSize: 11, padding: "4px 14px", borderRadius: 20, fontWeight: 700, display: "inline-block", border: "1px solid rgba(8,145,178,0.25)" }}>
+                📝 Fill in the blank
+              </span>
+            )}
           </div>
           <div className="pop-in" key={current + "_q"} style={{ background: "linear-gradient(180deg, #ffffff, #fafbff)", borderRadius: 22, padding: isFill ? "28px 22px" : "32px 24px", textAlign: "center", marginBottom: 14, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 4px 24px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.8)" }}>
             {isFill ? (
