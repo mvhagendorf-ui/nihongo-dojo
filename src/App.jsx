@@ -420,6 +420,25 @@ export default function App() {
     }
   };
 
+  // Keyboard shortcuts: 1-4 for answers, Enter for next
+  const kbRef = useRef({});
+  kbRef.current = { selected, showNext, choices, handleChoice, next };
+  useEffect(() => {
+    if (screen !== "quiz") return;
+    const handler = (e) => {
+      const s = kbRef.current;
+      if (e.key >= "1" && e.key <= "4" && !s.selected && s.choices.length > 0) {
+        const idx = parseInt(e.key, 10) - 1;
+        if (s.choices[idx]) { e.preventDefault(); s.handleChoice(s.choices[idx]); }
+      } else if (e.key === "Enter" && s.showNext) {
+        e.preventDefault();
+        s.next();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [screen]);
+
   const q = questions[current];
   const progress = questions.length > 0 ? ((current + 1) / questions.length) * 100 : 0;
   const filteredCount = ALL_DATA.filter(d => selectedCats.includes(d.cat)).length;
@@ -619,10 +638,9 @@ export default function App() {
                 <div style={{ fontSize: wide ? 28 : 24, fontWeight: 800, color: "#1a1a1a", lineHeight: 1.5, letterSpacing: 0.5 }}>
                   {blanked} <SpeakBtn text={q.ex} size={22} />
                 </div>
-                <div style={{ fontSize: 13, color: "#888", marginTop: 10, fontWeight: 600 }}>
-                  💡 {q.en}
+                <div style={{ fontSize: 12, color: "#bbb", marginTop: 10, fontWeight: 500 }}>
+                  ＿＿ に入る表現は？
                 </div>
-                {q.exHeb && <HebText style={{ fontSize: 13, color: "#aaa", marginTop: 4 }}>{q.exHeb.replace(qCore, "＿＿")}</HebText>}
               </>
             ) : (
               <>
@@ -654,10 +672,10 @@ export default function App() {
                   <span style={{ color: selected ? col : "#ccc", fontWeight: 700, fontSize: 18, minWidth: 26 }}>{nums[i]}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     {isFill ? (
-                      <>
-                        <div style={{ fontSize: 20, fontWeight: 800, color: selected ? col : "#1a1a1a" }}>{choiceCore}</div>
-                        <div style={{ fontSize: 12, marginTop: 3, color: selected ? col : "#888", fontWeight: 500 }}>{c.en}</div>
-                      </>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: selected ? col : "#1a1a1a" }}>
+                        {choiceCore}
+                        {selected && <div style={{ fontSize: 12, marginTop: 4, color: col, fontWeight: 500 }}>{c.en}</div>}
+                      </div>
                     ) : (
                       <>
                         <div style={{ fontSize: 16, fontWeight: fw }}>{c.en}</div>
@@ -696,6 +714,9 @@ export default function App() {
               {current + 1 >= questions.length && retryQueue.length === 0 ? "Results →" : retryQueue.length > 0 && current + 1 >= questions.length ? `Retry (${retryQueue.length}) →` : "Next →"}
             </button>
           )}
+          {wide && <div style={{ textAlign: "center", marginTop: 14, fontSize: 11, color: "#bbb", fontWeight: 500, letterSpacing: 0.5 }}>
+            ⌨️ <kbd style={{ background: "rgba(0,0,0,0.05)", padding: "1px 6px", borderRadius: 4, fontFamily: "inherit", fontSize: 10 }}>1-4</kbd> to answer · <kbd style={{ background: "rgba(0,0,0,0.05)", padding: "1px 6px", borderRadius: 4, fontFamily: "inherit", fontSize: 10 }}>Enter</kbd> for next
+          </div>}
         </>
         );
       })()}
