@@ -13,19 +13,30 @@
     <title>日本語道場</title>
     <style>
       * { box-sizing: border-box; }
-      body { margin: 0; -webkit-tap-highlight-color: transparent; }
+      body { margin: 0; -webkit-tap-highlight-color: transparent; min-height: 100vh;
+        background: linear-gradient(160deg, #f8f0f2 0%, #f5f5f9 40%, #eef0f5 100%); }
+      body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+        background:
+          radial-gradient(circle at 15% 10%, rgba(188,0,45,0.08) 0%, transparent 40%),
+          radial-gradient(circle at 85% 90%, rgba(139,92,246,0.06) 0%, transparent 45%),
+          radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 60%);
+      }
+      #root { position: relative; z-index: 1; }
       @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
       @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
       @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
       @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
       @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
       @keyframes confetti { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(-200px) rotate(720deg); } }
+      @keyframes logoGlow { 0%, 100% { filter: drop-shadow(0 4px 20px rgba(188,0,45,0.15)); } 50% { filter: drop-shadow(0 6px 30px rgba(188,0,45,0.25)); } }
+      @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
       .fade-in { animation: fadeIn 0.35s ease-out both; }
       .slide-up { animation: slideUp 0.4s ease-out both; }
       .pop-in { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-      .btn-hover { transition: all 0.2s ease; }
-      .btn-hover:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.08) !important; }
-      .btn-hover:active { transform: translateY(0); }
+      .logo-float { animation: logoGlow 4s ease-in-out infinite; }
+      .btn-hover { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+      .btn-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important; }
+      .btn-hover:active { transform: translateY(0); transition: all 0.1s; }
       input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
       input[type="number"] { -moz-appearance: textfield; }
       input[type="range"] { height: 6px; border-radius: 3px; }

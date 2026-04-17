@@ -19,7 +19,7 @@ function useIsWide() {
   return wide;
 }
 
-const PAGE_BASE = { minHeight: "100dvh", background: "linear-gradient(160deg, #f8f0f2 0%, #f5f5f9 40%, #eef0f5 100%)", color: "#1a1a1a", fontFamily: "'Noto Sans JP', 'Hiragino Sans', sans-serif" };
+const PAGE_BASE = { minHeight: "100dvh", color: "#1a1a1a", fontFamily: "'Noto Sans JP', 'Hiragino Sans', sans-serif" };
 const CARD = { background: "rgba(255,255,255,0.75)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderRadius: 22, padding: 20, marginBottom: 14, border: "1px solid rgba(255,255,255,0.6)", boxShadow: "0 4px 24px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02)" };
 
 function shuffle(arr) {
@@ -49,7 +49,44 @@ function weightedShuffle(items, count) {
   return picked;
 }
 
+// Extract the core JP expression(s) by stripping ～ and （furigana）
+function extractCores(jp) {
+  const cleaned = jp.replace(/^～/, "").replace(/[（(][^)）]*[)）]/g, "").trim();
+  return cleaned.split("/").map(s => s.trim()).filter(Boolean);
+}
+
+// Find the longest core that appears in ex
+function findCoreInEx(ex, cores) {
+  if (!ex) return null;
+  const sorted = [...cores].sort((a, b) => b.length - a.length);
+  for (const core of sorted) if (core.length >= 2 && ex.includes(core)) return core;
+  return null;
+}
+
+function canFillBlank(q) {
+  if (!q.ex) return false;
+  return findCoreInEx(q.ex, extractCores(q.jp)) !== null;
+}
+
+function blankExample(ex, core) {
+  return ex.replace(core, "＿＿＿");
+}
+
+function pickQuestionType(q) {
+  if (canFillBlank(q) && Math.random() < 0.4) return "fillBlank";
+  return "meaning";
+}
+
 function generateChoices(q, pool) {
+  if (q._type === "fillBlank") {
+    const sameCat = pool.filter(d => d.jp !== q.jp && d.cat === q.cat && canFillBlank(d));
+    let candidates = shuffle(sameCat).slice(0, 3);
+    if (candidates.length < 3) {
+      const extra = shuffle(pool.filter(d => d.jp !== q.jp && canFillBlank(d) && !candidates.find(c => c.jp === d.jp)));
+      candidates = [...candidates, ...extra.slice(0, 3 - candidates.length)];
+    }
+    return shuffle([q, ...candidates]);
+  }
   let simItems = [];
   for (const grp of Object.values(SIM_GROUPS)) {
     if (grp.some(g => q.jp.includes(g) || g.includes(q.jp.replace("～", "")))) {
@@ -321,7 +358,7 @@ export default function App() {
     const filtered = ALL_DATA.filter(d => selectedCats.includes(d.cat));
     if (filtered.length < 4) return;
     const count = Math.min(numQuestions, filtered.length);
-    const picked = weightedShuffle(filtered, count);
+    const picked = weightedShuffle(filtered, count).map(q => ({ ...q, _type: pickQuestionType(q) }));
     setQuestions(picked);
     setCurrent(0);
     setSelected(null);
@@ -392,7 +429,7 @@ export default function App() {
     return (
       <div style={PAGE}>
         <div style={{ textAlign: "center", marginBottom: 16, paddingTop: 8 }}>
-          <img src="/logo.png" alt="日本語道場 Nihongo Dojo" style={{ width: 260, display: "block", margin: "0 auto", mixBlendMode: "multiply" }} />
+          <img className="logo-float" src="/logo.png" alt="日本語道場 Nihongo Dojo" style={{ width: 260, display: "block", margin: "0 auto", mixBlendMode: "multiply" }} />
         </div>
         <div style={wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, alignItems: "start" } : {}}>
           <div style={CARD}>
@@ -562,18 +599,39 @@ export default function App() {
         <div style={{ color: "#888", fontSize: 14, fontWeight: 500 }}>{score}/{total} {total > 0 ? `(${Math.round((score / total) * 100)}%)` : ""}</div>
         <div style={{ color: "#e85d04", fontSize: 16, fontWeight: 800, animation: streak > 2 ? "pulse 0.6s" : "none" }}>{streak > 2 ? `🔥 ${streak}` : ""}</div>
       </div>
-      {q && (
+      {q && (() => {
+        const isFill = q._type === "fillBlank";
+        const qCore = isFill ? findCoreInEx(q.ex, extractCores(q.jp)) : null;
+        const blanked = isFill && qCore ? blankExample(q.ex, qCore) : null;
+        return (
         <>
-          <div className="fade-in" key={current + "_badge"} style={{ textAlign: "center", marginBottom: 8 }}>
+          <div className="fade-in" key={current + "_badge"} style={{ textAlign: "center", marginBottom: 8, display: "flex", justifyContent: "center", gap: 6, flexWrap: "wrap" }}>
             <span style={{ background: RED_LIGHT, color: RED, fontSize: 11, padding: "4px 14px", borderRadius: 20, fontWeight: 600, display: "inline-block" }}>
               {CATEGORIES[q.cat]}{q.num ? ` · #${q.num}` : ""}
             </span>
+            <span style={{ background: isFill ? "rgba(8,145,178,0.1)" : "rgba(139,92,246,0.1)", color: isFill ? "#0891b2" : "#7c3aed", fontSize: 11, padding: "4px 14px", borderRadius: 20, fontWeight: 700, display: "inline-block", border: isFill ? "1px solid rgba(8,145,178,0.25)" : "1px solid rgba(139,92,246,0.25)" }}>
+              {isFill ? "📝 Usage" : "💭 Meaning"}
+            </span>
           </div>
-          <div className="pop-in" key={current + "_q"} style={{ background: "#fff", borderRadius: 22, padding: "32px 24px", textAlign: "center", marginBottom: 14, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 4px 20px rgba(0,0,0,0.05)" }}>
-            <div style={{ fontSize: 42, fontWeight: 900, color: "#1a1a1a", lineHeight: 1.3, letterSpacing: 1 }}>
-              {q.jp} <SpeakBtn text={q.jp} size={26} />
-            </div>
-            {q.conn && <div style={{ fontSize: 14, marginTop: 12, fontWeight: 700, background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08))", display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 10, border: "1px solid rgba(139,92,246,0.2)", flexWrap: "wrap" }}><span style={{ color: "#8b5cf6", fontSize: 13 }}>接続:</span> <ColoredConn conn={q.conn} /></div>}
+          <div className="pop-in" key={current + "_q"} style={{ background: "linear-gradient(180deg, #ffffff, #fafbff)", borderRadius: 22, padding: isFill ? "28px 22px" : "32px 24px", textAlign: "center", marginBottom: 14, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 4px 24px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.8)" }}>
+            {isFill ? (
+              <>
+                <div style={{ fontSize: wide ? 28 : 24, fontWeight: 800, color: "#1a1a1a", lineHeight: 1.5, letterSpacing: 0.5 }}>
+                  {blanked} <SpeakBtn text={q.ex} size={22} />
+                </div>
+                <div style={{ fontSize: 13, color: "#888", marginTop: 10, fontWeight: 600 }}>
+                  💡 {q.en}
+                </div>
+                {q.exHeb && <HebText style={{ fontSize: 13, color: "#aaa", marginTop: 4 }}>{q.exHeb.replace(qCore, "＿＿")}</HebText>}
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: wide ? 42 : 32, fontWeight: 900, color: "#1a1a1a", lineHeight: 1.3, letterSpacing: 0.5 }}>
+                  {q.jp} <SpeakBtn text={q.jp} size={wide ? 26 : 22} />
+                </div>
+                {q.conn && <div style={{ fontSize: 14, marginTop: 12, fontWeight: 700, background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08))", display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 10, border: "1px solid rgba(139,92,246,0.2)", flexWrap: "wrap" }}><span style={{ color: "#8b5cf6", fontSize: 13 }}>接続:</span> <ColoredConn conn={q.conn} /></div>}
+              </>
+            )}
           </div>
           <div className="fade-in" key={current + "_choices"} style={{ display: "grid", gridTemplateColumns: wide ? "1fr 1fr" : "1fr", gap: 8 }}>
             {choices.map((c, i) => {
@@ -590,12 +648,22 @@ export default function App() {
                 else if (isWrong) { bg = RED_LIGHT; border = `2px solid ${RED}`; col = RED; shadow = "0 4px 16px rgba(188,0,45,0.15)"; anim = "shake 0.4s"; }
                 else { col = "#ccc"; bg = "#fafafa"; border = "1px solid #f0f0f0"; shadow = "none"; }
               }
+              const choiceCore = isFill ? (findCoreInEx(c.ex, extractCores(c.jp)) || extractCores(c.jp)[0] || c.jp) : null;
               return (
                 <button className={selected ? "" : "btn-hover"} key={i} onClick={() => handleChoice(c)} style={{ background: bg, border, color: col, borderRadius: 14, padding: "14px 18px", fontSize: 16, cursor: selected ? "default" : "pointer", textAlign: "left", transition: "all 0.2s", fontWeight: fw, display: "flex", gap: 12, alignItems: "flex-start", fontFamily: "inherit", boxShadow: shadow, animation: anim }}>
                   <span style={{ color: selected ? col : "#ccc", fontWeight: 700, fontSize: 18, minWidth: 26 }}>{nums[i]}</span>
-                  <div>
-                    <div style={{ fontSize: 16, fontWeight: fw }}>{c.en}</div>
-                    {c.heb && <HebText style={{ fontSize: 14, marginTop: 3, color: selected ? col : "#999" }}>{c.heb}</HebText>}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    {isFill ? (
+                      <>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: selected ? col : "#1a1a1a" }}>{choiceCore}</div>
+                        <div style={{ fontSize: 12, marginTop: 3, color: selected ? col : "#888", fontWeight: 500 }}>{c.en}</div>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: 16, fontWeight: fw }}>{c.en}</div>
+                        {c.heb && <HebText style={{ fontSize: 14, marginTop: 3, color: selected ? col : "#999" }}>{c.heb}</HebText>}
+                      </>
+                    )}
                   </div>
                 </button>
               );
@@ -603,13 +671,23 @@ export default function App() {
           </div>
           {selected && (
             <div className="slide-up" style={{ background: "#fff", borderRadius: 16, padding: "16px 18px", marginTop: 12, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-              {q.conn && <div style={{ fontSize: 14, color: "#555", fontWeight: 700, marginBottom: 8, background: "#f8f8f8", display: "inline-block", padding: "3px 10px", borderRadius: 6 }}>接続: {q.conn}</div>}
+              {isFill && (
+                <div style={{ fontSize: 13, color: "#16a34a", fontWeight: 700, marginBottom: 8, background: "rgba(22,163,74,0.08)", display: "inline-block", padding: "3px 10px", borderRadius: 6 }}>
+                  ✓ {q.jp}
+                </div>
+              )}
+              {q.conn && <div style={{ fontSize: 14, marginTop: isFill ? 0 : undefined, marginBottom: 8, fontWeight: 700, background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08))", display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 10, border: "1px solid rgba(139,92,246,0.2)", flexWrap: "wrap" }}><span style={{ color: "#8b5cf6", fontSize: 12 }}>接続:</span> <ColoredConn conn={q.conn} /></div>}
               {q.ex && (
-                <div style={{ fontSize: 16, color: "#1a1a1a", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                  📝 {q.ex} <SpeakBtn text={q.ex} size={18} />
+                <div style={{ fontSize: 16, color: "#1a1a1a", fontWeight: 700, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                  📝 {isFill && qCore ? (
+                    <span>{q.ex.split(qCore).map((part, idx, arr) => (
+                      <span key={idx}>{part}{idx < arr.length - 1 && <span style={{ background: "rgba(22,163,74,0.15)", color: "#16a34a", padding: "0 4px", borderRadius: 4, fontWeight: 900 }}>{qCore}</span>}</span>
+                    ))}</span>
+                  ) : q.ex} <SpeakBtn text={q.ex} size={18} />
                 </div>
               )}
               {q.exHeb && <HebText style={{ fontSize: 15, color: "#666", marginTop: 5 }}>🔤 {q.exHeb}</HebText>}
+              {isFill && q.heb && <HebText style={{ fontSize: 14, color: "#888", marginTop: 4 }}>{q.heb}</HebText>}
               {q.kanjiStory && <div style={{ fontSize: 14, color: "#8b5cf6", marginTop: 6, fontWeight: 600, background: "rgba(139,92,246,0.06)", padding: "6px 10px", borderRadius: 8 }}>🧠 {q.kanjiStory}</div>}
             </div>
           )}
@@ -619,7 +697,8 @@ export default function App() {
             </button>
           )}
         </>
-      )}
+        );
+      })()}
     </div>
   );
 }
