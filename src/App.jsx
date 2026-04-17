@@ -429,7 +429,7 @@ export default function App() {
     return (
       <div style={PAGE}>
         <div style={{ textAlign: "center", marginBottom: 16, paddingTop: 8 }}>
-          <img className="logo-float" src="/logo.png" alt="日本語道場 Nihongo Dojo" style={{ width: 260, display: "block", margin: "0 auto", mixBlendMode: "multiply" }} />
+          <img src="/logo.png" alt="日本語道場 Nihongo Dojo" style={{ width: 260, display: "block", margin: "0 auto", mixBlendMode: "multiply" }} />
         </div>
         <div style={wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, alignItems: "start" } : {}}>
           <div style={CARD}>
