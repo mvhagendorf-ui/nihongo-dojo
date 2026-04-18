@@ -37,6 +37,7 @@ export const SIM_GROUPS = {
   social: ["人付き合い（ひとづきあい）","雑談（ざつだん）","内気な（うちきな）","上がり症（あがりしょう）","会釈（えしゃく）"],
   business: ["了承（りょうしょう）","承諾（しょうだく）","拒否（きょひ）","依頼（いらい）","要請（ようせい）","交渉（こうしょう）","調整（ちょうせい）","締結（ていけつ）"],
   place_trap: ["幼稚園（ようちえん）","遊園地（ゆうえんち）"],
+  carry: ["持参する（じさん）","所持する（しょじ）","所持（しょじ）"],
 };
 
 export const ALL_DATA = [
@@ -348,7 +349,8 @@ export const ALL_DATA = [
   { jp: "反出生主義（はんしゅっしょうしゅぎ）", en: "antinatalism", heb: "אנטי-נטליזם / נגד הולדה", cat: "MY_WORDS", ex: "反出生主義の哲学者。", exHeb: "פילוסוף אנטי-נטליסט.", kanjiStory: "反(anti) + 出生(birth) + 主義(ism) = anti-birth ideology" },
   { jp: "裏金（うらがね）", en: "dirty money / slush fund / bribe", heb: "כסף מלוכלך / שוחד", cat: "MY_WORDS", ex: "裏金問題が発覚した。", exHeb: "פרשת הכסף המלוכלך נחשפה.", kanjiStory: "裏(behind) + 金(money) = money behind the scenes" },
   { jp: "閉鎖（へいさ）", en: "shutdown / closure / lockdown", heb: "סגירה / השבתה", cat: "MY_WORDS", ex: "工場が閉鎖された。", exHeb: "המפעל נסגר.", kanjiStory: "閉(close) + 鎖(chain) = closed and chained shut" },
-  { jp: "所持（しょじ）", en: "possession / carrying (on person)", heb: "החזקה / נשיאה (על הגוף)", cat: "MY_WORDS", ex: "パスポートを所持している。", exHeb: "נושא דרכון עליו.", kanjiStory: "所(place) + 持(hold) = holding in your place → on your person" },
+  { jp: "所持する（しょじ）", en: "to possess / carry on your person (formal/legal) — upgrade of 持っている", heb: "להחזיק / לשאת על הגוף (רשמי/חוקי) — שדרוג של 持っている", cat: "MY_WORDS", ex: "パスポートを所持している。武器を所持する。", exHeb: "נושא דרכון עליו. מחזיק בנשק.", kanjiStory: "所(place) + 持(hold) = holding at your location RIGHT NOW → on your person" },
+  { jp: "持参する（じさん）", en: "to bring (formal) — upgrade of 持っていく", heb: "להביא איתך (רשמי) — שדרוג של 持っていく", cat: "MY_WORDS", ex: "お弁当を持参してください。", exHeb: "אנא הביאו ארוחת צהריים משלכם.", kanjiStory: "持(hold) + 参(go humbly) = humbly carry something there" },
   { jp: "幼稚園（ようちえん）", en: "kindergarten (for small children)", heb: "גן ילדים", cat: "MY_WORDS", ex: "娘は来年から幼稚園に通う。", exHeb: "הבת שלי תתחיל גן ילדים בשנה הבאה.", kanjiStory: "幼(young) + 稚(immature) + 園(garden) = garden for young immature kids" },
   { jp: "遊園地（ゆうえんち）", en: "amusement park (rides & games)", heb: "פארק שעשועים / לונה פארק", cat: "MY_WORDS", ex: "遊園地でジェットコースターに乗った。", exHeb: "נסעתי על רכבת הרים בפארק השעשועים.", kanjiStory: "遊(play) + 園(garden) + 地(ground) = playground for fun and play" },
 ];
