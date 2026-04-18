@@ -32,10 +32,23 @@ export function updateSRS(jp, correct) {
 
 export function getSRSWeights(items) {
   const srs = loadSRS();
+  const now = Date.now();
+  const DAY = 24 * 60 * 60 * 1000;
   return items.map(item => {
     const data = srs[item.jp];
-    if (!data) return { item, weight: 1 };
+    // Never asked before → highest priority
+    if (!data) return { item, weight: 4 };
     const errorRate = data.wrong / Math.max(1, data.wrong + data.right);
-    return { item, weight: 1 + errorRate * 4 };
+    const base = 1 + errorRate * 4;  // 1-5 based on error rate
+    const daysSince = (now - (data.last || 0)) / DAY;
+    // Recency multiplier: items asked long ago get boosted
+    let recencyBoost;
+    if (daysSince > 14) recencyBoost = 2.0;
+    else if (daysSince > 7) recencyBoost = 1.6;
+    else if (daysSince > 3) recencyBoost = 1.3;
+    else if (daysSince > 1) recencyBoost = 1.0;
+    else if (daysSince > 0.2) recencyBoost = 0.7;
+    else recencyBoost = 0.4;  // asked very recently → low priority
+    return { item, weight: base * recencyBoost };
   });
 }

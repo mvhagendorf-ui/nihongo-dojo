@@ -638,7 +638,7 @@ export default function App() {
             {isFill ? (
               <>
                 <div style={{ fontSize: wide ? 28 : 24, fontWeight: 800, color: "#1a1a1a", lineHeight: 1.5, letterSpacing: 0.5 }}>
-                  {blanked} <SpeakBtn text={q.ex} size={22} />
+                  {blanked} <SpeakBtn text={q.ex.replace(qCore, "・・・")} size={22} />
                 </div>
                 <div style={{ fontSize: 12, color: "#bbb", marginTop: 10, fontWeight: 500 }}>
                   ＿＿ に入る表現は？
