@@ -38,6 +38,7 @@ export const SIM_GROUPS = {
   business: ["了承（りょうしょう）","承諾（しょうだく）","拒否（きょひ）","依頼（いらい）","要請（ようせい）","交渉（こうしょう）","調整（ちょうせい）","締結（ていけつ）"],
   place_trap: ["幼稚園（ようちえん）","遊園地（ゆうえんち）"],
   carry: ["持参する（じさん）","所持する（しょじ）","所持（しょじ）"],
+  camp_vibe: ["～派（は）","～系（けい）"],
 };
 
 export const ALL_DATA = [
@@ -356,6 +357,9 @@ export const ALL_DATA = [
   { jp: "国民性（こくみんせい）", en: "national character / national trait", heb: "אופי לאומי / תכונה לאומית", cat: "MY_WORDS", ex: "日本は居酒屋みたいな国民性だ。", exHeb: "ליפן יש אופי לאומי כמו של איזקאיה (חברתי וקליל).", kanjiStory: "国(country) + 民(people) + 性(nature) = the nature of a country's people" },
   { jp: "幼稚園（ようちえん）", en: "kindergarten (for small children)", heb: "גן ילדים", cat: "MY_WORDS", ex: "娘は来年から幼稚園に通う。", exHeb: "הבת שלי תתחיל גן ילדים בשנה הבאה.", kanjiStory: "幼(young) + 稚(immature) + 園(garden) = garden for young immature kids" },
   { jp: "遊園地（ゆうえんち）", en: "amusement park (rides & games)", heb: "פארק שעשועים / לונה פארק", cat: "MY_WORDS", ex: "遊園地でジェットコースターに乗った。", exHeb: "נסעתי על רכבת הרים בפארק השעשועים.", kanjiStory: "遊(play) + 園(garden) + 地(ground) = playground for fun and play" },
+  { jp: "誤魔化す（ごまかす）", en: "to bluff / fudge / gloss over / play it off", heb: "לבלוף / לטשטש / להתחמק", cat: "MY_WORDS", ex: "まだまだ間違いが多くて誤魔化しながら喋っています。", exHeb: "עדיין עושה המון טעויות ומדבר תוך כדי בלוף.", kanjiStory: "誤(mistake) + 魔(demon) + 化(transform) = transform a mistake with a demon's trick so no one notices" },
+  { jp: "～派（は）", en: "team ~ / pick a side (binary camp)", heb: "~ מחנה / הצד של", cat: "MY_WORDS", ex: "私は犬派・インドア派・お酒飲まない派です。", exHeb: "אני מחנה כלבים, בייתי, ולא שותה אלכוהול.", kanjiStory: "派 = faction — declare which camp you stand with" },
+  { jp: "～系（けい）", en: "~ vibe / genre / aesthetic type", heb: "~ סגנון / סוג של", cat: "MY_WORDS", ex: "癒し系・体育会系・パリピ系。", exHeb: "סגנון רגוע, סטייל אתלטי, סטייל מסיבות.", kanjiStory: "系 = lineage/system — the overall vibe or aesthetic family" },
 ];
 
 export const PASS_SCORE = 80;

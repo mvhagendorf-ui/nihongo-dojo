@@ -526,16 +526,30 @@ export default function App() {
   };
 
   const kbRef = useRef({});
-  kbRef.current = { selected, showNext, choices, handleChoice, next };
+  const currentQ = questions[current];
+  kbRef.current = { selected, showNext, choices, handleChoice, next, q: currentQ };
   useEffect(() => {
     if (screen !== "quiz") return;
     const handler = (e) => {
+      // Ignore when typing in an input/textarea
+      const tag = e.target?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || e.target?.isContentEditable) return;
       const s = kbRef.current;
       if (e.key >= "1" && e.key <= "4" && !s.selected && s.choices.length > 0) {
         const idx = parseInt(e.key, 10) - 1;
         if (s.choices[idx]) { e.preventDefault(); s.handleChoice(s.choices[idx]); }
       } else if (e.key === "Enter" && s.showNext) {
         e.preventDefault(); s.next();
+      } else if (e.key === " " && s.q) {
+        e.preventDefault();
+        // Fill-blank unanswered: read sentence with the answer hidden (・・・)
+        // Otherwise: read the JP word/grammar point
+        if (s.q._type === "fillBlank" && !s.selected && s.q.ex) {
+          const core = findCoreInEx(s.q.ex, extractCores(s.q.jp));
+          speak(core ? s.q.ex.replace(core, "・・・") : s.q.ex);
+        } else {
+          speak(s.q.jp);
+        }
       }
     };
     window.addEventListener("keydown", handler);
@@ -945,7 +959,7 @@ export default function App() {
 
             {wide && (
               <div style={{ textAlign: "center", marginTop: 18, ...KICKER, color: C.faint, fontSize: 10 }}>
-                <kbd>1&ndash;4</kbd> to answer · <kbd>Enter</kbd> to continue
+                <kbd>1&ndash;4</kbd> answer · <kbd>Space</kbd> hear · <kbd>Enter</kbd> continue
               </div>
             )}
           </>
