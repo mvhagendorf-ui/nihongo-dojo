@@ -226,7 +226,7 @@ function Chip({ children, tone = "default", style }) {
   };
   const t = tones[tone] || tones.default;
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: t.bg, color: t.color, border: `1px solid ${t.border}`, padding: "4px 10px", borderRadius: 4, fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", ...style }}>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: t.bg, color: t.color, border: `1px solid ${t.border}`, padding: "5px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", ...style }}>
       {children}
     </span>
   );
@@ -297,9 +297,9 @@ function Leaderboard({ history }) {
                 <div style={{ fontSize: t.en, color: C.inkDim, marginTop: 3, fontWeight: t.emphasized ? 500 : 400, lineHeight: 1.4 }}>{w.en}</div>
                 {t.showAll && w.heb && <HebText style={{ color: C.muted, fontSize: t.meta, marginTop: 3 }}>{w.heb}</HebText>}
                 {t.showAll && w.ex && (
-                  <div className="jp" style={{ fontSize: t.meta, marginTop: 8, color: C.inkDim, display: "flex", alignItems: "flex-start", gap: 6, lineHeight: 1.55 }}>
-                    <span style={{ ...KICKER, fontSize: 9, marginTop: 3, color: C.faint }}>例</span>
-                    <span style={{ flex: 1 }}>{w.ex}</span>
+                  <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, lineHeight: 1.55, flexWrap: "wrap" }}>
+                    <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>例</span>
+                    <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: t.meta + 2, color: C.ink, fontWeight: 600 }}>{w.ex}</span>
                     <SpeakBtn text={w.ex} size={12} />
                   </div>
                 )}
@@ -397,22 +397,24 @@ function WrongItem({ w, isLast }) {
         <Chip tone="accent">{CATEGORIES[w.cat]}{w.num ? ` · #${w.num}` : ""}</Chip>
         <SpeakBtn text={w.jp} size={14} />
       </div>
-      <div className="jp" style={{ color: C.ink, fontWeight: 700, fontSize: 20, marginTop: 8, letterSpacing: "0.02em" }}>{w.jp}</div>
-      <div style={{ color: C.inkDim, fontSize: 14, marginTop: 3 }}>{w.en}</div>
-      {w.heb && <HebText style={{ color: C.muted, fontSize: 13, marginTop: 2 }}>{w.heb}</HebText>}
-      {w.conn && <div style={{ fontSize: 12, marginTop: 8, color: C.muted }}><span style={{ color: C.faint, marginRight: 6 }}>接続</span><ColoredConn conn={w.conn} /></div>}
+      <div className="jp" style={{ color: C.ink, fontWeight: 700, fontSize: 22, marginTop: 8, letterSpacing: "0.02em" }}>{w.jp}</div>
+      <div style={{ color: C.inkDim, fontSize: 15, marginTop: 4 }}>{w.en}</div>
+      {w.heb && <HebText style={{ color: C.muted, fontSize: 14, marginTop: 3 }}>{w.heb}</HebText>}
+      {w.conn && <div style={{ fontSize: 13, marginTop: 10, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={{ ...KICKER, fontSize: 10, color: C.faint }}>接続</span><span className="jp" style={{ fontSize: 14 }}><ColoredConn conn={w.conn} /></span></div>}
       {w.ex && (
-        <div className="jp" style={{ fontSize: 13, marginTop: 8, color: C.inkDim, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-          <span style={{ color: C.faint }}>例</span> {w.ex} <SpeakBtn text={w.ex} size={12} />
+        <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+          <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>例</span>
+          <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 16, color: C.ink, fontWeight: 600, lineHeight: 1.55 }}>{w.ex}</span>
+          <SpeakBtn text={w.ex} size={13} />
         </div>
       )}
-      {w.exHeb && <HebText style={{ color: C.muted, fontSize: 12, marginTop: 4 }}>{w.exHeb}</HebText>}
+      {w.exHeb && <HebText style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>{w.exHeb}</HebText>}
       {w.kanjiStory && (
-        <div style={{ marginTop: 10, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "2px solid #7C3AED", padding: "8px 12px", borderRadius: 8, display: "flex", gap: 8, alignItems: "flex-start" }}>
-          <span style={{ fontSize: 14, lineHeight: 1.2 }}>🧠</span>
+        <div style={{ marginTop: 12, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "2px solid #7C3AED", padding: "10px 14px", borderRadius: 8, display: "flex", gap: 10, alignItems: "flex-start" }}>
+          <span style={{ fontSize: 16, lineHeight: 1.2 }}>🧠</span>
           <div style={{ flex: 1 }}>
-            <div style={{ ...KICKER, color: C.kanji, fontSize: 9, marginBottom: 2 }}>Kanji Story</div>
-            <div style={{ fontSize: 13, color: "#5B21B6", fontWeight: 500, lineHeight: 1.5 }}>{w.kanjiStory}</div>
+            <div style={{ ...KICKER, color: C.kanji, fontSize: 10, marginBottom: 2 }}>Kanji Story</div>
+            <div style={{ fontSize: 14, color: "#5B21B6", fontWeight: 500, lineHeight: 1.55 }}>{w.kanjiStory}</div>
           </div>
         </div>
       )}
@@ -552,8 +554,8 @@ export default function App() {
       <div style={PAGE}>
         {/* HEADER */}
         <header style={{ textAlign: "center", marginBottom: wide ? 32 : 24, paddingTop: 4 }}>
-          <div className="logo-wrap" role="button" tabIndex={0} aria-label="日本語道場" style={{ width: wide ? 280 : 220, height: wide ? 280 : 220, margin: "0 auto 10px" }}>
-            <img className="logo-img" src="/logo.png" alt="日本語道場" style={{ width: "100%", height: "100%", filter: "drop-shadow(0 4px 20px rgba(188,0,45,0.22))" }} />
+          <div className="logo-wrap logo-wrap--light" role="button" tabIndex={0} aria-label="日本語道場" style={{ width: wide ? 300 : 240, height: wide ? 300 : 240, margin: "0 auto 10px" }}>
+            <img className="logo-img" src="/logo.png" alt="日本語道場" style={{ width: "100%", height: "100%", mixBlendMode: "multiply" }} />
             <svg className="logo-ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="58" /></svg>
           </div>
           <div style={{ ...KICKER, color: C.faint, marginTop: 6 }}>
@@ -592,7 +594,7 @@ export default function App() {
                       border: `1px solid ${allOn ? C.accentLine : someOn ? "rgba(188,0,45,0.15)" : C.border}`,
                       color: allOn ? C.ink : someOn ? C.inkDim : C.inkDim
                     }}>
-                      <span className="jp" style={{ flex: 1, fontSize: 14, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "inherit", letterSpacing: "0.02em" }}>
+                      <span className="jp" style={{ flex: 1, fontSize: 16, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "inherit", letterSpacing: "0.02em" }}>
                         {group.label.match(/^[\u3040-\u30ff\u4e00-\u9faf]+/)?.[0] || group.label}
                       </span>
                       <span className="num" style={{ fontSize: 11, color: allOn ? C.accent : C.faint }}>{groupCount}</span>
@@ -636,7 +638,22 @@ export default function App() {
                 <Row label="Questions">
                   <input type="number" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => { const v = Number(e.target.value); if (v >= 1 && v <= filteredCount) setNumQuestions(v); }} style={numInputStyle} className="num" />
                 </Row>
-                <input type="range" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => setNumQuestions(Number(e.target.value))} style={{ width: "100%", cursor: "pointer", marginTop: 4 }} />
+                {(() => {
+                  const sMin = Math.min(10, filteredCount);
+                  const sMax = filteredCount;
+                  const sVal = Math.min(numQuestions, filteredCount);
+                  const pct = sMax > sMin ? ((sVal - sMin) / (sMax - sMin)) * 100 : 0;
+                  return (
+                    <input
+                      type="range" min={sMin} max={sMax} value={sVal}
+                      onChange={e => setNumQuestions(Number(e.target.value))}
+                      style={{
+                        width: "100%", cursor: "pointer", marginTop: 4, height: 4,
+                        background: `linear-gradient(to right, ${C.accent} 0%, ${C.accent} ${pct}%, ${C.border} ${pct}%, ${C.border} 100%)`,
+                      }}
+                    />
+                  );
+                })()}
                 <div className="num" style={{ display: "flex", justifyContent: "space-between", marginTop: 4, color: C.faint, fontSize: 10 }}>
                   <span>{Math.min(10, filteredCount)}</span>
                   <span>{filteredCount}</span>
@@ -798,20 +815,20 @@ export default function App() {
 
               {isFill ? (
                 <>
-                  <div className="jp-display" style={{ fontSize: wide ? 30 : 24, fontWeight: 500, color: C.ink, lineHeight: 1.7, letterSpacing: "0.04em" }}>
-                    {blanked} <SpeakBtn text={q.ex.replace(qCore, "・・・")} size={18} />
+                  <div className="jp-display" style={{ fontSize: wide ? 34 : 26, fontWeight: 500, color: C.ink, lineHeight: 1.7, letterSpacing: "0.04em" }}>
+                    {blanked} <SpeakBtn text={q.ex.replace(qCore, "・・・")} size={20} />
                   </div>
                   <div style={{ ...KICKER, marginTop: 18, color: C.faint }}>Fill the blank</div>
                 </>
               ) : (
                 <>
-                  <div className="jp-display" style={{ fontSize: wide ? 48 : 36, fontWeight: 500, color: C.ink, lineHeight: 1.4, letterSpacing: "0.05em" }}>
-                    {q.jp} <SpeakBtn text={q.jp} size={wide ? 24 : 20} />
+                  <div className="jp-display" style={{ fontSize: wide ? 56 : 42, fontWeight: 500, color: C.ink, lineHeight: 1.4, letterSpacing: "0.05em" }}>
+                    {q.jp} <SpeakBtn text={q.jp} size={wide ? 26 : 22} />
                   </div>
                   {q.conn && (
-                    <div style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 14px", background: C.mutedBg, border: `1px solid ${C.border}`, borderRadius: 6 }}>
-                      <span style={{ ...KICKER, fontSize: 10, color: C.faint }}>接続</span>
-                      <span className="jp" style={{ fontSize: 13, fontWeight: 600 }}><ColoredConn conn={q.conn} /></span>
+                    <div style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 10, padding: "8px 16px", background: C.mutedBg, border: `1px solid ${C.border}`, borderRadius: 8 }}>
+                      <span style={{ ...KICKER, fontSize: 11, color: C.faint }}>接続</span>
+                      <span className="jp" style={{ fontSize: 15, fontWeight: 600 }}><ColoredConn conn={q.conn} /></span>
                     </div>
                   )}
                 </>
@@ -842,30 +859,30 @@ export default function App() {
                       background: bg,
                       border: `1px solid ${border}`,
                       borderLeft: `2px solid ${accentBar === "transparent" ? border : accentBar}`,
-                      color: col, borderRadius: 10, padding: "14px 16px",
+                      color: col, borderRadius: 12, padding: "18px 20px",
                       textAlign: "left", cursor: selected ? "default" : "pointer",
-                      display: "flex", gap: 14, alignItems: "flex-start",
+                      display: "flex", gap: 16, alignItems: "flex-start",
                       fontFamily: FONT_LATIN, animation: anim, transition: "background 0.2s, border 0.2s, color 0.2s",
                     }}
                   >
-                    <span className="num" style={{ color: selected ? col : C.faint, fontWeight: 400, fontSize: 13, minWidth: 20, paddingTop: 2 }}>
+                    <span className="num" style={{ color: selected ? col : C.accent, fontWeight: 600, fontSize: 22, minWidth: 32, paddingTop: 0, lineHeight: 1, letterSpacing: "-0.01em" }}>
                       {(i + 1).toString().padStart(2, "0")}
                     </span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       {isFill ? (
                         <>
-                          <div className="jp" style={{ fontSize: 18, fontWeight: 700, color: selected ? col : C.ink }}>{choiceCore}</div>
-                          {selected && <div style={{ fontSize: 12, marginTop: 4, color: col, opacity: 0.85 }}>{c.en}</div>}
+                          <div className="jp" style={{ fontSize: 22, fontWeight: 700, color: selected ? col : C.ink, lineHeight: 1.3 }}>{choiceCore}</div>
+                          {selected && <div style={{ fontSize: 13, marginTop: 5, color: col, opacity: 0.85 }}>{c.en}</div>}
                         </>
                       ) : (
                         <>
-                          <div style={{ fontSize: 15, fontWeight: 500, color: selected ? col : C.ink, lineHeight: 1.45 }}>{c.en}</div>
-                          {c.heb && <HebText style={{ fontSize: 13, marginTop: 3, color: selected ? col : C.muted, opacity: selected ? 0.85 : 1 }}>{c.heb}</HebText>}
+                          <div style={{ fontSize: 17, fontWeight: 500, color: selected ? col : C.ink, lineHeight: 1.45 }}>{c.en}</div>
+                          {c.heb && <HebText style={{ fontSize: 15, marginTop: 4, color: selected ? col : C.muted, opacity: selected ? 0.85 : 1 }}>{c.heb}</HebText>}
                         </>
                       )}
                     </div>
-                    {selected && isCorrect && <IconCheck size={16} style={{ color: C.pass, marginTop: 2 }} />}
-                    {selected && isWrong && <IconX size={16} style={{ color: C.accent, marginTop: 2 }} />}
+                    {selected && isCorrect && <IconCheck size={20} style={{ color: C.pass, marginTop: 2 }} />}
+                    {selected && isWrong && <IconX size={20} style={{ color: C.accent, marginTop: 2 }} />}
                   </button>
                 );
               })}
@@ -873,22 +890,23 @@ export default function App() {
 
             {/* REVEAL PANEL */}
             {selected && (
-              <div className="slide-up" style={{ marginTop: 14, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: "16px 18px" }}>
-                <KickerLabel style={{ color: C.pass, marginBottom: 10 }}>Answer</KickerLabel>
-                <div className="jp" style={{ fontSize: 19, fontWeight: 700, color: C.ink, letterSpacing: "0.02em" }}>{q.jp} <SpeakBtn text={q.jp} size={14} /></div>
-                <div style={{ color: C.inkDim, fontSize: 14, marginTop: 4 }}>{q.en}</div>
-                {q.heb && <HebText style={{ color: C.muted, fontSize: 13, marginTop: 3 }}>{q.heb}</HebText>}
+              <div className="slide-up" style={{ marginTop: 16, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: "20px 22px" }}>
+                <KickerLabel style={{ color: C.pass, marginBottom: 12 }}>Answer</KickerLabel>
+                <div className="jp" style={{ fontSize: 24, fontWeight: 700, color: C.ink, letterSpacing: "0.02em" }}>{q.jp} <SpeakBtn text={q.jp} size={16} /></div>
+                <div style={{ color: C.inkDim, fontSize: 16, marginTop: 5 }}>{q.en}</div>
+                {q.heb && <HebText style={{ color: C.muted, fontSize: 15, marginTop: 4 }}>{q.heb}</HebText>}
 
                 {q.conn && (
-                  <div style={{ fontSize: 12, marginTop: 10, color: C.muted, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                    <span style={{ ...KICKER, fontSize: 10 }}>接続</span> <span className="jp" style={{ fontSize: 13 }}><ColoredConn conn={q.conn} /></span>
+                  <div style={{ marginTop: 12, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+                    <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>接続</span>
+                    <span className="jp" style={{ fontSize: 15, fontWeight: 600 }}><ColoredConn conn={q.conn} /></span>
                   </div>
                 )}
 
                 {q.ex && (
-                  <div className="jp" style={{ fontSize: 14, marginTop: 12, color: C.inkDim, display: "flex", alignItems: "flex-start", gap: 8, flexWrap: "wrap", lineHeight: 1.6 }}>
-                    <span style={{ ...KICKER, fontSize: 10, marginTop: 2 }}>例</span>
-                    <span style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ marginTop: 16, display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap", lineHeight: 1.6 }}>
+                    <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>例</span>
+                    <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 18, color: C.ink, fontWeight: 600 }}>
                       {isFill && qCore ? q.ex.split(qCore).map((part, idx, arr) => (
                         <span key={idx}>{part}{idx < arr.length - 1 && <span style={{ background: C.passSoft, color: C.pass, padding: "1px 6px", borderRadius: 3, fontWeight: 700, border: `1px solid ${C.passLine}` }}>{qCore}</span>}</span>
                       )) : q.ex}
@@ -896,14 +914,14 @@ export default function App() {
                     <SpeakBtn text={q.ex} size={14} />
                   </div>
                 )}
-                {q.exHeb && <HebText style={{ fontSize: 13, color: C.muted, marginTop: 6 }}>{q.exHeb}</HebText>}
+                {q.exHeb && <HebText style={{ fontSize: 14, color: C.muted, marginTop: 6 }}>{q.exHeb}</HebText>}
 
                 {q.kanjiStory && (
-                  <div style={{ marginTop: 14, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "3px solid #7C3AED", borderRadius: 8, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
-                    <span style={{ fontSize: 18, lineHeight: 1.1 }}>🧠</span>
+                  <div style={{ marginTop: 16, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "3px solid #7C3AED", borderRadius: 10, padding: "14px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <span style={{ fontSize: 22, lineHeight: 1.1 }}>🧠</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ ...KICKER, color: C.kanji, marginBottom: 4, fontSize: 10 }}>Kanji Story</div>
-                      <div style={{ fontSize: 14, color: "#5B21B6", fontWeight: 500, lineHeight: 1.55 }}>{q.kanjiStory}</div>
+                      <div style={{ ...KICKER, color: C.kanji, marginBottom: 4, fontSize: 11 }}>Kanji Story</div>
+                      <div style={{ fontSize: 16, color: "#5B21B6", fontWeight: 500, lineHeight: 1.6 }}>{q.kanjiStory}</div>
                     </div>
                   </div>
                 )}
