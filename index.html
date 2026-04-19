@@ -23,14 +23,59 @@
       @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
       @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
       @keyframes countUp { from { opacity: 0; letter-spacing: 0.2em; } to { opacity: 1; letter-spacing: 0em; } }
+      @keyframes logoFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+      @keyframes logoGlow  { 0%, 100% { opacity: 0.25; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.12); } }
+      @keyframes sealStamp { 0% { transform: scale(1); } 30% { transform: scale(0.92) rotate(-2deg); } 60% { transform: scale(1.04) rotate(1.5deg); } 100% { transform: scale(1) rotate(0); } }
+      @keyframes ringDraw  { 0% { stroke-dashoffset: 380; opacity: 0; } 50% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 1; } }
+      @keyframes shimmer   { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+      @keyframes flameFlicker { 0%, 100% { transform: scale(1) rotate(-1deg); filter: brightness(1); } 50% { transform: scale(1.08) rotate(2deg); filter: brightness(1.25); } }
+      @keyframes staggerIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       .fade-in { animation: fadeIn 0.3s ease-out both; }
       .slide-up { animation: slideUp 0.35s ease-out both; }
       .pop-in { animation: popIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
       .count-up { animation: countUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-      .btn-hover { transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.1s ease; }
-      .btn-hover:active { transform: translateY(1px); }
-      .choice-hover { transition: background 0.15s ease, border-color 0.15s ease; }
-      .choice-hover:hover:not(:disabled) { background: #1A1A20; border-color: #3A3A44; }
+      .stagger > * { animation: staggerIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+      .stagger > *:nth-child(1)  { animation-delay: 30ms; }
+      .stagger > *:nth-child(2)  { animation-delay: 60ms; }
+      .stagger > *:nth-child(3)  { animation-delay: 90ms; }
+      .stagger > *:nth-child(4)  { animation-delay: 120ms; }
+      .stagger > *:nth-child(5)  { animation-delay: 150ms; }
+      .stagger > *:nth-child(6)  { animation-delay: 180ms; }
+      .stagger > *:nth-child(7)  { animation-delay: 210ms; }
+      .stagger > *:nth-child(8)  { animation-delay: 240ms; }
+      .stagger > *:nth-child(9)  { animation-delay: 270ms; }
+      .stagger > *:nth-child(10) { animation-delay: 300ms; }
+      .logo-wrap { position: relative; display: inline-block; cursor: pointer; transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); will-change: transform; }
+      .logo-wrap::before {
+        content: ""; position: absolute; inset: -18%; border-radius: 50%;
+        background: radial-gradient(circle, rgba(188,0,45,0.55) 0%, rgba(188,0,45,0.18) 40%, transparent 70%);
+        filter: blur(22px); z-index: -1; opacity: 0.35;
+        animation: logoGlow 4.5s ease-in-out infinite;
+        transform: translate(-50%, -50%); left: 50%; top: 50%;
+        width: 100%; height: 100%;
+      }
+      .logo-wrap:hover { transform: translateY(-2px) scale(1.025); }
+      .logo-wrap:active { animation: sealStamp 0.45s cubic-bezier(0.2, 0.8, 0.2, 1); }
+      .logo-img { animation: logoFloat 5s ease-in-out infinite; display: block; }
+      .logo-ring { position: absolute; inset: -4%; width: 108%; height: 108%; pointer-events: none; }
+      .logo-ring circle { fill: none; stroke: #BC002D; stroke-width: 1.5; stroke-dasharray: 380; stroke-dashoffset: 380; opacity: 0; transition: opacity 0.3s; }
+      .logo-wrap:hover .logo-ring circle { animation: ringDraw 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+      .progress-shine { position: relative; overflow: hidden; }
+      .progress-shine::after {
+        content: ""; position: absolute; inset: 0;
+        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+        background-size: 200% 100%; animation: shimmer 2.4s linear infinite; pointer-events: none;
+      }
+      .flame-flicker { display: inline-block; animation: flameFlicker 0.9s ease-in-out infinite; transform-origin: center bottom; }
+      .btn-hover { transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease; }
+      .btn-hover:hover:not(:disabled) { transform: translateY(-1px); }
+      .btn-hover:active:not(:disabled) { transform: translateY(1px); }
+      .choice-hover { transition: background 0.18s ease, border-color 0.18s ease, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1); }
+      .choice-hover:hover:not(:disabled) { background: #1A1A20; border-color: #3A3A44; transform: translateX(2px); }
+      .choice-hover:active:not(:disabled) { transform: translateX(2px) scale(0.995); }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+      }
       input[type="number"]::-webkit-inner-spin-button,
       input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       input[type="number"] { -moz-appearance: textfield; }

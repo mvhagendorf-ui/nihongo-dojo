@@ -261,7 +261,7 @@ function Leaderboard({ history }) {
         <KickerLabel>Most Mistaken</KickerLabel>
         <span style={{ ...KICKER, color: C.faint }}>{top.length} items</span>
       </div>
-      <div>
+      <div className="stagger">
         {top.map((w, i) => (
           <div key={i} style={{ display: "flex", gap: 12, padding: "12px 18px", borderBottom: i < top.length - 1 ? `1px solid ${C.border}` : "none" }}>
             <div className="num" style={{ fontSize: 13, color: C.faint, minWidth: 22, paddingTop: 2 }}>{(i + 1).toString().padStart(2, "0")}</div>
@@ -292,7 +292,7 @@ function HistoryChart({ history, onBarClick }) {
         <KickerLabel>Score History</KickerLabel>
         <span style={{ ...KICKER, color: C.faint }}>Last {recent.length} · Avg {avg}%</span>
       </div>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 96, padding: "16px 18px 14px" }}>
+      <div className="stagger" style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 96, padding: "16px 18px 14px" }}>
         {recent.map((s, i) => {
           const pct = Math.round((s.score / s.total) * 100);
           const passed = pct >= PASS_SCORE;
@@ -505,7 +505,10 @@ export default function App() {
       <div style={PAGE}>
         {/* HEADER */}
         <header style={{ textAlign: "center", marginBottom: wide ? 32 : 24, paddingTop: 4 }}>
-          <img src="/logo.png" alt="日本語道場" style={{ width: wide ? 280 : 220, display: "block", margin: "0 auto 10px", filter: "drop-shadow(0 2px 14px rgba(188,0,45,0.35))" }} />
+          <div className="logo-wrap" role="button" tabIndex={0} aria-label="日本語道場" style={{ width: wide ? 280 : 220, height: wide ? 280 : 220, margin: "0 auto 10px" }}>
+            <img className="logo-img" src="/logo.png" alt="日本語道場" style={{ width: "100%", height: "100%", filter: "drop-shadow(0 2px 14px rgba(188,0,45,0.35))" }} />
+            <svg className="logo-ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="58" /></svg>
+          </div>
           <div style={{ ...KICKER, color: C.faint, marginTop: 6 }}>
             N2 / N1 · {totalItems} items{history.length > 0 ? ` · ${history.length} tests · avg ${avg}%` : ""}
           </div>
@@ -712,7 +715,7 @@ export default function App() {
 
       {/* PROGRESS BAR */}
       <div style={{ height: 2, background: C.border, borderRadius: 1, marginBottom: 14, overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${progress}%`, background: C.accent, transition: "width 0.35s ease" }} />
+        <div className="progress-shine" style={{ height: "100%", width: `${progress}%`, background: C.accent, transition: "width 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)" }} />
       </div>
 
       {/* SCORE LINE */}
@@ -723,8 +726,8 @@ export default function App() {
           {total > 0 && <span style={{ marginLeft: 10, color: C.faint }}>{Math.round((score / total) * 100)}%</span>}
         </div>
         {streak > 2 && (
-          <div style={{ color: C.accent, fontSize: 12, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 5 }}>
-            <IconFlame size={13} /> <span className="num">{streak}</span>
+          <div className="pop-in" key={`streak-${streak}`} style={{ color: C.accent, fontSize: 12, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <span className="flame-flicker" style={{ lineHeight: 1 }}><IconFlame size={13} /></span> <span className="num">{streak}</span>
           </div>
         )}
       </div>
