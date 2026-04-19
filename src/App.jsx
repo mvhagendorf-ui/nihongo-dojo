@@ -255,6 +255,16 @@ function getMostMistaken(history) {
 function Leaderboard({ history }) {
   const top = getMostMistaken(history).slice(0, 10);
   if (top.length === 0) return null;
+  const maxCount = top[0].count;
+
+  // Tier sizing: rank 0 = hero, 1-2 = full, 3-5 = compact, 6+ = tight
+  const tierFor = (i) => {
+    if (i === 0) return { jp: 28, en: 15, meta: 13, pad: "18px 18px", showAll: true, bar: true,  emphasized: true };
+    if (i <= 2)   return { jp: 22, en: 14, meta: 12, pad: "14px 18px", showAll: true, bar: false, emphasized: false };
+    if (i <= 5)   return { jp: 17, en: 13, meta: 12, pad: "12px 18px", showAll: false, bar: false, emphasized: false };
+    return            { jp: 15, en: 12, meta: 11, pad: "10px 18px", showAll: false, bar: false, emphasized: false };
+  };
+
   return (
     <Card style={{ padding: 0 }} flush>
       <div style={{ padding: "14px 18px 12px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -262,20 +272,57 @@ function Leaderboard({ history }) {
         <span style={{ ...KICKER, color: C.faint }}>{top.length} items</span>
       </div>
       <div className="stagger">
-        {top.map((w, i) => (
-          <div key={i} style={{ display: "flex", gap: 12, padding: "12px 18px", borderBottom: i < top.length - 1 ? `1px solid ${C.border}` : "none" }}>
-            <div className="num" style={{ fontSize: 13, color: C.faint, minWidth: 22, paddingTop: 2 }}>{(i + 1).toString().padStart(2, "0")}</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
-                <span className="jp" style={{ fontSize: 16, fontWeight: 700, color: C.ink }}>{w.jp}</span>
-                <span className="num" style={{ fontSize: 11, color: C.accent }}>×{w.count}</span>
+        {top.map((w, i) => {
+          const t = tierFor(i);
+          const barPct = Math.round((w.count / maxCount) * 100);
+          return (
+            <div
+              key={i}
+              style={{
+                display: "flex", gap: 12, padding: t.pad,
+                borderBottom: i < top.length - 1 ? `1px solid ${C.border}` : "none",
+                borderLeft: t.emphasized ? `2px solid ${C.accent}` : "2px solid transparent",
+                background: t.emphasized ? "linear-gradient(90deg, rgba(188,0,45,0.06), transparent 70%)" : "transparent",
+                position: "relative",
+              }}
+            >
+              <div className="num" style={{ fontSize: t.jp >= 22 ? 14 : 12, color: t.emphasized ? C.accent : C.faint, minWidth: 24, paddingTop: 3, fontWeight: t.emphasized ? 600 : 400 }}>
+                {(i + 1).toString().padStart(2, "0")}
               </div>
-              <div style={{ fontSize: 13, color: C.inkDim, marginTop: 2 }}>{w.en}</div>
-              {w.heb && <HebText style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>{w.heb}</HebText>}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between" }}>
+                  <span className="jp" style={{ fontSize: t.jp, fontWeight: t.emphasized ? 800 : 700, color: C.ink, letterSpacing: "0.01em", lineHeight: 1.2 }}>{w.jp}</span>
+                  <span className="num" style={{ fontSize: t.emphasized ? 14 : 11, color: C.accent, fontWeight: t.emphasized ? 600 : 400, whiteSpace: "nowrap" }}>×{w.count}</span>
+                </div>
+                <div style={{ fontSize: t.en, color: C.inkDim, marginTop: 3, fontWeight: t.emphasized ? 500 : 400, lineHeight: 1.4 }}>{w.en}</div>
+                {t.showAll && w.heb && <HebText style={{ color: C.muted, fontSize: t.meta, marginTop: 3 }}>{w.heb}</HebText>}
+                {t.showAll && w.ex && (
+                  <div className="jp" style={{ fontSize: t.meta, marginTop: 8, color: C.inkDim, display: "flex", alignItems: "flex-start", gap: 6, lineHeight: 1.55 }}>
+                    <span style={{ ...KICKER, fontSize: 9, marginTop: 3, color: C.faint }}>例</span>
+                    <span style={{ flex: 1 }}>{w.ex}</span>
+                    <SpeakBtn text={w.ex} size={12} />
+                  </div>
+                )}
+                {t.showAll && w.exHeb && <HebText style={{ color: C.muted, fontSize: t.meta - 1, marginTop: 3 }}>{w.exHeb}</HebText>}
+                {t.showAll && w.kanjiStory && (
+                  <div style={{ marginTop: 8, background: "rgba(167,139,250,0.10)", border: "1px solid rgba(167,139,250,0.32)", borderLeft: "2px solid #A78BFA", padding: "7px 10px", borderRadius: 6, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                    <span style={{ fontSize: 13, lineHeight: 1.2 }}>🧠</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ ...KICKER, color: C.kanji, fontSize: 9, marginBottom: 2 }}>Kanji Story</div>
+                      <div style={{ fontSize: t.meta, color: "#D4C3FB", fontWeight: 500, lineHeight: 1.5 }}>{w.kanjiStory}</div>
+                    </div>
+                  </div>
+                )}
+                {t.bar && (
+                  <div style={{ marginTop: 10, height: 3, background: C.border, borderRadius: 2, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${barPct}%`, background: `linear-gradient(90deg, ${C.accent}, ${C.accentHi})`, transition: "width 0.5s ease" }} />
+                  </div>
+                )}
+              </div>
+              <SpeakBtn text={w.jp} size={t.emphasized ? 16 : 14} />
             </div>
-            <SpeakBtn text={w.jp} size={14} />
-          </div>
-        ))}
+          );
+        })}
       </div>
     </Card>
   );
@@ -505,8 +552,8 @@ export default function App() {
       <div style={PAGE}>
         {/* HEADER */}
         <header style={{ textAlign: "center", marginBottom: wide ? 32 : 24, paddingTop: 4 }}>
-          <div className="logo-wrap" role="button" tabIndex={0} aria-label="日本語道場" style={{ width: wide ? 280 : 220, height: wide ? 280 : 220, margin: "0 auto 10px" }}>
-            <img className="logo-img" src="/logo.png" alt="日本語道場" style={{ width: "100%", height: "100%", filter: "drop-shadow(0 2px 14px rgba(188,0,45,0.35))" }} />
+          <div className="logo-wrap" role="button" tabIndex={0} aria-label="日本語道場" style={{ width: wide ? 240 : 200, height: wide ? 240 : 200, margin: "0 auto 10px" }}>
+            <img className="logo-img" src="/logo-mono.svg" alt="日本語道場" style={{ width: "100%", height: "100%", filter: "drop-shadow(0 2px 14px rgba(188,0,45,0.45))" }} />
             <svg className="logo-ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="58" /></svg>
           </div>
           <div style={{ ...KICKER, color: C.faint, marginTop: 6 }}>

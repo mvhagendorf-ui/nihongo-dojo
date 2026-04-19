@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none" role="img" aria-label="日本語道場">
+  <!-- Coin frame: double ring, thin -->
+  <circle cx="120" cy="120" r="115" stroke="#F2F2F4" stroke-opacity="0.85" stroke-width="1.5"/>
+  <circle cx="120" cy="120" r="108" stroke="#F2F2F4" stroke-opacity="0.35" stroke-width="0.8"/>
+
+  <!-- Rising Sun -->
+  <circle cx="120" cy="88" r="22" fill="#BC002D"/>
+
+  <!-- Torii silhouette: kasagi (curved top beam) -->
+  <path d="M 58 126
+           C 70 118, 170 118, 182 126
+           L 182 134
+           C 170 128, 70 128, 58 134 Z"
+        fill="#F2F2F4"/>
+
+  <!-- Shimaki (second beam, flat) -->
+  <rect x="66" y="138" width="108" height="5" fill="#F2F2F4"/>
+
+  <!-- Left post -->
+  <path d="M 82 148 L 79 202 L 69 202 L 74 148 Z" fill="#F2F2F4"/>
+
+  <!-- Right post -->
+  <path d="M 158 148 L 161 202 L 171 202 L 166 148 Z" fill="#F2F2F4"/>
+
+  <!-- Nuki (horizontal tie bar through posts) -->
+  <rect x="72" y="166" width="96" height="4" fill="#F2F2F4"/>
+
+  <!-- 道 character inside the gate (small, centered, Rising Sun red) -->
+  <text x="120" y="192" text-anchor="middle"
+        font-family="'Noto Serif JP', serif"
+        font-weight="700" font-size="18"
+        fill="#BC002D">道</text>
+
+  <!-- Wordmark curved around bottom of the coin -->
+  <defs>
+    <path id="arc" d="M 40 130 A 80 80 0 0 0 200 130" />
+  </defs>
+  <text font-family="'Inter', sans-serif" font-size="8.5" letter-spacing="3.2"
+        fill="#F2F2F4" fill-opacity="0.75" font-weight="500">
+    <textPath href="#arc" startOffset="50%" text-anchor="middle">RON'S · NIHONGO · DOJO</textPath>
+  </text>
+</svg>
