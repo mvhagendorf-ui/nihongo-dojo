@@ -5,25 +5,25 @@ import { loadHistory, saveSession, updateSRS, getSRSWeights } from "./storage";
 
 // ─────────── DESIGN TOKENS ───────────
 const C = {
-  bg: "#0B0B0D",
-  surface: "#121216",
-  elevated: "#1A1A20",
-  mutedBg: "#18181E",
-  border: "#26262D",
-  borderStrong: "#3A3A44",
-  ink: "#F2F2F4",
-  inkDim: "#C9C9CF",
-  muted: "#8A8A93",
-  faint: "#5A5A63",
+  bg: "#FAF7F3",
+  surface: "#FFFFFF",
+  elevated: "#F5F2EC",
+  mutedBg: "#F2EEE7",
+  border: "#E4DFD4",
+  borderStrong: "#CFC9BC",
+  ink: "#141414",
+  inkDim: "#3F3F3F",
+  muted: "#7A7468",
+  faint: "#A8A294",
   accent: "#BC002D",
   accentHi: "#D91840",
-  accentSoft: "rgba(188,0,45,0.10)",
-  accentLine: "rgba(188,0,45,0.32)",
-  pass: "#3FB770",
-  passSoft: "rgba(63,183,112,0.10)",
-  passLine: "rgba(63,183,112,0.32)",
+  accentSoft: "rgba(188,0,45,0.08)",
+  accentLine: "rgba(188,0,45,0.28)",
+  pass: "#0F8F47",
+  passSoft: "rgba(15,143,71,0.08)",
+  passLine: "rgba(15,143,71,0.28)",
   fail: "#BC002D",
-  kanji: "#A78BFA",
+  kanji: "#7C3AED",
 };
 
 const FONT_LATIN = "'Inter', system-ui, sans-serif";
@@ -174,15 +174,15 @@ function HebText({ children, style }) {
 
 // Connection-rule color coding — vivid pills tuned for dark theme
 const CONN_COLORS = [
-  { pattern: /V[るない可能意向条件]|Vた形|Vます形|Vて形|Vた\+|V辞書形|V普通形|V(?=[てもたる＋])/g, color: "#60A5FA", bg: "rgba(96,165,250,0.14)" },   // Verb → blue
-  { pattern: /N(?![0-9a-zA-Z])/g,                                                                     color: "#34D399", bg: "rgba(52,211,153,0.14)" },   // Noun → green
-  { pattern: /い形[容詞a-z]*/g,                                                                       color: "#FB923C", bg: "rgba(251,146,60,0.14)" },   // i-adj → orange
-  { pattern: /な形[容詞a-z]*/g,                                                                       color: "#E879F9", bg: "rgba(232,121,249,0.14)" },  // na-adj → pink
-  { pattern: /普通形[（(][^)）]*[)）]?/g,                                                              color: "#22D3EE", bg: "rgba(34,211,238,0.14)" },   // plain → teal
-  { pattern: /普通形/g,                                                                              color: "#22D3EE", bg: "rgba(34,211,238,0.14)" },   // plain → teal
-  { pattern: /尊敬語|謙譲語/g,                                                                        color: "#A78BFA", bg: "rgba(167,139,250,0.14)" },  // honorific → purple
-  { pattern: /助数詞/g,                                                                              color: "#FBBF24", bg: "rgba(251,191,36,0.14)" },   // counter → amber
-  { pattern: /疑問詞/g,                                                                              color: "#22D3EE", bg: "rgba(34,211,238,0.14)" },   // question word → teal
+  { pattern: /V[るない可能意向条件]|Vた形|Vます形|Vて形|Vた\+|V辞書形|V普通形|V(?=[てもたる＋])/g, color: "#2563EB", bg: "rgba(37,99,235,0.10)" },   // Verb → blue
+  { pattern: /N(?![0-9a-zA-Z])/g,                                                                     color: "#16A34A", bg: "rgba(22,163,74,0.10)" },   // Noun → green
+  { pattern: /い形[容詞a-z]*/g,                                                                       color: "#EA580C", bg: "rgba(234,88,12,0.10)" },   // i-adj → orange
+  { pattern: /な形[容詞a-z]*/g,                                                                       color: "#C026D3", bg: "rgba(192,38,211,0.10)" },  // na-adj → pink
+  { pattern: /普通形[（(][^)）]*[)）]?/g,                                                              color: "#0891B2", bg: "rgba(8,145,178,0.10)" },   // plain → teal
+  { pattern: /普通形/g,                                                                              color: "#0891B2", bg: "rgba(8,145,178,0.10)" },   // plain → teal
+  { pattern: /尊敬語|謙譲語/g,                                                                        color: "#7C3AED", bg: "rgba(124,58,237,0.10)" },  // honorific → purple
+  { pattern: /助数詞/g,                                                                              color: "#B45309", bg: "rgba(180,83,9,0.10)" },    // counter → amber
+  { pattern: /疑問詞/g,                                                                              color: "#0891B2", bg: "rgba(8,145,178,0.10)" },   // question word → teal
 ];
 function ColoredConn({ conn }) {
   if (!conn) return null;
@@ -305,11 +305,11 @@ function Leaderboard({ history }) {
                 )}
                 {t.showAll && w.exHeb && <HebText style={{ color: C.muted, fontSize: t.meta - 1, marginTop: 3 }}>{w.exHeb}</HebText>}
                 {t.showAll && w.kanjiStory && (
-                  <div style={{ marginTop: 8, background: "rgba(167,139,250,0.10)", border: "1px solid rgba(167,139,250,0.32)", borderLeft: "2px solid #A78BFA", padding: "7px 10px", borderRadius: 6, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <div style={{ marginTop: 8, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "2px solid #7C3AED", padding: "7px 10px", borderRadius: 6, display: "flex", gap: 8, alignItems: "flex-start" }}>
                     <span style={{ fontSize: 13, lineHeight: 1.2 }}>🧠</span>
                     <div style={{ flex: 1 }}>
                       <div style={{ ...KICKER, color: C.kanji, fontSize: 9, marginBottom: 2 }}>Kanji Story</div>
-                      <div style={{ fontSize: t.meta, color: "#D4C3FB", fontWeight: 500, lineHeight: 1.5 }}>{w.kanjiStory}</div>
+                      <div style={{ fontSize: t.meta, color: "#5B21B6", fontWeight: 500, lineHeight: 1.5 }}>{w.kanjiStory}</div>
                     </div>
                   </div>
                 )}
@@ -364,7 +364,7 @@ function HistoryModal({ session, onClose }) {
   const passed = pct >= PASS_SCORE;
   const d = new Date(session.date);
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,20,20,0.45)", backdropFilter: "blur(6px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <div onClick={e => e.stopPropagation()} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, maxWidth: 520, width: "100%", maxHeight: "80vh", overflowY: "auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "20px 22px", borderBottom: `1px solid ${C.border}`, position: "sticky", top: 0, background: C.surface }}>
           <div>
@@ -408,11 +408,11 @@ function WrongItem({ w, isLast }) {
       )}
       {w.exHeb && <HebText style={{ color: C.muted, fontSize: 12, marginTop: 4 }}>{w.exHeb}</HebText>}
       {w.kanjiStory && (
-        <div style={{ marginTop: 10, background: "rgba(167,139,250,0.10)", border: "1px solid rgba(167,139,250,0.32)", borderLeft: "2px solid #A78BFA", padding: "8px 12px", borderRadius: 8, display: "flex", gap: 8, alignItems: "flex-start" }}>
+        <div style={{ marginTop: 10, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "2px solid #7C3AED", padding: "8px 12px", borderRadius: 8, display: "flex", gap: 8, alignItems: "flex-start" }}>
           <span style={{ fontSize: 14, lineHeight: 1.2 }}>🧠</span>
           <div style={{ flex: 1 }}>
             <div style={{ ...KICKER, color: C.kanji, fontSize: 9, marginBottom: 2 }}>Kanji Story</div>
-            <div style={{ fontSize: 13, color: "#D4C3FB", fontWeight: 500, lineHeight: 1.5 }}>{w.kanjiStory}</div>
+            <div style={{ fontSize: 13, color: "#5B21B6", fontWeight: 500, lineHeight: 1.5 }}>{w.kanjiStory}</div>
           </div>
         </div>
       )}
@@ -552,8 +552,8 @@ export default function App() {
       <div style={PAGE}>
         {/* HEADER */}
         <header style={{ textAlign: "center", marginBottom: wide ? 32 : 24, paddingTop: 4 }}>
-          <div className="logo-wrap" role="button" tabIndex={0} aria-label="日本語道場" style={{ width: wide ? 240 : 200, height: wide ? 240 : 200, margin: "0 auto 10px" }}>
-            <img className="logo-img" src="/logo-mono.svg" alt="日本語道場" style={{ width: "100%", height: "100%", filter: "drop-shadow(0 2px 14px rgba(188,0,45,0.45))" }} />
+          <div className="logo-wrap" role="button" tabIndex={0} aria-label="日本語道場" style={{ width: wide ? 280 : 220, height: wide ? 280 : 220, margin: "0 auto 10px" }}>
+            <img className="logo-img" src="/logo.png" alt="日本語道場" style={{ width: "100%", height: "100%", filter: "drop-shadow(0 4px 20px rgba(188,0,45,0.22))" }} />
             <svg className="logo-ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="58" /></svg>
           </div>
           <div style={{ ...KICKER, color: C.faint, marginTop: 6 }}>
@@ -899,11 +899,11 @@ export default function App() {
                 {q.exHeb && <HebText style={{ fontSize: 13, color: C.muted, marginTop: 6 }}>{q.exHeb}</HebText>}
 
                 {q.kanjiStory && (
-                  <div style={{ marginTop: 14, background: "rgba(167,139,250,0.10)", border: "1px solid rgba(167,139,250,0.32)", borderLeft: "3px solid #A78BFA", borderRadius: 8, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                  <div style={{ marginTop: 14, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "3px solid #7C3AED", borderRadius: 8, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
                     <span style={{ fontSize: 18, lineHeight: 1.1 }}>🧠</span>
                     <div style={{ flex: 1 }}>
                       <div style={{ ...KICKER, color: C.kanji, marginBottom: 4, fontSize: 10 }}>Kanji Story</div>
-                      <div style={{ fontSize: 14, color: "#D4C3FB", fontWeight: 500, lineHeight: 1.55 }}>{q.kanjiStory}</div>
+                      <div style={{ fontSize: 14, color: "#5B21B6", fontWeight: 500, lineHeight: 1.55 }}>{q.kanjiStory}</div>
                     </div>
                   </div>
                 )}

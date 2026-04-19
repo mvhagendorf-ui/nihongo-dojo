@@ -2,29 +2,29 @@
 
 :root {
   /* SURFACES */
-  --bg: #0B0B0D;
-  --surface: #121216;
-  --elevated: #1A1A20;
-  --muted-bg: #18181E;
-  --border: #26262D;
-  --border-strong: #3A3A44;
+  --bg: #FAF7F3;
+  --surface: #FFFFFF;
+  --elevated: #F5F2EC;
+  --muted-bg: #F2EEE7;
+  --border: #E4DFD4;
+  --border-strong: #CFC9BC;
 
   /* TEXT */
-  --ink: #F2F2F4;
-  --ink-dim: #C9C9CF;
-  --muted: #8A8A93;
-  --faint: #5A5A63;
+  --ink: #141414;
+  --ink-dim: #3F3F3F;
+  --muted: #7A7468;
+  --faint: #A8A294;
 
   /* SIGNAL */
   --accent: #BC002D;
   --accent-hi: #D91840;
-  --accent-soft: rgba(188, 0, 45, 0.10);
-  --accent-line: rgba(188, 0, 45, 0.30);
-  --pass: #3FB770;
-  --pass-soft: rgba(63, 183, 112, 0.10);
-  --pass-line: rgba(63, 183, 112, 0.30);
+  --accent-soft: rgba(188, 0, 45, 0.08);
+  --accent-line: rgba(188, 0, 45, 0.28);
+  --pass: #0F8F47;
+  --pass-soft: rgba(15, 143, 71, 0.08);
+  --pass-line: rgba(15, 143, 71, 0.28);
   --fail: #BC002D;
-  --kanji: #A78BFA;
+  --kanji: #7C3AED;
 
   /* TYPE */
   --font-latin: 'Inter', system-ui, sans-serif;
@@ -55,6 +55,6 @@ button { font-family: inherit; color: inherit; }
 
 .jp { font-family: var(--font-jp); }
 .jp-display { font-family: var(--font-jp-display); letter-spacing: 0.05em; }
-.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 300; }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 400; }
 .heb { font-family: var(--font-heb); direction: rtl; text-align: right; unicode-bidi: plaintext; }
 .kicker { font-family: var(--font-latin); font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; font-size: 11px; color: var(--muted); }

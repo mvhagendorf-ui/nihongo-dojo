@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0B0B0D" />
+    <meta name="theme-color" content="#FAF7F3" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
@@ -15,7 +15,16 @@
     <title>日本語道場</title>
     <style>
       * { box-sizing: border-box; }
-      html, body { margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; min-height: 100vh; min-height: 100dvh; background: #0B0B0D; color: #F2F2F4; }
+      html, body {
+        margin: 0; padding: 0; -webkit-tap-highlight-color: transparent;
+        min-height: 100vh; min-height: 100dvh;
+        background:
+          radial-gradient(circle at 12% 8%, rgba(188,0,45,0.055) 0%, transparent 42%),
+          radial-gradient(circle at 88% 92%, rgba(124,58,237,0.045) 0%, transparent 48%),
+          linear-gradient(160deg, #FBF5EE 0%, #FAF7F3 45%, #F5F0E6 100%);
+        background-attachment: fixed;
+        color: #141414;
+      }
       body { font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif; overscroll-behavior: none; }
       @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
       @keyframes slideUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
@@ -71,7 +80,7 @@
       .btn-hover:hover:not(:disabled) { transform: translateY(-1px); }
       .btn-hover:active:not(:disabled) { transform: translateY(1px); }
       .choice-hover { transition: background 0.18s ease, border-color 0.18s ease, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1); }
-      .choice-hover:hover:not(:disabled) { background: #1A1A20; border-color: #3A3A44; transform: translateX(2px); }
+      .choice-hover:hover:not(:disabled) { background: #F5F2EC; border-color: #CFC9BC; transform: translateX(2px); }
       .choice-hover:active:not(:disabled) { transform: translateX(2px) scale(0.995); }
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
@@ -79,15 +88,15 @@
       input[type="number"]::-webkit-inner-spin-button,
       input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       input[type="number"] { -moz-appearance: textfield; }
-      input[type="range"] { -webkit-appearance: none; appearance: none; height: 2px; background: #26262D; border-radius: 1px; outline: none; }
-      input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; background: #BC002D; border-radius: 50%; cursor: pointer; border: 2px solid #0B0B0D; }
-      input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; background: #BC002D; border-radius: 50%; cursor: pointer; border: 2px solid #0B0B0D; }
+      input[type="range"] { -webkit-appearance: none; appearance: none; height: 2px; background: #E4DFD4; border-radius: 1px; outline: none; }
+      input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; background: #BC002D; border-radius: 50%; cursor: pointer; border: 2px solid #FAF7F3; box-shadow: 0 1px 4px rgba(188,0,45,0.35); }
+      input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; background: #BC002D; border-radius: 50%; cursor: pointer; border: 2px solid #FAF7F3; box-shadow: 0 1px 4px rgba(188,0,45,0.35); }
       ::-webkit-scrollbar { width: 4px; height: 4px; }
       ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: #26262D; border-radius: 2px; }
-      ::-webkit-scrollbar-thumb:hover { background: #3A3A44; }
-      ::selection { background: rgba(188, 0, 45, 0.35); color: #F2F2F4; }
-      kbd { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #18181E; border: 1px solid #26262D; color: #C9C9CF; padding: 2px 6px; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb { background: #CFC9BC; border-radius: 2px; }
+      ::-webkit-scrollbar-thumb:hover { background: #A8A294; }
+      ::selection { background: rgba(188, 0, 45, 0.22); color: #141414; }
+      kbd { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #F2EEE7; border: 1px solid #E4DFD4; color: #3F3F3F; padding: 2px 6px; border-radius: 4px; }
     </style>
   </head>
   <body>
