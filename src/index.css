@@ -1,5 +1,39 @@
 @import "tailwindcss";
 
+:root {
+  /* SURFACES */
+  --bg: #0B0B0D;
+  --surface: #121216;
+  --elevated: #1A1A20;
+  --muted-bg: #18181E;
+  --border: #26262D;
+  --border-strong: #3A3A44;
+
+  /* TEXT */
+  --ink: #F2F2F4;
+  --ink-dim: #C9C9CF;
+  --muted: #8A8A93;
+  --faint: #5A5A63;
+
+  /* SIGNAL */
+  --accent: #BC002D;
+  --accent-hi: #D91840;
+  --accent-soft: rgba(188, 0, 45, 0.10);
+  --accent-line: rgba(188, 0, 45, 0.30);
+  --pass: #3FB770;
+  --pass-soft: rgba(63, 183, 112, 0.10);
+  --pass-line: rgba(63, 183, 112, 0.30);
+  --fail: #BC002D;
+  --kanji: #A78BFA;
+
+  /* TYPE */
+  --font-latin: 'Inter', system-ui, sans-serif;
+  --font-jp-display: 'Noto Serif JP', 'Noto Sans JP', serif;
+  --font-jp: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+  --font-heb: 'Noto Sans Hebrew', 'Noto Sans JP', sans-serif;
+  --font-num: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -8,25 +42,19 @@
 }
 
 body {
-  font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
-  background: #f5f5f7;
-  color: #1a1a1a;
+  font-family: var(--font-latin);
+  background: var(--bg);
+  color: var(--ink);
   min-height: 100vh;
   min-height: 100dvh;
   overscroll-behavior: none;
+  font-feature-settings: "ss01", "cv11";
 }
 
-button {
-  font-family: inherit;
-}
+button { font-family: inherit; color: inherit; }
 
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 2px;
-}
+.jp { font-family: var(--font-jp); }
+.jp-display { font-family: var(--font-jp-display); letter-spacing: 0.05em; }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 300; }
+.heb { font-family: var(--font-heb); direction: rtl; text-align: right; unicode-bidi: plaintext; }
+.kicker { font-family: var(--font-latin); font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; font-size: 11px; color: var(--muted); }

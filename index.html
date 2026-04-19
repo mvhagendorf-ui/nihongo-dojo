@@ -3,43 +3,46 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="theme-color" content="#0B0B0D" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@400;500;600;700;900&family=Noto+Sans+JP:wght@400;500;600;700;800;900&family=Noto+Sans+Hebrew:wght@400;500;600&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <title>日本語道場</title>
     <style>
       * { box-sizing: border-box; }
-      body { margin: 0; -webkit-tap-highlight-color: transparent; min-height: 100vh;
-        background:
-          radial-gradient(circle at 15% 10%, rgba(188,0,45,0.08) 0%, transparent 40%),
-          radial-gradient(circle at 85% 90%, rgba(139,92,246,0.06) 0%, transparent 45%),
-          linear-gradient(160deg, #f8f0f2 0%, #f5f5f9 40%, #eef0f5 100%);
-        background-attachment: fixed;
-      }
-      @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-      @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-      @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-      @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+      html, body { margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; min-height: 100vh; min-height: 100dvh; background: #0B0B0D; color: #F2F2F4; }
+      body { font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif; overscroll-behavior: none; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes slideUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes popIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
       @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
-      @keyframes confetti { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(-200px) rotate(720deg); } }
-      @keyframes logoGlow { 0%, 100% { box-shadow: 0 4px 30px rgba(188,0,45,0.08); } 50% { box-shadow: 0 6px 40px rgba(188,0,45,0.15); } }
-      @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-      .fade-in { animation: fadeIn 0.35s ease-out both; }
-      .slide-up { animation: slideUp 0.4s ease-out both; }
-      .pop-in { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-      .logo-float { animation: logoGlow 4s ease-in-out infinite; border-radius: 50%; display: inline-block; }
-      .btn-hover { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-      .btn-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important; }
-      .btn-hover:active { transform: translateY(0); transition: all 0.1s; }
-      input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+      @keyframes countUp { from { opacity: 0; letter-spacing: 0.2em; } to { opacity: 1; letter-spacing: 0em; } }
+      .fade-in { animation: fadeIn 0.3s ease-out both; }
+      .slide-up { animation: slideUp 0.35s ease-out both; }
+      .pop-in { animation: popIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+      .count-up { animation: countUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+      .btn-hover { transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.1s ease; }
+      .btn-hover:active { transform: translateY(1px); }
+      .choice-hover { transition: background 0.15s ease, border-color 0.15s ease; }
+      .choice-hover:hover:not(:disabled) { background: #1A1A20; border-color: #3A3A44; }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       input[type="number"] { -moz-appearance: textfield; }
-      input[type="range"] { height: 6px; border-radius: 3px; }
-      ::-webkit-scrollbar { width: 4px; }
-      ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+      input[type="range"] { -webkit-appearance: none; appearance: none; height: 2px; background: #26262D; border-radius: 1px; outline: none; }
+      input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; background: #BC002D; border-radius: 50%; cursor: pointer; border: 2px solid #0B0B0D; }
+      input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; background: #BC002D; border-radius: 50%; cursor: pointer; border: 2px solid #0B0B0D; }
+      ::-webkit-scrollbar { width: 4px; height: 4px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #26262D; border-radius: 2px; }
+      ::-webkit-scrollbar-thumb:hover { background: #3A3A44; }
+      ::selection { background: rgba(188, 0, 45, 0.35); color: #F2F2F4; }
+      kbd { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #18181E; border: 1px solid #26262D; color: #C9C9CF; padding: 2px 6px; border-radius: 4px; }
     </style>
   </head>
   <body>

@@ -3,24 +3,67 @@ import { CATEGORIES, CATEGORY_GROUPS, SIM_GROUPS, ALL_DATA, PASS_SCORE, QUESTION
 import { playSound } from "./audio";
 import { loadHistory, saveSession, updateSRS, getSRSWeights } from "./storage";
 
-const RED = "#BC002D";
-const RED_LIGHT = "rgba(188,0,45,0.08)";
-const GREEN = "#16a34a";
-const GREEN_LIGHT = "rgba(22,163,74,0.08)";
+// ─────────── DESIGN TOKENS ───────────
+const C = {
+  bg: "#0B0B0D",
+  surface: "#121216",
+  elevated: "#1A1A20",
+  mutedBg: "#18181E",
+  border: "#26262D",
+  borderStrong: "#3A3A44",
+  ink: "#F2F2F4",
+  inkDim: "#C9C9CF",
+  muted: "#8A8A93",
+  faint: "#5A5A63",
+  accent: "#BC002D",
+  accentHi: "#D91840",
+  accentSoft: "rgba(188,0,45,0.10)",
+  accentLine: "rgba(188,0,45,0.32)",
+  pass: "#3FB770",
+  passSoft: "rgba(63,183,112,0.10)",
+  passLine: "rgba(63,183,112,0.32)",
+  fail: "#BC002D",
+  kanji: "#A78BFA",
+};
 
+const FONT_LATIN = "'Inter', system-ui, sans-serif";
+const FONT_JP = "'Noto Sans JP', 'Hiragino Sans', sans-serif";
+const FONT_JP_DISPLAY = "'Noto Serif JP', 'Noto Sans JP', serif";
+const FONT_NUM = "'JetBrains Mono', 'SF Mono', Menlo, monospace";
+
+const KICKER = { fontFamily: FONT_LATIN, fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase", fontSize: 11, color: C.muted };
+
+// ─────────── ICONS (2px stroke) ───────────
+const Icon = ({ d, size = 16, stroke = "currentColor", fill = "none", style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, ...style }}>
+    {typeof d === "string" ? <path d={d} /> : d}
+  </svg>
+);
+const IconVolume  = (p) => <Icon {...p} d={<><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" /></>} />;
+const IconClock   = (p) => <Icon {...p} d={<><circle cx="12" cy="12" r="9" /><polyline points="12 7 12 12 15 14" /></>} />;
+const IconFlame   = (p) => <Icon {...p} d="M12 2s4 4 4 8a4 4 0 0 1-8 0c0-1.5 1-3 1-3s-3 1-3 5a6 6 0 0 0 12 0c0-5-6-10-6-10z" />;
+const IconCheck   = (p) => <Icon {...p} d="M20 6 9 17l-5-5" />;
+const IconX       = (p) => <Icon {...p} d={<><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>} />;
+const IconBook    = (p) => <Icon {...p} d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14zM4 19.5V21h14" />;
+const IconChart   = (p) => <Icon {...p} d={<><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="3" y1="20" x2="21" y2="20"/></>} />;
+const IconTrophy  = (p) => <Icon {...p} d={<><path d="M6 4h12v4a6 6 0 0 1-12 0V4z"/><path d="M4 4h2v3a2 2 0 0 1-2-2V4z"/><path d="M20 4h-2v3a2 2 0 0 0 2-2V4z"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="14" x2="12" y2="20"/></>} />;
+const IconChevDn  = (p) => <Icon {...p} d="M6 9l6 6 6-6" />;
+const IconChevRt  = (p) => <Icon {...p} d="M9 6l6 6-6 6" />;
+const IconArrowL  = (p) => <Icon {...p} d={<><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></>} />;
+const IconPencil  = (p) => <Icon {...p} d={<><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></>} />;
+const IconBrain   = (p) => <Icon {...p} d="M9 4a3 3 0 0 1 3 3v10a3 3 0 0 1-6 0 3 3 0 0 1-2-3 3 3 0 0 1 1-5 3 3 0 0 1 4-5zM15 4a3 3 0 0 0-3 3v10a3 3 0 0 0 6 0 3 3 0 0 0 2-3 3 3 0 0 0-1-5 3 3 0 0 0-4-5z" />;
+
+// ─────────── HOOKS & HELPERS ───────────
 function useIsWide() {
-  const [wide, setWide] = useState(() => typeof window !== "undefined" && window.innerWidth >= 768);
+  const [wide, setWide] = useState(() => typeof window !== "undefined" && window.innerWidth >= 880);
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
+    const mq = window.matchMedia("(min-width: 880px)");
     const handler = (e) => setWide(e.matches);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
   return wide;
 }
-
-const PAGE_BASE = { minHeight: "100dvh", color: "#1a1a1a", fontFamily: "'Noto Sans JP', 'Hiragino Sans', sans-serif" };
-const CARD = { background: "rgba(255,255,255,0.75)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderRadius: 22, padding: 20, marginBottom: 14, border: "1px solid rgba(255,255,255,0.6)", boxShadow: "0 4px 24px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02)" };
 
 function shuffle(arr) {
   const a = [...arr];
@@ -49,29 +92,21 @@ function weightedShuffle(items, count) {
   return picked;
 }
 
-// Extract the core JP expression(s) by stripping ～ and （furigana）
 function extractCores(jp) {
   const cleaned = jp.replace(/^～/, "").replace(/[（(][^)）]*[)）]/g, "").trim();
   return cleaned.split("/").map(s => s.trim()).filter(Boolean);
 }
-
-// Find the longest core that appears in ex
 function findCoreInEx(ex, cores) {
   if (!ex) return null;
   const sorted = [...cores].sort((a, b) => b.length - a.length);
   for (const core of sorted) if (core.length >= 2 && ex.includes(core)) return core;
   return null;
 }
-
 function canFillBlank(q) {
   if (!q.ex) return false;
   return findCoreInEx(q.ex, extractCores(q.jp)) !== null;
 }
-
-function blankExample(ex, core) {
-  return ex.replace(core, "＿＿＿");
-}
-
+function blankExample(ex, core) { return ex.replace(core, "＿＿＿"); }
 function pickQuestionType(q) {
   if (canFillBlank(q) && Math.random() < 0.4) return "fillBlank";
   return "meaning";
@@ -103,62 +138,68 @@ function generateChoices(q, pool) {
   return shuffle([q, ...candidates.slice(0, 3)]);
 }
 
-function formatTime(s) {
-  return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
-}
+function formatTime(s) { return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`; }
 
+// TTS
 let jaVoice = null;
 function initVoices() {
   const voices = speechSynthesis.getVoices();
   const ja = voices.filter(v => v.lang.startsWith("ja"));
-  jaVoice = ja.find(v => /google|premium|enhanced/i.test(v.name))
-    || ja.find(v => !v.localService)
-    || ja[0] || null;
+  jaVoice = ja.find(v => /google|premium|enhanced/i.test(v.name)) || ja.find(v => !v.localService) || ja[0] || null;
 }
 if (typeof window !== "undefined" && "speechSynthesis" in window) {
   initVoices();
   speechSynthesis.addEventListener("voiceschanged", initVoices);
 }
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "ja-JP"; u.rate = 0.85; u.pitch = 1.05;
+  if (jaVoice) u.voice = jaVoice;
+  speechSynthesis.speak(u);
+}
 
+function SpeakBtn({ text, size = 14 }) {
+  return (
+    <button onClick={(e) => { e.stopPropagation(); speak(text); }} aria-label="Play audio" style={{ background: "transparent", border: "none", cursor: "pointer", padding: 4, color: C.muted, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 6, verticalAlign: "middle" }} className="btn-hover" onMouseEnter={e => e.currentTarget.style.color = C.ink} onMouseLeave={e => e.currentTarget.style.color = C.muted}>
+      <IconVolume size={size} />
+    </button>
+  );
+}
+
+function HebText({ children, style }) {
+  return <div className="heb" style={style}>{children}</div>;
+}
+
+// Connection-rule color coding — vivid pills tuned for dark theme
 const CONN_COLORS = [
-  { pattern: /V[るない可能意向条件]|Vた形|Vます形|Vて形|Vた\+|V辞書形|V普通形|V(?=[てもたる＋])/g, color: "#2563eb", bg: "rgba(37,99,235,0.1)" },  // Verb → blue
-  { pattern: /N(?![0-9a-zA-Z])/g, color: "#16a34a", bg: "rgba(22,163,74,0.1)" },  // Noun → green
-  { pattern: /い形[容詞a-z]*/g, color: "#ea580c", bg: "rgba(234,88,12,0.1)" },  // i-adj → orange
-  { pattern: /な形[容詞a-z]*/g, color: "#d946ef", bg: "rgba(217,70,239,0.1)" },  // na-adj → pink
-  { pattern: /普通形[（(][^)）]*[)）]?/g, color: "#0891b2", bg: "rgba(8,145,178,0.1)" },  // plain form → teal
-  { pattern: /普通形/g, color: "#0891b2", bg: "rgba(8,145,178,0.1)" },  // plain form → teal
-  { pattern: /尊敬語|謙譲語/g, color: "#7c3aed", bg: "rgba(124,58,237,0.1)" },  // honorific → purple
-  { pattern: /助数詞/g, color: "#b45309", bg: "rgba(180,83,9,0.1)" },  // counter → amber
-  { pattern: /疑問詞/g, color: "#0d9488", bg: "rgba(13,148,136,0.1)" },  // question word → teal
+  { pattern: /V[るない可能意向条件]|Vた形|Vます形|Vて形|Vた\+|V辞書形|V普通形|V(?=[てもたる＋])/g, color: "#60A5FA", bg: "rgba(96,165,250,0.14)" },   // Verb → blue
+  { pattern: /N(?![0-9a-zA-Z])/g,                                                                     color: "#34D399", bg: "rgba(52,211,153,0.14)" },   // Noun → green
+  { pattern: /い形[容詞a-z]*/g,                                                                       color: "#FB923C", bg: "rgba(251,146,60,0.14)" },   // i-adj → orange
+  { pattern: /な形[容詞a-z]*/g,                                                                       color: "#E879F9", bg: "rgba(232,121,249,0.14)" },  // na-adj → pink
+  { pattern: /普通形[（(][^)）]*[)）]?/g,                                                              color: "#22D3EE", bg: "rgba(34,211,238,0.14)" },   // plain → teal
+  { pattern: /普通形/g,                                                                              color: "#22D3EE", bg: "rgba(34,211,238,0.14)" },   // plain → teal
+  { pattern: /尊敬語|謙譲語/g,                                                                        color: "#A78BFA", bg: "rgba(167,139,250,0.14)" },  // honorific → purple
+  { pattern: /助数詞/g,                                                                              color: "#FBBF24", bg: "rgba(251,191,36,0.14)" },   // counter → amber
+  { pattern: /疑問詞/g,                                                                              color: "#22D3EE", bg: "rgba(34,211,238,0.14)" },   // question word → teal
 ];
-
 function ColoredConn({ conn }) {
   if (!conn) return null;
   const tokens = [];
   let remaining = conn;
   let key = 0;
   while (remaining.length > 0) {
-    let earliest = null;
-    let earliestIdx = remaining.length;
-    let matchedRule = null;
+    let earliest = null, earliestIdx = remaining.length, matchedRule = null;
     for (const rule of CONN_COLORS) {
       rule.pattern.lastIndex = 0;
       const m = rule.pattern.exec(remaining);
-      if (m && m.index < earliestIdx) {
-        earliest = m;
-        earliestIdx = m.index;
-        matchedRule = rule;
-      }
+      if (m && m.index < earliestIdx) { earliest = m; earliestIdx = m.index; matchedRule = rule; }
     }
-    if (!earliest) {
-      tokens.push(<span key={key++} style={{ color: "#4c1d95" }}>{remaining}</span>);
-      break;
-    }
-    if (earliestIdx > 0) {
-      tokens.push(<span key={key++} style={{ color: "#4c1d95" }}>{remaining.slice(0, earliestIdx)}</span>);
-    }
+    if (!earliest) { tokens.push(<span key={key++} style={{ color: C.inkDim }}>{remaining}</span>); break; }
+    if (earliestIdx > 0) tokens.push(<span key={key++} style={{ color: C.inkDim }}>{remaining.slice(0, earliestIdx)}</span>);
     tokens.push(
-      <span key={key++} style={{ color: matchedRule.color, background: matchedRule.bg, padding: "1px 4px", borderRadius: 4, fontWeight: 800 }}>
+      <span key={key++} style={{ color: matchedRule.color, background: matchedRule.bg, padding: "1px 6px", borderRadius: 4, fontWeight: 700 }}>
         {earliest[0]}
       </span>
     );
@@ -167,29 +208,35 @@ function ColoredConn({ conn }) {
   return <>{tokens}</>;
 }
 
-function speak(text) {
-  if (!("speechSynthesis" in window)) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "ja-JP";
-  u.rate = 0.85;
-  u.pitch = 1.05;
-  if (jaVoice) u.voice = jaVoice;
-  speechSynthesis.speak(u);
+// ─────────── PRIMITIVES ───────────
+function Card({ children, style, className, elevated, flush }) {
+  return (
+    <div className={className} style={{ background: elevated ? C.elevated : C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: flush ? 0 : 18, ...style }}>
+      {children}
+    </div>
+  );
 }
 
-function SpeakBtn({ text, size }) {
+function Chip({ children, tone = "default", style }) {
+  const tones = {
+    default: { bg: C.mutedBg, color: C.inkDim, border: C.border },
+    accent:  { bg: C.accentSoft, color: C.accent, border: C.accentLine },
+    pass:    { bg: C.passSoft, color: C.pass, border: C.passLine },
+    muted:   { bg: "transparent", color: C.muted, border: C.border },
+  };
+  const t = tones[tone] || tones.default;
   return (
-    <span role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); speak(text); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); speak(text); } }} style={{ cursor: "pointer", fontSize: size || 18, padding: "2px 4px", verticalAlign: "middle", lineHeight: 1, userSelect: "none", opacity: 0.7, transition: "opacity 0.2s, transform 0.15s", display: "inline-block" }} onMouseEnter={e => { e.target.style.opacity = 1; e.target.style.transform = "scale(1.15)"; }} onMouseLeave={e => { e.target.style.opacity = 0.7; e.target.style.transform = "scale(1)"; }}>
-      🔊
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: t.bg, color: t.color, border: `1px solid ${t.border}`, padding: "4px 10px", borderRadius: 4, fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", ...style }}>
+      {children}
     </span>
   );
 }
 
-function HebText({ children, style }) {
-  return <div dir="rtl" style={{ textAlign: "right", unicodeBidi: "plaintext", ...style }}>{children}</div>;
+function KickerLabel({ children, style }) {
+  return <div style={{ ...KICKER, ...style }}>{children}</div>;
 }
 
+// ─────────── AGGREGATIONS ───────────
 function getMostMistaken(history) {
   const counts = {};
   history.forEach(s => {
@@ -209,108 +256,128 @@ function Leaderboard({ history }) {
   const top = getMostMistaken(history).slice(0, 10);
   if (top.length === 0) return null;
   return (
-    <div style={{ ...CARD, marginTop: 14 }}>
-      <h3 style={{ color: RED, margin: "0 0 10px", fontSize: 13, fontWeight: 700 }}>🏅 Most Mistaken Words</h3>
-      {top.map((w, i) => (
-        <div key={i} style={{ borderBottom: i < top.length - 1 ? "1px solid #f0f0f0" : "none", padding: "10px 0" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ color: i < 3 ? RED : "#888", fontSize: 13, fontWeight: 800, minWidth: 18 }}>{i + 1}.</span>
-              <span style={{ fontSize: 18, fontWeight: 800, color: "#1a1a1a" }}>{w.jp}</span>
-              <SpeakBtn text={w.jp} size={14} />
+    <Card style={{ padding: 0 }} flush>
+      <div style={{ padding: "14px 18px 12px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <KickerLabel>Most Mistaken</KickerLabel>
+        <span style={{ ...KICKER, color: C.faint }}>{top.length} items</span>
+      </div>
+      <div>
+        {top.map((w, i) => (
+          <div key={i} style={{ display: "flex", gap: 12, padding: "12px 18px", borderBottom: i < top.length - 1 ? `1px solid ${C.border}` : "none" }}>
+            <div className="num" style={{ fontSize: 13, color: C.faint, minWidth: 22, paddingTop: 2 }}>{(i + 1).toString().padStart(2, "0")}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
+                <span className="jp" style={{ fontSize: 16, fontWeight: 700, color: C.ink }}>{w.jp}</span>
+                <span className="num" style={{ fontSize: 11, color: C.accent }}>×{w.count}</span>
+              </div>
+              <div style={{ fontSize: 13, color: C.inkDim, marginTop: 2 }}>{w.en}</div>
+              {w.heb && <HebText style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>{w.heb}</HebText>}
             </div>
-            <span style={{ background: RED_LIGHT, color: RED, fontSize: 11, padding: "2px 8px", borderRadius: 6, fontWeight: 700 }}>×{w.count}</span>
+            <SpeakBtn text={w.jp} size={14} />
           </div>
-          <div style={{ color: "#333", fontSize: 13, marginTop: 2, fontWeight: 600, marginLeft: 24 }}>{w.en}</div>
-          {w.heb && <HebText style={{ color: "#555", fontSize: 12, marginTop: 1, marginRight: 0 }}>{w.heb}</HebText>}
-          {w.ex && (
-            <div style={{ fontSize: 12, marginTop: 3, color: "#555", marginLeft: 24, display: "flex", alignItems: "center", gap: 4 }}>
-              📝 {w.ex} <SpeakBtn text={w.ex} size={13} />
-            </div>
-          )}
-          {w.exHeb && <HebText style={{ color: "#777", fontSize: 11, marginTop: 1 }}>🔤 {w.exHeb}</HebText>}
-          {w.kanjiStory && <div style={{ fontSize: 11, color: "#8b5cf6", marginTop: 2, fontWeight: 600, marginLeft: 24 }}>🧠 {w.kanjiStory}</div>}
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </Card>
   );
 }
 
 function HistoryChart({ history, onBarClick }) {
   if (history.length === 0) return null;
-  const recent = history.slice(-5);
+  const recent = history.slice(-12);
   const offset = history.length - recent.length;
+  const avg = Math.round(history.reduce((s, h) => s + (h.score / h.total) * 100, 0) / history.length);
   return (
-    <div className="fade-in" style={{ ...CARD, marginTop: 16, marginBottom: 0 }}>
-      <h3 style={{ color: RED, margin: "0 0 12px", fontSize: 13, fontWeight: 700 }}>📊 Score History (last {recent.length})</h3>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 100 }}>
+    <Card flush>
+      <div style={{ padding: "14px 18px 12px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <KickerLabel>Score History</KickerLabel>
+        <span style={{ ...KICKER, color: C.faint }}>Last {recent.length} · Avg {avg}%</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 96, padding: "16px 18px 14px" }}>
         {recent.map((s, i) => {
           const pct = Math.round((s.score / s.total) * 100);
           const passed = pct >= PASS_SCORE;
           const hasDetail = s.wrongList && s.wrongList.length > 0;
           return (
-            <div key={i} onClick={() => hasDetail && onBarClick(offset + i)} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", cursor: hasDetail ? "pointer" : "default" }}>
+            <div key={i} onClick={() => hasDetail && onBarClick(offset + i)} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", cursor: hasDetail ? "pointer" : "default" }} title={hasDetail ? `${pct}% · click for detail` : `${pct}%`}>
               <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-                <div style={{ width: "100%", maxWidth: 32, height: `${pct}%`, minHeight: 6, background: passed ? `linear-gradient(180deg, ${GREEN}, #0d8a3a)` : `linear-gradient(180deg, ${RED}, #8a0020)`, opacity: hasDetail ? 0.9 : 0.4, borderRadius: "6px 6px 0 0", transition: "all 0.3s ease" }} />
+                <div style={{ width: "100%", maxWidth: 24, height: `${Math.max(pct, 6)}%`, background: passed ? C.pass : C.accent, opacity: hasDetail ? 1 : 0.35, borderRadius: 2, transition: "opacity 0.2s" }} />
               </div>
-              <span style={{ fontSize: 10, marginTop: 4, fontWeight: 700, color: passed ? GREEN : RED }}>{pct}%</span>
+              <span className="num" style={{ fontSize: 10, marginTop: 6, color: passed ? C.pass : C.accent }}>{pct}</span>
             </div>
           );
         })}
       </div>
-      <div style={{ height: 1, marginTop: 6, background: "linear-gradient(90deg, transparent, #e0e0e0, transparent)" }} />
-    </div>
+    </Card>
   );
 }
 
 function HistoryModal({ session, onClose }) {
   if (!session) return null;
   const pct = Math.round((session.score / session.total) * 100);
+  const passed = pct >= PASS_SCORE;
   const d = new Date(session.date);
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 20, padding: 20, maxWidth: 480, width: "100%", maxHeight: "80vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, maxWidth: 520, width: "100%", maxHeight: "80vh", overflowY: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "20px 22px", borderBottom: `1px solid ${C.border}`, position: "sticky", top: 0, background: C.surface }}>
           <div>
-            <div style={{ color: pct >= PASS_SCORE ? GREEN : RED, fontSize: 24, fontWeight: 900 }}>{pct}%</div>
-            <div style={{ color: "#999", fontSize: 11 }}>{d.toLocaleDateString()} · {session.score}/{session.total}</div>
+            <div className="num" style={{ color: passed ? C.pass : C.accent, fontSize: 34, fontWeight: 300, lineHeight: 1 }}>{pct}%</div>
+            <div style={{ color: C.muted, fontSize: 11, marginTop: 4, ...KICKER }}>{d.toLocaleDateString()} · {session.score}/{session.total}</div>
           </div>
-          <button onClick={onClose} style={{ background: "#f5f5f5", border: "none", color: "#999", fontSize: 18, cursor: "pointer", width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+          <button onClick={onClose} aria-label="Close" style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, cursor: "pointer", width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }} className="btn-hover">
+            <IconX size={14} />
+          </button>
         </div>
-        {session.wrongList && session.wrongList.length > 0 ? (
-          <>
-            <h4 style={{ color: RED, margin: "0 0 10px", fontSize: 13 }}>❌ Wrong Answers ({session.wrongList.length})</h4>
-            {session.wrongList.map((w, i) => (
-              <div key={i} style={{ borderBottom: "1px solid #f0f0f0", padding: "12px 0" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: RED, fontSize: 10, fontWeight: 600 }}>{CATEGORIES[w.cat]}{w.num ? ` · #${w.num}` : ""}</span>
-                  <SpeakBtn text={w.jp} size={16} />
-                </div>
-                <div style={{ color: "#1a1a1a", fontWeight: 800, fontSize: 20, marginTop: 2 }}>{w.jp}</div>
-                <div style={{ color: "#333", fontSize: 14, marginTop: 3, fontWeight: 600 }}>{w.en}</div>
-                {w.heb && <HebText style={{ color: "#555", fontSize: 13, marginTop: 2 }}>{w.heb}</HebText>}
-                {w.conn && <div style={{ color: "#444", fontSize: 12, marginTop: 6, fontWeight: 700 }}>接続: {w.conn}</div>}
-                {w.ex && (
-                  <div style={{ fontSize: 12, marginTop: 4, fontWeight: 600, color: "#333", display: "flex", alignItems: "center", gap: 4 }}>
-                    📝 {w.ex} <SpeakBtn text={w.ex} size={14} />
-                  </div>
-                )}
-                {w.exHeb && <HebText style={{ color: "#666", fontSize: 12, marginTop: 2 }}>🔤 {w.exHeb}</HebText>}
-                {w.kanjiStory && <div style={{ fontSize: 12, color: "#8b5cf6", marginTop: 3, fontWeight: 600 }}>🧠 {w.kanjiStory}</div>}
-              </div>
-            ))}
-          </>
-        ) : (
-          <p style={{ color: "#999", fontSize: 13, textAlign: "center", margin: "20px 0" }}>No wrong answer data for this session</p>
-        )}
+        <div style={{ padding: 22 }}>
+          {session.wrongList && session.wrongList.length > 0 ? (
+            <>
+              <KickerLabel style={{ marginBottom: 12 }}>Review ({session.wrongList.length})</KickerLabel>
+              {session.wrongList.map((w, i) => <WrongItem key={i} w={w} isLast={i === session.wrongList.length - 1} />)}
+            </>
+          ) : (
+            <p style={{ color: C.muted, fontSize: 13, textAlign: "center", padding: "20px 0" }}>No wrong-answer data for this session</p>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
+function WrongItem({ w, isLast }) {
+  return (
+    <div style={{ padding: "14px 0", borderBottom: isLast ? "none" : `1px solid ${C.border}` }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+        <Chip tone="accent">{CATEGORIES[w.cat]}{w.num ? ` · #${w.num}` : ""}</Chip>
+        <SpeakBtn text={w.jp} size={14} />
+      </div>
+      <div className="jp" style={{ color: C.ink, fontWeight: 700, fontSize: 20, marginTop: 8, letterSpacing: "0.02em" }}>{w.jp}</div>
+      <div style={{ color: C.inkDim, fontSize: 14, marginTop: 3 }}>{w.en}</div>
+      {w.heb && <HebText style={{ color: C.muted, fontSize: 13, marginTop: 2 }}>{w.heb}</HebText>}
+      {w.conn && <div style={{ fontSize: 12, marginTop: 8, color: C.muted }}><span style={{ color: C.faint, marginRight: 6 }}>接続</span><ColoredConn conn={w.conn} /></div>}
+      {w.ex && (
+        <div className="jp" style={{ fontSize: 13, marginTop: 8, color: C.inkDim, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          <span style={{ color: C.faint }}>例</span> {w.ex} <SpeakBtn text={w.ex} size={12} />
+        </div>
+      )}
+      {w.exHeb && <HebText style={{ color: C.muted, fontSize: 12, marginTop: 4 }}>{w.exHeb}</HebText>}
+      {w.kanjiStory && (
+        <div style={{ marginTop: 10, background: "rgba(167,139,250,0.10)", border: "1px solid rgba(167,139,250,0.32)", borderLeft: "2px solid #A78BFA", padding: "8px 12px", borderRadius: 8, display: "flex", gap: 8, alignItems: "flex-start" }}>
+          <span style={{ fontSize: 14, lineHeight: 1.2 }}>🧠</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ ...KICKER, color: C.kanji, fontSize: 9, marginBottom: 2 }}>Kanji Story</div>
+            <div style={{ fontSize: 13, color: "#D4C3FB", fontWeight: 500, lineHeight: 1.5 }}>{w.kanjiStory}</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────── APP ───────────
 export default function App() {
   const wide = useIsWide();
-  const PAGE = { ...PAGE_BASE, padding: wide ? "28px 40px 48px" : "20px 20px 40px", maxWidth: wide ? 960 : 700, margin: "0 auto" };
+  const PAGE = { minHeight: "100dvh", padding: wide ? "32px 40px 48px" : "18px 18px 40px", maxWidth: wide ? 1180 : 560, margin: "0 auto", color: C.ink, fontFamily: FONT_LATIN };
+
   const [screen, setScreen] = useState("menu");
   const [selectedCats, setSelectedCats] = useState(Object.keys(CATEGORIES));
   const [questions, setQuestions] = useState([]);
@@ -360,14 +427,8 @@ export default function App() {
     const count = Math.min(numQuestions, filtered.length);
     const picked = weightedShuffle(filtered, count).map(q => ({ ...q, _type: pickQuestionType(q) }));
     setQuestions(picked);
-    setCurrent(0);
-    setSelected(null);
-    setScore(0);
-    setTotal(0);
-    setStreak(0);
-    setBestStreak(0);
-    setWrongList([]);
-    setRetryQueue([]);
+    setCurrent(0); setSelected(null); setScore(0); setTotal(0);
+    setStreak(0); setBestStreak(0); setWrongList([]); setRetryQueue([]);
     setShowNext(false);
     setTimeLeft(timerMin * 60 + timerSec);
     setTimerActive(true);
@@ -393,34 +454,28 @@ export default function App() {
       setWrongList(w => [...w, questions[current]]);
       setRetryQueue(r => [...r, questions[current]]);
     }
-    setTimeout(() => setShowNext(true), 500);
-    // Auto-read example sentence after answering
+    setTimeout(() => setShowNext(true), 450);
     const exText = questions[current].ex;
-    if (exText) setTimeout(() => speak(exText), 900);
+    if (exText) setTimeout(() => speak(exText), 850);
   };
 
   const next = () => {
     let nextIdx = current + 1;
     if (nextIdx < questions.length) {
-      setCurrent(nextIdx);
-      setSelected(null);
-      setShowNext(false);
+      setCurrent(nextIdx); setSelected(null); setShowNext(false);
       setChoices(generateChoices(questions[nextIdx], ALL_DATA));
     } else if (retryQueue.length > 0) {
       const retry = retryQueue[0];
       setRetryQueue(r => r.slice(1));
       setQuestions(q => [...q, retry]);
       setCurrent(questions.length);
-      setSelected(null);
-      setShowNext(false);
+      setSelected(null); setShowNext(false);
       setChoices(generateChoices(retry, ALL_DATA));
     } else {
-      setTimerActive(false);
-      setScreen("results");
+      setTimerActive(false); setScreen("results");
     }
   };
 
-  // Keyboard shortcuts: 1-4 for answers, Enter for next
   const kbRef = useRef({});
   kbRef.current = { selected, showNext, choices, handleChoice, next };
   useEffect(() => {
@@ -431,8 +486,7 @@ export default function App() {
         const idx = parseInt(e.key, 10) - 1;
         if (s.choices[idx]) { e.preventDefault(); s.handleChoice(s.choices[idx]); }
       } else if (e.key === "Enter" && s.showNext) {
-        e.preventDefault();
-        s.next();
+        e.preventDefault(); s.next();
       }
     };
     window.addEventListener("keydown", handler);
@@ -443,23 +497,31 @@ export default function App() {
   const progress = questions.length > 0 ? ((current + 1) / questions.length) * 100 : 0;
   const filteredCount = ALL_DATA.filter(d => selectedCats.includes(d.cat)).length;
 
-  // ── MENU ──
+  // ═════════ MENU ═════════
   if (screen === "menu") {
+    const totalItems = ALL_DATA.length;
+    const avg = history.length > 0 ? Math.round(history.reduce((s, h) => s + (h.score / h.total) * 100, 0) / history.length) : 0;
     return (
       <div style={PAGE}>
-        <div style={{ textAlign: "center", marginBottom: 16, paddingTop: 8 }}>
-          <img src="/logo.png" alt="日本語道場 Nihongo Dojo" style={{ width: 260, display: "block", margin: "0 auto", mixBlendMode: "multiply" }} />
-        </div>
-        <div style={wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, alignItems: "start" } : {}}>
-          <div style={CARD}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <h3 style={{ margin: 0, fontSize: 13, color: RED, fontWeight: 700 }}>📚 Categories</h3>
-              <div style={{ display: "flex", gap: 5 }}>
-                <button className="btn-hover" onClick={() => setSelectedCats(Object.keys(CATEGORIES))} style={{ background: "rgba(188,0,45,0.06)", border: "none", color: RED, borderRadius: 8, padding: "4px 10px", fontSize: 10, cursor: "pointer", fontWeight: 600 }}>All</button>
-                <button className="btn-hover" onClick={() => setSelectedCats([])} style={{ background: "rgba(0,0,0,0.04)", border: "none", color: "#888", borderRadius: 8, padding: "4px 10px", fontSize: 10, cursor: "pointer", fontWeight: 600 }}>None</button>
+        {/* HEADER */}
+        <header style={{ textAlign: "center", marginBottom: wide ? 32 : 24, paddingTop: 4 }}>
+          <img src="/logo.png" alt="日本語道場" style={{ width: wide ? 280 : 220, display: "block", margin: "0 auto 10px", filter: "drop-shadow(0 2px 14px rgba(188,0,45,0.35))" }} />
+          <div style={{ ...KICKER, color: C.faint, marginTop: 6 }}>
+            N2 / N1 · {totalItems} items{history.length > 0 ? ` · ${history.length} tests · avg ${avg}%` : ""}
+          </div>
+        </header>
+
+        <div style={wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, alignItems: "start" } : {}}>
+          {/* CATEGORIES */}
+          <Card flush>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 18px", borderBottom: `1px solid ${C.border}` }}>
+              <KickerLabel>Categories</KickerLabel>
+              <div style={{ display: "flex", gap: 6 }}>
+                <MiniBtn onClick={() => setSelectedCats(Object.keys(CATEGORIES))}>All</MiniBtn>
+                <MiniBtn onClick={() => setSelectedCats([])} variant="ghost">None</MiniBtn>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+            <div style={{ padding: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               {CATEGORY_GROUPS.map((group, gi) => {
                 const groupCount = group.cats.reduce((s, c) => s + ALL_DATA.filter(d => d.cat === c).length, 0);
                 const allOn = group.cats.every(c => selectedCats.includes(c));
@@ -473,19 +535,36 @@ export default function App() {
                 const isSingle = group.cats.length <= 1;
                 return (
                   <div key={gi} style={{ gridColumn: expanded ? "1 / -1" : "auto", minWidth: 0 }}>
-                    <div onClick={toggleGroup} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", padding: "8px 10px", borderRadius: 12, overflow: "hidden", background: allOn ? `linear-gradient(135deg, rgba(188,0,45,0.1), rgba(188,0,45,0.05))` : someOn ? "rgba(188,0,45,0.03)" : "rgba(0,0,0,0.02)", border: allOn ? `1.5px solid rgba(188,0,45,0.4)` : someOn ? `1.5px solid rgba(188,0,45,0.15)` : "1.5px solid rgba(0,0,0,0.06)", transition: "all 0.2s" }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: allOn ? RED : someOn ? "#c44" : "#999", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{group.label}</span>
-                      <span style={{ fontSize: 11, color: allOn ? RED : "#bbb", fontWeight: 700, minWidth: 20, textAlign: "right" }}>{groupCount}</span>
-                      {!isSingle && <span onClick={toggleExpand} style={{ fontSize: 9, color: "#bbb", padding: "1px 5px", borderRadius: 4, background: "rgba(0,0,0,0.04)", userSelect: "none", lineHeight: 1.4 }}>{expanded ? "▲" : "▼"}</span>}
-                    </div>
+                    <button onClick={toggleGroup} className="btn-hover" style={{
+                      width: "100%", display: "flex", alignItems: "center", gap: 6, cursor: "pointer",
+                      padding: "10px 10px", borderRadius: 8, textAlign: "left",
+                      background: allOn ? C.accentSoft : someOn ? "rgba(188,0,45,0.04)" : C.mutedBg,
+                      border: `1px solid ${allOn ? C.accentLine : someOn ? "rgba(188,0,45,0.15)" : C.border}`,
+                      color: allOn ? C.ink : someOn ? C.inkDim : C.inkDim
+                    }}>
+                      <span className="jp" style={{ flex: 1, fontSize: 14, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "inherit", letterSpacing: "0.02em" }}>
+                        {group.label.match(/^[\u3040-\u30ff\u4e00-\u9faf]+/)?.[0] || group.label}
+                      </span>
+                      <span className="num" style={{ fontSize: 11, color: allOn ? C.accent : C.faint }}>{groupCount}</span>
+                      {!isSingle && (
+                        <span onClick={toggleExpand} style={{ color: C.faint, display: "inline-flex", padding: "2px 2px", borderRadius: 4 }}>
+                          <IconChevDn size={12} style={{ transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+                        </span>
+                      )}
+                    </button>
                     {expanded && !isSingle && (
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, paddingLeft: 8, paddingTop: 5, paddingBottom: 2 }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, padding: "8px 4px 4px" }}>
                         {group.cats.map(key => {
                           const count = ALL_DATA.filter(d => d.cat === key).length;
                           const on = selectedCats.includes(key);
                           return (
-                            <button key={key} onClick={() => toggleCat(key)} style={{ background: on ? RED_LIGHT : "rgba(255,255,255,0.6)", border: on ? `1px solid rgba(188,0,45,0.3)` : "1px solid rgba(0,0,0,0.06)", color: on ? RED : "#999", borderRadius: 8, padding: "3px 8px", fontSize: 10, cursor: "pointer", fontWeight: on ? 600 : 400, transition: "all 0.15s" }}>
-                              {CATEGORIES[key]} ({count})
+                            <button key={key} onClick={() => toggleCat(key)} className="btn-hover" style={{
+                              background: on ? C.accentSoft : "transparent",
+                              border: `1px solid ${on ? C.accentLine : C.border}`,
+                              color: on ? C.accent : C.muted,
+                              borderRadius: 6, padding: "4px 9px", fontSize: 11, cursor: "pointer", fontWeight: 500,
+                            }}>
+                              {CATEGORIES[key]} <span className="num" style={{ opacity: 0.7, marginLeft: 4 }}>{count}</span>
                             </button>
                           );
                         })}
@@ -495,233 +574,365 @@ export default function App() {
                 );
               })}
             </div>
-          </div>
+          </Card>
+
+          {/* CONFIGURE + START */}
           <div>
-            <div style={CARD}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <span style={{ color: "#888", fontSize: 13 }}>Questions</span>
-                <input type="number" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => { const v = Number(e.target.value); if (v >= 1 && v <= filteredCount) setNumQuestions(v); }} style={{ width: 56, textAlign: "center", color: RED, fontWeight: 900, fontSize: 18, border: "none", borderRadius: 10, padding: "4px 6px", outline: "none", background: "rgba(188,0,45,0.06)" }} />
+            <Card flush>
+              <div style={{ padding: "14px 18px", borderBottom: `1px solid ${C.border}` }}>
+                <KickerLabel>Configure</KickerLabel>
               </div>
-              <input type="range" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => setNumQuestions(Number(e.target.value))} style={{ width: "100%", accentColor: RED, cursor: "pointer" }} />
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, marginBottom: 14 }}>
-                <span style={{ color: "#bbb", fontSize: 10 }}>{Math.min(10, filteredCount)}</span>
-                <span style={{ color: "#bbb", fontSize: 10 }}>{filteredCount}</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ color: "#888", fontSize: 13 }}>Timer</span>
-                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <input type="number" min={0} max={99} value={timerMin} onChange={e => setTimerMin(Math.max(0, Math.min(99, Number(e.target.value) || 0)))} style={{ width: 42, textAlign: "center", fontWeight: 800, fontSize: 16, border: "none", borderRadius: 10, padding: "5px 2px", outline: "none", background: "rgba(0,0,0,0.04)" }} />
-                  <span style={{ fontWeight: 800, fontSize: 16, color: "#999" }}>:</span>
-                  <input type="number" min={0} max={59} value={timerSec.toString().padStart(2, "0")} onChange={e => setTimerSec(Math.max(0, Math.min(59, Number(e.target.value) || 0)))} style={{ width: 42, textAlign: "center", fontWeight: 800, fontSize: 16, border: "none", borderRadius: 10, padding: "5px 2px", outline: "none", background: "rgba(0,0,0,0.04)" }} />
+              <div style={{ padding: "16px 18px" }}>
+                <Row label="Questions">
+                  <input type="number" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => { const v = Number(e.target.value); if (v >= 1 && v <= filteredCount) setNumQuestions(v); }} style={numInputStyle} className="num" />
+                </Row>
+                <input type="range" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => setNumQuestions(Number(e.target.value))} style={{ width: "100%", cursor: "pointer", marginTop: 4 }} />
+                <div className="num" style={{ display: "flex", justifyContent: "space-between", marginTop: 4, color: C.faint, fontSize: 10 }}>
+                  <span>{Math.min(10, filteredCount)}</span>
+                  <span>{filteredCount}</span>
                 </div>
+
+                <div style={{ height: 1, background: C.border, margin: "16px 0" }} />
+
+                <Row label="Timer">
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <input type="number" min={0} max={99} value={timerMin} onChange={e => setTimerMin(Math.max(0, Math.min(99, Number(e.target.value) || 0)))} style={numInputStyle} className="num" />
+                    <span className="num" style={{ color: C.faint }}>:</span>
+                    <input type="number" min={0} max={59} value={timerSec.toString().padStart(2, "0")} onChange={e => setTimerSec(Math.max(0, Math.min(59, Number(e.target.value) || 0)))} style={numInputStyle} className="num" />
+                  </div>
+                </Row>
+
+                <div style={{ height: 1, background: C.border, margin: "16px 0" }} />
+
+                <Row label="Pass">
+                  <span className="num" style={{ color: C.ink, fontSize: 15 }}>{PASS_SCORE}%</span>
+                </Row>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#888", fontSize: 13 }}>Pass</span>
-                <span style={{ color: "#1a1a1a", fontWeight: 800 }}>{PASS_SCORE}%</span>
-              </div>
-            </div>
-            <button className={filteredCount >= 4 ? "btn-hover" : ""} onClick={startQuiz} disabled={filteredCount < 4} style={{ width: "100%", padding: 18, fontSize: 19, fontWeight: 900, background: filteredCount >= 4 ? `linear-gradient(135deg, ${RED}, #e0103a)` : "#ddd", color: "#fff", border: "none", borderRadius: 16, cursor: filteredCount >= 4 ? "pointer" : "not-allowed", letterSpacing: 3, boxShadow: filteredCount >= 4 ? "0 6px 24px rgba(188,0,45,0.3)" : "none", transition: "all 0.2s" }}>
-              START TEST
+            </Card>
+
+            <button onClick={startQuiz} disabled={filteredCount < 4} className={filteredCount >= 4 ? "btn-hover" : ""} style={{
+              width: "100%", marginTop: 12, padding: "16px 20px",
+              fontSize: 14, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase",
+              background: filteredCount >= 4 ? C.accent : C.mutedBg,
+              color: filteredCount >= 4 ? "#fff" : C.faint,
+              border: `1px solid ${filteredCount >= 4 ? C.accent : C.border}`,
+              borderRadius: 10, cursor: filteredCount >= 4 ? "pointer" : "not-allowed",
+              fontFamily: FONT_LATIN,
+            }} onMouseEnter={e => { if (filteredCount >= 4) e.currentTarget.style.background = C.accentHi; }} onMouseLeave={e => { if (filteredCount >= 4) e.currentTarget.style.background = C.accent; }}>
+              Start Test
             </button>
           </div>
         </div>
-        <div style={wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 14 } : {}}>
-          <div>
-            <HistoryChart history={history} onBarClick={(idx) => setHistoryModal(history[idx])} />
-            {history.length > 0 && (
-              <p style={{ textAlign: "center", color: "#999", fontSize: 11, marginTop: 10 }}>
-                {history.length} tests · avg {Math.round(history.reduce((s, h) => s + (h.score / h.total) * 100, 0) / history.length)}%
-              </p>
-            )}
-          </div>
+
+        {/* HISTORY + LEADERBOARD */}
+        <div style={{ ...(wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 } : {}), marginTop: 18, display: wide ? "grid" : "flex", flexDirection: wide ? undefined : "column", gap: wide ? 18 : 14 }}>
+          <HistoryChart history={history} onBarClick={(idx) => setHistoryModal(history[idx])} />
           <Leaderboard history={history} />
         </div>
+
         {historyModal && <HistoryModal session={historyModal} onClose={() => setHistoryModal(null)} />}
       </div>
     );
   }
 
-  // ── RESULTS ──
+  // ═════════ RESULTS ═════════
   if (screen === "results") {
     const pct = total > 0 ? Math.round((score / total) * 100) : 0;
     const passed = pct >= PASS_SCORE;
+    const verdictColor = passed ? C.pass : C.accent;
     const statsData = [
-      { icon: "✅", label: "Correct", value: `${score}/${total}` },
-      { icon: "🔥", label: "Best Streak", value: bestStreak },
-      { icon: "⏱", label: "Time", value: formatTime((timerMin * 60 + timerSec) - timeLeft) },
-      { icon: "❌", label: "Mistakes", value: wrongList.length },
+      { label: "Correct",     value: `${score}/${total}` },
+      { label: "Best Streak", value: bestStreak },
+      { label: "Time",        value: formatTime((timerMin * 60 + timerSec) - timeLeft) },
+      { label: "Mistakes",    value: wrongList.length },
     ];
     return (
       <div style={PAGE}>
-        <div className="pop-in" style={{ textAlign: "center", marginTop: 24, marginBottom: 20 }}>
-          <div style={{ fontSize: 56, marginBottom: 4 }}>{passed ? "🏆" : "📖"}</div>
-          <div style={{ fontSize: 56, fontWeight: 900, color: passed ? GREEN : RED, lineHeight: 1, textShadow: passed ? "0 2px 20px rgba(22,163,74,0.2)" : "0 2px 20px rgba(188,0,45,0.2)" }}>{pct}%</div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: passed ? GREEN : RED, marginTop: 4 }}>{passed ? "合格！PASSED!" : "不合格 — RETRY"}</div>
+        {/* VERDICT */}
+        <div className="pop-in" style={{ textAlign: "center", marginTop: wide ? 32 : 20, marginBottom: 28 }}>
+          <div className="num count-up" style={{ fontSize: wide ? 96 : 72, fontWeight: 300, color: verdictColor, lineHeight: 1, letterSpacing: "-0.02em" }}>
+            {pct}<span style={{ fontSize: "0.5em", color: C.muted, marginLeft: 4 }}>%</span>
+          </div>
+          <div className="jp-display" style={{ fontSize: wide ? 36 : 28, fontWeight: 600, color: verdictColor, marginTop: 10, letterSpacing: "0.25em" }}>
+            {passed ? "合格" : "不合格"}
+          </div>
+          <div style={{ ...KICKER, color: C.muted, marginTop: 6 }}>
+            {passed ? "Passed" : "Retry"}
+          </div>
         </div>
-        <div className="slide-up" style={{ display: "grid", gridTemplateColumns: wide ? "1fr 1fr 1fr 1fr" : "1fr 1fr", gap: 8, marginBottom: 16 }}>
+
+        {/* STATS */}
+        <div className="slide-up" style={{ display: "grid", gridTemplateColumns: wide ? "repeat(4, 1fr)" : "repeat(2, 1fr)", gap: 1, background: C.border, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", marginBottom: 18 }}>
           {statsData.map(s => (
-            <div key={s.label} style={{ ...CARD, marginBottom: 0, textAlign: "center", padding: "12px 8px" }}>
-              <div style={{ fontSize: 20 }}>{s.icon}</div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: "#1a1a1a", marginTop: 2 }}>{s.value}</div>
-              <div style={{ fontSize: 10, color: "#999", fontWeight: 600, marginTop: 1 }}>{s.label}</div>
+            <div key={s.label} style={{ background: C.surface, padding: "16px 14px", textAlign: "center" }}>
+              <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.ink, letterSpacing: "-0.01em" }}>{s.value}</div>
+              <div style={{ ...KICKER, marginTop: 6, fontSize: 10 }}>{s.label}</div>
             </div>
           ))}
         </div>
+
+        {/* REVIEW */}
         {wrongList.length > 0 && (
-          <div className="slide-up" style={{ ...CARD, marginTop: 4, background: "linear-gradient(135deg, #fff8f8, #fff)", border: "1px solid rgba(188,0,45,0.12)" }}>
-            <h3 style={{ color: RED, margin: "0 0 12px", fontSize: 14, fontWeight: 700 }}>❌ Review ({wrongList.length})</h3>
-            {wrongList.map((w, i) => (
-              <div key={i} style={{ borderBottom: i < wrongList.length - 1 ? "1px solid #f0e0e0" : "none", padding: "14px 0" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: RED, fontSize: 10, fontWeight: 600, background: RED_LIGHT, padding: "2px 8px", borderRadius: 4 }}>{CATEGORIES[w.cat]}{w.num ? ` · #${w.num}` : ""}</span>
-                  <SpeakBtn text={w.jp} size={16} />
-                </div>
-                <div style={{ color: "#1a1a1a", fontWeight: 800, fontSize: 20, marginTop: 4 }}>{w.jp}</div>
-                <div style={{ color: "#333", fontSize: 14, marginTop: 3, fontWeight: 600 }}>{w.en}</div>
-                {w.heb && <HebText style={{ color: "#555", fontSize: 13, marginTop: 2 }}>{w.heb}</HebText>}
-                {w.conn && <div style={{ color: "#444", fontSize: 12, marginTop: 6, fontWeight: 700, background: "#f8f8f8", padding: "4px 8px", borderRadius: 6, display: "inline-block" }}>接続: {w.conn}</div>}
-                {w.ex && (
-                  <div style={{ fontSize: 12, marginTop: 4, fontWeight: 600, color: "#333", display: "flex", alignItems: "center", gap: 4 }}>
-                    📝 {w.ex} <SpeakBtn text={w.ex} size={14} />
-                  </div>
-                )}
-                {w.exHeb && <HebText style={{ color: "#666", fontSize: 12, marginTop: 2 }}>🔤 {w.exHeb}</HebText>}
-                {w.kanjiStory && <div style={{ fontSize: 12, color: "#8b5cf6", marginTop: 3, fontWeight: 600 }}>🧠 {w.kanjiStory}</div>}
-              </div>
-            ))}
-          </div>
+          <Card className="slide-up" flush>
+            <div style={{ padding: "14px 18px", borderBottom: `1px solid ${C.border}` }}>
+              <KickerLabel><span style={{ color: C.accent }}>Review</span> · {wrongList.length}</KickerLabel>
+            </div>
+            <div style={{ padding: "0 18px" }}>
+              {wrongList.map((w, i) => <WrongItem key={i} w={w} isLast={i === wrongList.length - 1} />)}
+            </div>
+          </Card>
         )}
+
+        {/* ACTIONS */}
         <div className="slide-up" style={{ display: "flex", gap: 10, marginTop: 16 }}>
-          <button className="btn-hover" onClick={() => setScreen("menu")} style={{ flex: 1, padding: 15, fontSize: 14, background: "#fff", color: "#333", border: "1px solid #e0e0e0", borderRadius: 14, cursor: "pointer", fontWeight: 700, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>Menu</button>
-          <button className="btn-hover" onClick={startQuiz} style={{ flex: 2, padding: 15, fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, ${RED}, #e0103a)`, color: "#fff", border: "none", borderRadius: 14, cursor: "pointer", boxShadow: "0 4px 16px rgba(188,0,45,0.3)" }}>{passed ? "Next Test →" : "Retry →"}</button>
+          <button onClick={() => setScreen("menu")} className="btn-hover" style={secondaryBtn(wide, 1)}>Menu</button>
+          <button onClick={startQuiz} className="btn-hover" style={primaryBtn(wide, 2)}>{passed ? "Next Test" : "Retry"} <IconChevRt size={14} /></button>
         </div>
       </div>
     );
   }
 
-  // ── QUIZ ──
-  const nums = ["①", "②", "③", "④"];
-  const timerWarn = timeLeft < 120;
+  // ═════════ QUIZ ═════════
   const timerTotal = timerMin * 60 + timerSec;
-  const timerPct = timerTotal > 0 ? (timeLeft / timerTotal) * 100 : 100;
+  const timerWarn = timerTotal > 0 && timeLeft < Math.min(120, timerTotal * 0.15);
   return (
     <div style={PAGE}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <button onClick={() => { setTimerActive(false); setScreen("results"); }} style={{ background: "none", border: "none", color: "#999", fontSize: 14, cursor: "pointer", padding: "4px 0", fontFamily: "inherit" }}>← End</button>
-        <div style={{ color: timerWarn ? RED : "#666", fontSize: 18, fontWeight: 800, fontVariantNumeric: "tabular-nums", animation: timerWarn ? "pulse 1s infinite" : "none" }}>⏱ {formatTime(timeLeft)}</div>
-        <div style={{ color: "#666", fontSize: 14, fontWeight: 600 }}>{current + 1}/{questions.length}</div>
+      {/* TOP BAR */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <button onClick={() => { setTimerActive(false); setScreen("results"); }} className="btn-hover" style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", padding: "7px 12px", borderRadius: 8, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <IconArrowL size={12} /> End
+        </button>
+        <div className="num" style={{ color: timerWarn ? C.accent : C.ink, fontSize: 18, fontWeight: 400, display: "inline-flex", alignItems: "center", gap: 8, animation: timerWarn ? "pulse 1s infinite" : "none" }}>
+          <IconClock size={14} style={{ color: timerWarn ? C.accent : C.muted }} /> {formatTime(timeLeft)}
+        </div>
+        <div className="num" style={{ color: C.inkDim, fontSize: 13, fontWeight: 400 }}>
+          {(current + 1).toString().padStart(2, "0")} <span style={{ color: C.faint }}>/</span> {questions.length.toString().padStart(2, "0")}
+        </div>
       </div>
-      <div style={{ height: 5, background: "#e8e8ec", borderRadius: 3, marginBottom: 6, overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${progress}%`, background: `linear-gradient(90deg, ${RED}, #e0103a)`, borderRadius: 3, transition: "width 0.4s ease" }} />
+
+      {/* PROGRESS BAR */}
+      <div style={{ height: 2, background: C.border, borderRadius: 1, marginBottom: 14, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${progress}%`, background: C.accent, transition: "width 0.35s ease" }} />
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <div style={{ color: "#888", fontSize: 14, fontWeight: 500 }}>{score}/{total} {total > 0 ? `(${Math.round((score / total) * 100)}%)` : ""}</div>
-        <div style={{ color: "#e85d04", fontSize: 16, fontWeight: 800, animation: streak > 2 ? "pulse 0.6s" : "none" }}>{streak > 2 ? `🔥 ${streak}` : ""}</div>
+
+      {/* SCORE LINE */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <div className="num" style={{ color: C.muted, fontSize: 12 }}>
+          <span style={{ color: C.ink }}>{score}</span>
+          <span style={{ color: C.faint }}>/{total}</span>
+          {total > 0 && <span style={{ marginLeft: 10, color: C.faint }}>{Math.round((score / total) * 100)}%</span>}
+        </div>
+        {streak > 2 && (
+          <div style={{ color: C.accent, fontSize: 12, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <IconFlame size={13} /> <span className="num">{streak}</span>
+          </div>
+        )}
       </div>
+
       {q && (() => {
         const isFill = q._type === "fillBlank";
         const qCore = isFill ? findCoreInEx(q.ex, extractCores(q.jp)) : null;
         const blanked = isFill && qCore ? blankExample(q.ex, qCore) : null;
         return (
-        <>
-          <div className="fade-in" key={current + "_badge"} style={{ textAlign: "center", marginBottom: 8, display: "flex", justifyContent: "center", gap: 6, flexWrap: "wrap" }}>
-            <span style={{ background: RED_LIGHT, color: RED, fontSize: 11, padding: "4px 14px", borderRadius: 20, fontWeight: 600, display: "inline-block" }}>
-              {CATEGORIES[q.cat]}{q.num ? ` · #${q.num}` : ""}
-            </span>
-            {isFill && (
-              <span style={{ background: "rgba(8,145,178,0.1)", color: "#0891b2", fontSize: 11, padding: "4px 14px", borderRadius: 20, fontWeight: 700, display: "inline-block", border: "1px solid rgba(8,145,178,0.25)" }}>
-                📝 Fill in the blank
-              </span>
-            )}
-          </div>
-          <div className="pop-in" key={current + "_q"} style={{ background: "linear-gradient(180deg, #ffffff, #fafbff)", borderRadius: 22, padding: isFill ? "28px 22px" : "32px 24px", textAlign: "center", marginBottom: 14, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 4px 24px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.8)" }}>
-            {isFill ? (
-              <>
-                <div style={{ fontSize: wide ? 28 : 24, fontWeight: 800, color: "#1a1a1a", lineHeight: 1.5, letterSpacing: 0.5 }}>
-                  {blanked} <SpeakBtn text={q.ex.replace(qCore, "・・・")} size={22} />
-                </div>
-                <div style={{ fontSize: 12, color: "#bbb", marginTop: 10, fontWeight: 500 }}>
-                  ＿＿ に入る表現は？
-                </div>
-              </>
-            ) : (
-              <>
-                <div style={{ fontSize: wide ? 42 : 32, fontWeight: 900, color: "#1a1a1a", lineHeight: 1.3, letterSpacing: 0.5 }}>
-                  {q.jp} <SpeakBtn text={q.jp} size={wide ? 26 : 22} />
-                </div>
-                {q.conn && <div style={{ fontSize: 14, marginTop: 12, fontWeight: 700, background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08))", display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 10, border: "1px solid rgba(139,92,246,0.2)", flexWrap: "wrap" }}><span style={{ color: "#8b5cf6", fontSize: 13 }}>接続:</span> <ColoredConn conn={q.conn} /></div>}
-              </>
-            )}
-          </div>
-          <div className="fade-in" key={current + "_choices"} style={{ display: "grid", gridTemplateColumns: wide ? "1fr 1fr" : "1fr", gap: 8 }}>
-            {choices.map((c, i) => {
-              const isCorrect = c.jp === q.jp;
-              const isWrong = selected && c.jp === selected.jp && !isCorrect;
-              let bg = "#ffffff";
-              let border = "1px solid rgba(0,0,0,0.08)";
-              let col = "#1a1a1a";
-              let fw = 500;
-              let shadow = "0 2px 8px rgba(0,0,0,0.03)";
-              let anim = "";
-              if (selected) {
-                if (isCorrect) { bg = GREEN_LIGHT; border = `2px solid ${GREEN}`; col = GREEN; fw = 700; shadow = "0 4px 16px rgba(22,163,74,0.15)"; }
-                else if (isWrong) { bg = RED_LIGHT; border = `2px solid ${RED}`; col = RED; shadow = "0 4px 16px rgba(188,0,45,0.15)"; anim = "shake 0.4s"; }
-                else { col = "#ccc"; bg = "#fafafa"; border = "1px solid #f0f0f0"; shadow = "none"; }
-              }
-              const choiceCore = isFill ? (findCoreInEx(c.ex, extractCores(c.jp)) || extractCores(c.jp)[0] || c.jp) : null;
-              return (
-                <button className={selected ? "" : "btn-hover"} key={i} onClick={() => handleChoice(c)} style={{ background: bg, border, color: col, borderRadius: 14, padding: "14px 18px", fontSize: 16, cursor: selected ? "default" : "pointer", textAlign: "left", transition: "all 0.2s", fontWeight: fw, display: "flex", gap: 12, alignItems: "flex-start", fontFamily: "inherit", boxShadow: shadow, animation: anim }}>
-                  <span style={{ color: selected ? col : "#ccc", fontWeight: 700, fontSize: 18, minWidth: 26 }}>{nums[i]}</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    {isFill ? (
-                      <div style={{ fontSize: 20, fontWeight: 800, color: selected ? col : "#1a1a1a" }}>
-                        {choiceCore}
-                        {selected && <div style={{ fontSize: 12, marginTop: 4, color: col, fontWeight: 500 }}>{c.en}</div>}
-                      </div>
-                    ) : (
-                      <>
-                        <div style={{ fontSize: 16, fontWeight: fw }}>{c.en}</div>
-                        {c.heb && <HebText style={{ fontSize: 14, marginTop: 3, color: selected ? col : "#999" }}>{c.heb}</HebText>}
-                      </>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-          {selected && (
-            <div className="slide-up" style={{ background: "#fff", borderRadius: 16, padding: "16px 18px", marginTop: 12, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-              {isFill && (
-                <div style={{ fontSize: 13, color: "#16a34a", fontWeight: 700, marginBottom: 8, background: "rgba(22,163,74,0.08)", display: "inline-block", padding: "3px 10px", borderRadius: 6 }}>
-                  ✓ {q.jp}
-                </div>
-              )}
-              {q.conn && <div style={{ fontSize: 14, marginTop: isFill ? 0 : undefined, marginBottom: 8, fontWeight: 700, background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08))", display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 10, border: "1px solid rgba(139,92,246,0.2)", flexWrap: "wrap" }}><span style={{ color: "#8b5cf6", fontSize: 12 }}>接続:</span> <ColoredConn conn={q.conn} /></div>}
-              {q.ex && (
-                <div style={{ fontSize: 16, color: "#1a1a1a", fontWeight: 700, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                  📝 {isFill && qCore ? (
-                    <span>{q.ex.split(qCore).map((part, idx, arr) => (
-                      <span key={idx}>{part}{idx < arr.length - 1 && <span style={{ background: "rgba(22,163,74,0.15)", color: "#16a34a", padding: "0 4px", borderRadius: 4, fontWeight: 900 }}>{qCore}</span>}</span>
-                    ))}</span>
-                  ) : q.ex} <SpeakBtn text={q.ex} size={18} />
-                </div>
-              )}
-              {q.exHeb && <HebText style={{ fontSize: 15, color: "#666", marginTop: 5 }}>🔤 {q.exHeb}</HebText>}
-              {isFill && q.heb && <HebText style={{ fontSize: 14, color: "#888", marginTop: 4 }}>{q.heb}</HebText>}
-              {q.kanjiStory && <div style={{ fontSize: 14, color: "#8b5cf6", marginTop: 6, fontWeight: 600, background: "rgba(139,92,246,0.06)", padding: "6px 10px", borderRadius: 8 }}>🧠 {q.kanjiStory}</div>}
+          <>
+            {/* BADGES */}
+            <div className="fade-in" key={current + "_badge"} style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+              <Chip tone="accent">{CATEGORIES[q.cat]}{q.num ? ` · #${q.num}` : ""}</Chip>
+              {isFill && <Chip tone="default">Fill in the Blank</Chip>}
             </div>
-          )}
-          {showNext && (
-            <button className="btn-hover slide-up" onClick={next} style={{ width: "100%", marginTop: 12, padding: 16, fontSize: 18, fontWeight: 800, background: `linear-gradient(135deg, ${RED}, #e0103a)`, color: "#fff", border: "none", borderRadius: 16, cursor: "pointer", letterSpacing: 1, fontFamily: "inherit", boxShadow: "0 4px 20px rgba(188,0,45,0.3)" }}>
-              {current + 1 >= questions.length && retryQueue.length === 0 ? "Results →" : retryQueue.length > 0 && current + 1 >= questions.length ? `Retry (${retryQueue.length}) →` : "Next →"}
-            </button>
-          )}
-          {wide && <div style={{ textAlign: "center", marginTop: 14, fontSize: 11, color: "#bbb", fontWeight: 500, letterSpacing: 0.5 }}>
-            ⌨️ <kbd style={{ background: "rgba(0,0,0,0.05)", padding: "1px 6px", borderRadius: 4, fontFamily: "inherit", fontSize: 10 }}>1-4</kbd> to answer · <kbd style={{ background: "rgba(0,0,0,0.05)", padding: "1px 6px", borderRadius: 4, fontFamily: "inherit", fontSize: 10 }}>Enter</kbd> for next
-          </div>}
-        </>
+
+            {/* QUESTION CARD */}
+            <div className="pop-in" key={current + "_q"} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: wide ? "40px 32px" : "32px 22px", marginBottom: 14, textAlign: "center", position: "relative", overflow: "hidden" }}>
+              {/* subtle top red line */}
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${C.accent}, transparent)`, opacity: 0.5 }} />
+
+              {isFill ? (
+                <>
+                  <div className="jp-display" style={{ fontSize: wide ? 30 : 24, fontWeight: 500, color: C.ink, lineHeight: 1.7, letterSpacing: "0.04em" }}>
+                    {blanked} <SpeakBtn text={q.ex.replace(qCore, "・・・")} size={18} />
+                  </div>
+                  <div style={{ ...KICKER, marginTop: 18, color: C.faint }}>Fill the blank</div>
+                </>
+              ) : (
+                <>
+                  <div className="jp-display" style={{ fontSize: wide ? 48 : 36, fontWeight: 500, color: C.ink, lineHeight: 1.4, letterSpacing: "0.05em" }}>
+                    {q.jp} <SpeakBtn text={q.jp} size={wide ? 24 : 20} />
+                  </div>
+                  {q.conn && (
+                    <div style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 14px", background: C.mutedBg, border: `1px solid ${C.border}`, borderRadius: 6 }}>
+                      <span style={{ ...KICKER, fontSize: 10, color: C.faint }}>接続</span>
+                      <span className="jp" style={{ fontSize: 13, fontWeight: 600 }}><ColoredConn conn={q.conn} /></span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* CHOICES */}
+            <div className="fade-in" key={current + "_choices"} style={{ display: "grid", gridTemplateColumns: wide ? "1fr 1fr" : "1fr", gap: 8 }}>
+              {choices.map((c, i) => {
+                const isCorrect = c.jp === q.jp;
+                const isWrong = selected && c.jp === selected.jp && !isCorrect;
+                const isSelCorrect = selected && isCorrect;
+                let bg = C.surface, border = C.border, col = C.ink, accentBar = "transparent", anim = "";
+                if (selected) {
+                  if (isSelCorrect) { bg = C.passSoft; border = C.passLine; col = C.pass; accentBar = C.pass; }
+                  else if (isWrong) { bg = C.accentSoft; border = C.accentLine; col = C.accent; accentBar = C.accent; anim = "shake 0.4s"; }
+                  else if (isCorrect) { bg = C.passSoft; border = C.passLine; col = C.pass; accentBar = C.pass; }
+                  else { bg = C.mutedBg; border = C.border; col = C.faint; }
+                }
+                const choiceCore = isFill ? (findCoreInEx(c.ex, extractCores(c.jp)) || extractCores(c.jp)[0] || c.jp) : null;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => handleChoice(c)}
+                    disabled={!!selected}
+                    className={selected ? "" : "choice-hover"}
+                    style={{
+                      background: bg,
+                      border: `1px solid ${border}`,
+                      borderLeft: `2px solid ${accentBar === "transparent" ? border : accentBar}`,
+                      color: col, borderRadius: 10, padding: "14px 16px",
+                      textAlign: "left", cursor: selected ? "default" : "pointer",
+                      display: "flex", gap: 14, alignItems: "flex-start",
+                      fontFamily: FONT_LATIN, animation: anim, transition: "background 0.2s, border 0.2s, color 0.2s",
+                    }}
+                  >
+                    <span className="num" style={{ color: selected ? col : C.faint, fontWeight: 400, fontSize: 13, minWidth: 20, paddingTop: 2 }}>
+                      {(i + 1).toString().padStart(2, "0")}
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      {isFill ? (
+                        <>
+                          <div className="jp" style={{ fontSize: 18, fontWeight: 700, color: selected ? col : C.ink }}>{choiceCore}</div>
+                          {selected && <div style={{ fontSize: 12, marginTop: 4, color: col, opacity: 0.85 }}>{c.en}</div>}
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ fontSize: 15, fontWeight: 500, color: selected ? col : C.ink, lineHeight: 1.45 }}>{c.en}</div>
+                          {c.heb && <HebText style={{ fontSize: 13, marginTop: 3, color: selected ? col : C.muted, opacity: selected ? 0.85 : 1 }}>{c.heb}</HebText>}
+                        </>
+                      )}
+                    </div>
+                    {selected && isCorrect && <IconCheck size={16} style={{ color: C.pass, marginTop: 2 }} />}
+                    {selected && isWrong && <IconX size={16} style={{ color: C.accent, marginTop: 2 }} />}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* REVEAL PANEL */}
+            {selected && (
+              <div className="slide-up" style={{ marginTop: 14, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: "16px 18px" }}>
+                <KickerLabel style={{ color: C.pass, marginBottom: 10 }}>Answer</KickerLabel>
+                <div className="jp" style={{ fontSize: 19, fontWeight: 700, color: C.ink, letterSpacing: "0.02em" }}>{q.jp} <SpeakBtn text={q.jp} size={14} /></div>
+                <div style={{ color: C.inkDim, fontSize: 14, marginTop: 4 }}>{q.en}</div>
+                {q.heb && <HebText style={{ color: C.muted, fontSize: 13, marginTop: 3 }}>{q.heb}</HebText>}
+
+                {q.conn && (
+                  <div style={{ fontSize: 12, marginTop: 10, color: C.muted, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <span style={{ ...KICKER, fontSize: 10 }}>接続</span> <span className="jp" style={{ fontSize: 13 }}><ColoredConn conn={q.conn} /></span>
+                  </div>
+                )}
+
+                {q.ex && (
+                  <div className="jp" style={{ fontSize: 14, marginTop: 12, color: C.inkDim, display: "flex", alignItems: "flex-start", gap: 8, flexWrap: "wrap", lineHeight: 1.6 }}>
+                    <span style={{ ...KICKER, fontSize: 10, marginTop: 2 }}>例</span>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      {isFill && qCore ? q.ex.split(qCore).map((part, idx, arr) => (
+                        <span key={idx}>{part}{idx < arr.length - 1 && <span style={{ background: C.passSoft, color: C.pass, padding: "1px 6px", borderRadius: 3, fontWeight: 700, border: `1px solid ${C.passLine}` }}>{qCore}</span>}</span>
+                      )) : q.ex}
+                    </span>
+                    <SpeakBtn text={q.ex} size={14} />
+                  </div>
+                )}
+                {q.exHeb && <HebText style={{ fontSize: 13, color: C.muted, marginTop: 6 }}>{q.exHeb}</HebText>}
+
+                {q.kanjiStory && (
+                  <div style={{ marginTop: 14, background: "rgba(167,139,250,0.10)", border: "1px solid rgba(167,139,250,0.32)", borderLeft: "3px solid #A78BFA", borderRadius: 8, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                    <span style={{ fontSize: 18, lineHeight: 1.1 }}>🧠</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ ...KICKER, color: C.kanji, marginBottom: 4, fontSize: 10 }}>Kanji Story</div>
+                      <div style={{ fontSize: 14, color: "#D4C3FB", fontWeight: 500, lineHeight: 1.55 }}>{q.kanjiStory}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* NEXT BUTTON */}
+            {showNext && (
+              <button onClick={next} className="btn-hover slide-up" style={{
+                width: "100%", marginTop: 14, padding: "15px 20px",
+                fontSize: 13, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase",
+                background: C.accent, color: "#fff",
+                border: `1px solid ${C.accent}`, borderRadius: 10, cursor: "pointer",
+                display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+                fontFamily: FONT_LATIN,
+              }} onMouseEnter={e => e.currentTarget.style.background = C.accentHi} onMouseLeave={e => e.currentTarget.style.background = C.accent}>
+                {current + 1 >= questions.length && retryQueue.length === 0 ? "Results" : retryQueue.length > 0 && current + 1 >= questions.length ? `Retry (${retryQueue.length})` : "Next"}
+                <IconChevRt size={13} />
+              </button>
+            )}
+
+            {wide && (
+              <div style={{ textAlign: "center", marginTop: 18, ...KICKER, color: C.faint, fontSize: 10 }}>
+                <kbd>1&ndash;4</kbd> to answer · <kbd>Enter</kbd> to continue
+              </div>
+            )}
+          </>
         );
       })()}
     </div>
   );
+}
+
+// ─────────── small reusable styles ───────────
+function Row({ label, children }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+      <span style={{ ...KICKER }}>{label}</span>
+      {children}
+    </div>
+  );
+}
+
+function MiniBtn({ children, onClick, variant }) {
+  const ghost = variant === "ghost";
+  return (
+    <button onClick={onClick} className="btn-hover" style={{
+      background: ghost ? "transparent" : C.accentSoft,
+      border: `1px solid ${ghost ? C.border : C.accentLine}`,
+      color: ghost ? C.muted : C.accent,
+      padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600,
+      letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer",
+      fontFamily: FONT_LATIN,
+    }}>{children}</button>
+  );
+}
+
+const numInputStyle = {
+  width: 54, textAlign: "center", color: C.ink, fontSize: 14, fontWeight: 400,
+  border: `1px solid ${C.border}`, borderRadius: 6, padding: "5px 4px",
+  outline: "none", background: C.mutedBg,
+};
+
+function primaryBtn(wide, flex) {
+  return {
+    flex, padding: "15px 20px", fontSize: 13, fontWeight: 600,
+    letterSpacing: "0.22em", textTransform: "uppercase",
+    background: C.accent, color: "#fff",
+    border: `1px solid ${C.accent}`, borderRadius: 10, cursor: "pointer",
+    display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+    fontFamily: FONT_LATIN,
+  };
+}
+function secondaryBtn(wide, flex) {
+  return {
+    flex, padding: "15px 20px", fontSize: 13, fontWeight: 600,
+    letterSpacing: "0.22em", textTransform: "uppercase",
+    background: "transparent", color: C.inkDim,
+    border: `1px solid ${C.border}`, borderRadius: 10, cursor: "pointer",
+    fontFamily: FONT_LATIN,
+  };
 }
