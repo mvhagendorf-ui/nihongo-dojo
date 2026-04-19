@@ -555,7 +555,7 @@ export default function App() {
         {/* HEADER */}
         <header style={{ textAlign: "center", marginBottom: wide ? 32 : 24, paddingTop: 4 }}>
           <div className="logo-wrap logo-wrap--light" role="button" tabIndex={0} aria-label="日本語道場" style={{ width: wide ? 300 : 240, height: wide ? 300 : 240, margin: "0 auto 10px" }}>
-            <img className="logo-img" src="/logo.png" alt="日本語道場" style={{ width: "100%", height: "100%", clipPath: "circle(48% at 50% 50%)" }} />
+            <img className="logo-img" src="/logo.png" alt="日本語道場" style={{ width: "100%", height: "100%", clipPath: "circle(40% at 50% 50%)" }} />
             <svg className="logo-ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="58" /></svg>
           </div>
           <div style={{ ...KICKER, color: C.faint, marginTop: 6 }}>
