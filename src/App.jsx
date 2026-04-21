@@ -400,7 +400,13 @@ function WrongItem({ w, isLast }) {
       <div className="jp" style={{ color: C.ink, fontWeight: 700, fontSize: 22, marginTop: 8, letterSpacing: "0.02em" }}>{w.jp}</div>
       <div style={{ color: C.inkDim, fontSize: 15, marginTop: 4 }}>{w.en}</div>
       {w.heb && <HebText style={{ color: C.muted, fontSize: 14, marginTop: 3 }}>{w.heb}</HebText>}
+      {w.oneLiner && (
+        <div style={{ marginTop: 8, padding: "8px 12px", background: "rgba(188,0,45,0.06)", borderLeft: `2px solid ${C.accent}`, borderRadius: 5, fontSize: 13, color: C.inkDim, fontStyle: "italic", lineHeight: 1.5 }}>
+          &ldquo;{w.oneLiner}&rdquo;
+        </div>
+      )}
       {w.conn && <div style={{ fontSize: 13, marginTop: 10, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={{ ...KICKER, fontSize: 10, color: C.faint }}>接続</span><span className="jp" style={{ fontSize: 14 }}><ColoredConn conn={w.conn} /></span></div>}
+      {w.n5syn && <div style={{ fontSize: 13, marginTop: 6, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={{ ...KICKER, fontSize: 10, color: C.faint }}>≈ N5</span><span className="jp" style={{ fontSize: 13, color: C.inkDim, fontWeight: 600 }}>{w.n5syn}</span></div>}
       {w.ex && (
         <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
           <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>例</span>
@@ -464,7 +470,7 @@ export default function App() {
   useEffect(() => {
     if (screen === "results" && !savedRef.current && total > 0) {
       savedRef.current = true;
-      const slimWrong = wrongList.map(w => ({ jp: w.jp, en: w.en, heb: w.heb, cat: w.cat, num: w.num, conn: w.conn, ex: w.ex, exHeb: w.exHeb, kanjiStory: w.kanjiStory }));
+      const slimWrong = wrongList.map(w => ({ jp: w.jp, en: w.en, heb: w.heb, cat: w.cat, num: w.num, conn: w.conn, ex: w.ex, exHeb: w.exHeb, kanjiStory: w.kanjiStory, n5syn: w.n5syn, oneLiner: w.oneLiner }));
       saveSession({ score, total, bestStreak, cats: selectedCats, wrongList: slimWrong });
       setHistory(loadHistory());
     }
@@ -910,10 +916,23 @@ export default function App() {
                 <div style={{ color: C.inkDim, fontSize: 16, marginTop: 5 }}>{q.en}</div>
                 {q.heb && <HebText style={{ color: C.muted, fontSize: 15, marginTop: 4 }}>{q.heb}</HebText>}
 
+                {q.oneLiner && (
+                  <div style={{ marginTop: 12, padding: "10px 14px", background: C.accentSoft, borderLeft: `2px solid ${C.accent}`, borderRadius: 6, fontSize: 14, color: C.inkDim, fontStyle: "italic", lineHeight: 1.5 }}>
+                    &ldquo;{q.oneLiner}&rdquo;
+                  </div>
+                )}
+
                 {q.conn && (
                   <div style={{ marginTop: 12, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
                     <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>接続</span>
                     <span className="jp" style={{ fontSize: 15, fontWeight: 600 }}><ColoredConn conn={q.conn} /></span>
+                  </div>
+                )}
+
+                {q.n5syn && (
+                  <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+                    <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>≈ N5</span>
+                    <span className="jp" style={{ fontSize: 14, color: C.inkDim, fontWeight: 600 }}>{q.n5syn}</span>
                   </div>
                 )}
 
