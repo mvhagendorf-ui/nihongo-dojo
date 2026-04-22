@@ -344,7 +344,7 @@ export const ALL_DATA = [
   { jp: "饒舌な（じょうぜつな）", en: "talkative / chatty / verbose", heb: "פטפטן / דברן", cat: "MY_WORDS", ex: "彼は饒舌な人だ。", exHeb: "הוא אדם פטפטן.", kanjiStory: "饒(abundant) + 舌(tongue) = abundant tongue → talkative" },
   { jp: "至って（いたって）", en: "very much / extremely (calm tone)", heb: "מאוד / לחלוטין", cat: "MY_WORDS", ex: "至って元気です。", exHeb: "אני בריא לחלוטין.", kanjiStory: "至(reach) = reaching the utmost degree" },
   { jp: "棺桶（かんおけ）", en: "coffin / casket", heb: "ארון קבורה", cat: "MY_WORDS", ex: "棺桶に入る年齢だ。", exHeb: "בגיל שכבר רגל אחת בקבר.", kanjiStory: "棺(coffin) + 桶(barrel) = the barrel-shaped coffin" },
-  { jp: "頗る（すこぶる）", en: "very / remarkably / exceedingly", heb: "מאוד / להפליא", cat: "MY_WORDS", ex: "頗る調子がいい。", exHeb: "המצב טוב להפליא." },
+  { jp: "頗る（すこぶる）", en: "very / remarkably / exceedingly", heb: "מאוד / להפליא", cat: "MY_WORDS", ex: "頗る調子がいい。", exHeb: "המצב טוב להפליא.", pin: true },
   { jp: "行きつけ（いきつけ）", en: "regular (place you frequent)", heb: "מקום קבוע / רגיל", cat: "MY_WORDS", ex: "行きつけの居酒屋がある。", exHeb: "יש לי איזקאיה קבועה.", kanjiStory: "行き(go) + つけ(used to) = a place you're used to going" },
   { jp: "居眠り（いねむり）", en: "dozing off / nodding off", heb: "לנמנם / להירדם", cat: "MY_WORDS", ex: "会議中に居眠りした。", exHeb: "נרדמתי באמצע הישיבה.", kanjiStory: "居(sit) + 眠り(sleep) = sleeping while sitting" },
   { jp: "始末だ（しまつだ）", en: "pathetic ending / what a mess", heb: "סוף עלוב / איזה בלגן", cat: "MY_WORDS", ex: "嘘がばれてこの始末だ。", exHeb: "השקר נחשף וזה הסוף העלוב.", kanjiStory: "始(begin) + 末(end) = from start to end → the messy outcome" },
@@ -366,6 +366,10 @@ export const ALL_DATA = [
   { jp: "誤魔化す（ごまかす）", en: "to bluff / fudge / gloss over / play it off", heb: "לבלוף / לטשטש / להתחמק", cat: "MY_WORDS", ex: "まだまだ間違いが多くて誤魔化しながら喋っています。", exHeb: "עדיין עושה המון טעויות ומדבר תוך כדי בלוף.", kanjiStory: "誤(mistake) + 魔(demon) + 化(transform) = transform a mistake with a demon's trick so no one notices" },
   { jp: "～派（は）", en: "team ~ / pick a side (binary camp)", heb: "~ מחנה / הצד של", cat: "MY_WORDS", ex: "私は犬派・インドア派・お酒飲まない派です。", exHeb: "אני מחנה כלבים, בייתי, ולא שותה אלכוהול.", kanjiStory: "派 = faction — declare which camp you stand with" },
   { jp: "～系（けい）", en: "~ vibe / genre / aesthetic type", heb: "~ סגנון / סוג של", cat: "MY_WORDS", ex: "癒し系・体育会系・パリピ系。", exHeb: "סגנון רגוע, סטייל אתלטי, סטייל מסיבות.", kanjiStory: "系 = lineage/system — the overall vibe or aesthetic family" },
+  { jp: "突然変異（とつぜんへんい）", en: "mutation (genetic / sudden change)", heb: "מוטציה / שינוי פתאומי", cat: "MY_WORDS", ex: "遺伝子の突然変異が見つかった。", exHeb: "נמצאה מוטציה גנטית.", kanjiStory: "突然(sudden) + 変異(change-mutation) = an abrupt genetic shift" },
+  { jp: "積ん読する（つんどくする）", en: "buying books and never reading them (piling them up)", heb: "לקנות ספרים ולא לקרוא (לערום אותם)", cat: "MY_WORDS", ex: "また本を買ってしまった。完全に積ん読だ。", exHeb: "קניתי עוד ספר. צונדוקו מוחלט.", kanjiStory: "積(pile) + 読(read) = the pile of \"will read\" that stays piled forever" },
+  { jp: "進言（しんげん）", en: "advice / proposal (humbly → superior)", heb: "עצה / הצעה (בענווה כלפי מעלה)", cat: "MY_WORDS", ex: "社長に改善策を進言した。", exHeb: "ייעצתי למנכ\"ל על דרכי שיפור.", kanjiStory: "進(advance) + 言(words) = advancing your words upward to someone senior" },
+  { jp: "少子化（しょうしか）", en: "declining birth rate", heb: "ירידה בשיעור הילודה", cat: "MY_WORDS", ex: "少子化が深刻な社会問題になっている。", exHeb: "ירידת הילודה הפכה לבעיה חברתית חמורה.", kanjiStory: "少(few) + 子(child) + 化(becoming) = becoming-fewer-children" },
 ];
 
 export const PASS_SCORE = 80;

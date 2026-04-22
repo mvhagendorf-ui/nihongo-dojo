@@ -35,9 +35,10 @@ export function getSRSWeights(items) {
   const now = Date.now();
   const DAY = 24 * 60 * 60 * 1000;
   return items.map(item => {
+    const pinBoost = item.pin ? 5 : 1;  // top-priority items hit much more often
     const data = srs[item.jp];
     // Never asked before → highest priority
-    if (!data) return { item, weight: 4 };
+    if (!data) return { item, weight: 4 * pinBoost };
     const errorRate = data.wrong / Math.max(1, data.wrong + data.right);
     const base = 1 + errorRate * 4;  // 1-5 based on error rate
     const daysSince = (now - (data.last || 0)) / DAY;
@@ -49,6 +50,6 @@ export function getSRSWeights(items) {
     else if (daysSince > 1) recencyBoost = 1.0;
     else if (daysSince > 0.2) recencyBoost = 0.7;
     else recencyBoost = 0.4;  // asked very recently → low priority
-    return { item, weight: base * recencyBoost };
+    return { item, weight: base * recencyBoost * pinBoost };
   });
 }
