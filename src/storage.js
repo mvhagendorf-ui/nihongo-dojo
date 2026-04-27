@@ -1,5 +1,14 @@
 const HISTORY_KEY = "nihongo_dojo_history";
 const SRS_KEY = "nihongo_dojo_srs";
+const BOOKMARKS_KEY = "nihongo_dojo_bookmarks";
+
+export function loadBookmarks() {
+  try { return new Set(JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || []); }
+  catch { return new Set(); }
+}
+export function saveBookmarks(set) {
+  try { localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([...set])); } catch {}
+}
 
 export function loadHistory() {
   try {

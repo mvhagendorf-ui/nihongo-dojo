@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { CATEGORIES, CATEGORY_GROUPS, SIM_GROUPS, ALL_DATA, PASS_SCORE, QUESTIONS_PER_TEST, TIMER_SECONDS } from "./data";
 import { playSound } from "./audio";
-import { loadHistory, saveSession, updateSRS, getSRSWeights, loadSRS } from "./storage";
+import { loadHistory, saveSession, updateSRS, getSRSWeights, loadSRS, loadBookmarks, saveBookmarks } from "./storage";
 
 // ─────────── DESIGN TOKENS ───────────
 const C = {
@@ -52,6 +52,7 @@ const IconChevRt  = (p) => <Icon {...p} d="M9 6l6 6-6 6" />;
 const IconArrowL  = (p) => <Icon {...p} d={<><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></>} />;
 const IconPencil  = (p) => <Icon {...p} d={<><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></>} />;
 const IconBrain   = (p) => <Icon {...p} d="M9 4a3 3 0 0 1 3 3v10a3 3 0 0 1-6 0 3 3 0 0 1-2-3 3 3 0 0 1 1-5 3 3 0 0 1 4-5zM15 4a3 3 0 0 0-3 3v10a3 3 0 0 0 6 0 3 3 0 0 0 2-3 3 3 0 0 0-1-5 3 3 0 0 0-4-5z" />;
+const IconStar    = ({ filled, ...p }) => <Icon {...p} fill={filled ? "currentColor" : "none"} d="M12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />;
 
 // ─────────── HOOKS & HELPERS ───────────
 function useIsWide() {
@@ -429,7 +430,7 @@ function WrongItem({ w, isLast }) {
 }
 
 // ─────────── GLOSSARY ───────────
-function GlossaryItem({ item, mistakes, expanded, onToggle }) {
+function GlossaryItem({ item, mistakes, bookmarked, onToggle, onToggleBookmark, expanded }) {
   return (
     <div onClick={onToggle} style={{ borderBottom: `1px solid ${C.border}`, padding: "12px 18px", cursor: "pointer" }} className="btn-hover">
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
@@ -444,6 +445,14 @@ function GlossaryItem({ item, mistakes, expanded, onToggle }) {
           {mistakes > 0 && (
             <span className="num" style={{ fontSize: 11, color: C.accent, fontWeight: 600, background: C.accentSoft, border: `1px solid ${C.accentLine}`, padding: "2px 8px", borderRadius: 4 }}>×{mistakes}</span>
           )}
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleBookmark(item.jp); }}
+            aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
+            style={{ background: "transparent", border: "none", padding: 4, cursor: "pointer", color: bookmarked ? C.accent : C.faint, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 6 }}
+            className="btn-hover"
+          >
+            <IconStar size={16} filled={bookmarked} />
+          </button>
           <IconChevDn size={14} style={{ color: C.faint, transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
         </div>
       </div>
@@ -494,10 +503,11 @@ function GlossaryItem({ item, mistakes, expanded, onToggle }) {
   );
 }
 
-function Glossary({ srs, onBack }) {
+function Glossary({ srs, bookmarks, onToggleBookmark, onBack }) {
   const [search, setSearch] = useState("");
   const [openCats, setOpenCats] = useState(() => new Set());
   const [openItems, setOpenItems] = useState(() => new Set());
+  const [bookmarkedOnly, setBookmarkedOnly] = useState(false);
   const ORDERED_CATS = CATEGORY_GROUPS.flatMap(g => g.cats);
 
   const stats = ALL_DATA.reduce((acc, item) => {
@@ -511,6 +521,7 @@ function Glossary({ srs, onBack }) {
   }, { total: 0, mistaken: 0, mastered: 0 });
 
   const matchesSearch = (item) => {
+    if (bookmarkedOnly && !bookmarks.has(item.jp)) return false;
     if (!search) return true;
     const q = search.toLowerCase();
     return (item.jp || "").toLowerCase().includes(q)
@@ -554,19 +565,41 @@ function Glossary({ srs, onBack }) {
         }}
       />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: C.border, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", marginBottom: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: C.border, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", marginBottom: 12 }}>
         <div style={{ background: C.surface, padding: "12px 8px", textAlign: "center" }}>
-          <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.ink }}>{stats.total}</div>
+          <div className="num" style={{ fontSize: 20, fontWeight: 300, color: C.ink }}>{stats.total}</div>
           <div style={{ ...KICKER, fontSize: 9, marginTop: 4 }}>Total</div>
         </div>
         <div style={{ background: C.surface, padding: "12px 8px", textAlign: "center" }}>
-          <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.pass }}>{stats.mastered}</div>
+          <div className="num" style={{ fontSize: 20, fontWeight: 300, color: C.accent }}>{bookmarks.size}</div>
+          <div style={{ ...KICKER, fontSize: 9, marginTop: 4 }}>★ Saved</div>
+        </div>
+        <div style={{ background: C.surface, padding: "12px 8px", textAlign: "center" }}>
+          <div className="num" style={{ fontSize: 20, fontWeight: 300, color: C.pass }}>{stats.mastered}</div>
           <div style={{ ...KICKER, fontSize: 9, marginTop: 4 }}>Mastered</div>
         </div>
         <div style={{ background: C.surface, padding: "12px 8px", textAlign: "center" }}>
-          <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.accent }}>{stats.mistaken}</div>
+          <div className="num" style={{ fontSize: 20, fontWeight: 300, color: C.accent }}>{stats.mistaken}</div>
           <div style={{ ...KICKER, fontSize: 9, marginTop: 4 }}>Mistaken</div>
         </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+        <button onClick={() => setBookmarkedOnly(false)} className="btn-hover" style={{
+          flex: 1, padding: "8px 12px", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase",
+          background: !bookmarkedOnly ? C.accentSoft : "transparent",
+          color: !bookmarkedOnly ? C.accent : C.muted,
+          border: `1px solid ${!bookmarkedOnly ? C.accentLine : C.border}`,
+          borderRadius: 8, cursor: "pointer", fontFamily: FONT_LATIN,
+        }}>All</button>
+        <button onClick={() => setBookmarkedOnly(true)} className="btn-hover" style={{
+          flex: 1, padding: "8px 12px", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase",
+          background: bookmarkedOnly ? C.accentSoft : "transparent",
+          color: bookmarkedOnly ? C.accent : C.muted,
+          border: `1px solid ${bookmarkedOnly ? C.accentLine : C.border}`,
+          borderRadius: 8, cursor: "pointer", fontFamily: FONT_LATIN,
+          display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+        }}><IconStar size={12} filled={bookmarkedOnly} /> Bookmarked</button>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -605,6 +638,8 @@ function Glossary({ srs, onBack }) {
                       key={item.jp + "_" + i}
                       item={item}
                       mistakes={srs[item.jp]?.wrong || 0}
+                      bookmarked={bookmarks.has(item.jp)}
+                      onToggleBookmark={onToggleBookmark}
                       expanded={!!search || openItems.has(item.jp)}
                       onToggle={() => toggleItem(item.jp)}
                     />
@@ -641,6 +676,15 @@ export default function App() {
   const [timerActive, setTimerActive] = useState(false);
   const [history, setHistory] = useState(loadHistory);
   const [srs, setSrs] = useState(loadSRS);
+  const [bookmarks, setBookmarks] = useState(loadBookmarks);
+  const toggleBookmark = useCallback((jp) => {
+    setBookmarks(prev => {
+      const next = new Set(prev);
+      if (next.has(jp)) next.delete(jp); else next.add(jp);
+      saveBookmarks(next);
+      return next;
+    });
+  }, []);
   const [historyModal, setHistoryModal] = useState(null);
   const [numQuestions, setNumQuestions] = useState(QUESTIONS_PER_TEST);
   const [timerMin, setTimerMin] = useState(Math.floor(TIMER_SECONDS / 60));
@@ -763,7 +807,7 @@ export default function App() {
   if (screen === "glossary") {
     return (
       <div style={PAGE}>
-        <Glossary srs={srs} onBack={() => setScreen("menu")} />
+        <Glossary srs={srs} bookmarks={bookmarks} onToggleBookmark={toggleBookmark} onBack={() => setScreen("menu")} />
       </div>
     );
   }
@@ -772,6 +816,46 @@ export default function App() {
   if (screen === "menu") {
     const totalItems = ALL_DATA.length;
     const avg = history.length > 0 ? Math.round(history.reduce((s, h) => s + (h.score / h.total) * 100, 0) / history.length) : 0;
+    const masteredCount = ALL_DATA.filter(i => srs[i.jp]?.right > 0 && (srs[i.jp]?.wrong || 0) === 0).length;
+    const mistakenCount = ALL_DATA.filter(i => (srs[i.jp]?.wrong || 0) > 0).length;
+    const indexCard = (
+      <button onClick={() => setScreen("glossary")} className="btn-hover" style={{
+        width: "100%", padding: 0, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14,
+        cursor: "pointer", textAlign: "left", display: "block", fontFamily: FONT_LATIN, overflow: "hidden",
+        marginTop: wide ? 12 : 12,
+      }}>
+        <div style={{ padding: "14px 18px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+            <IconBook size={16} style={{ color: C.accent }} />
+            <span style={{ ...KICKER, color: C.ink, fontSize: 12 }}>Index · 索引</span>
+          </span>
+          <IconChevRt size={14} style={{ color: C.faint }} />
+        </div>
+        <div style={{ padding: "16px 18px", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+          <div style={{ textAlign: "center" }}>
+            <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.ink, lineHeight: 1 }}>{totalItems}</div>
+            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: C.faint }}>Terms</div>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.accent, lineHeight: 1, display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <IconStar size={14} filled style={{ verticalAlign: "middle" }} />{bookmarks.size}
+            </div>
+            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: C.faint }}>Saved</div>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.pass, lineHeight: 1 }}>{masteredCount}</div>
+            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: C.faint }}>Mastered</div>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.accent, lineHeight: 1 }}>{mistakenCount}</div>
+            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: C.faint }}>Mistaken</div>
+          </div>
+        </div>
+        <div style={{ padding: "10px 18px 14px", color: C.muted, fontSize: 12, borderTop: `1px solid ${C.border}`, background: C.elevated }}>
+          Browse all terms · kanji stories · examples · bookmarks
+        </div>
+      </button>
+    );
     return (
       <div style={PAGE}>
         {/* HEADER */}
@@ -786,7 +870,8 @@ export default function App() {
         </header>
 
         <div style={wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, alignItems: "start" } : {}}>
-          {/* CATEGORIES */}
+          {/* LEFT COLUMN: CATEGORIES + (wide) INDEX */}
+          <div>
           <Card flush>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 18px", borderBottom: `1px solid ${C.border}` }}>
               <KickerLabel>Categories</KickerLabel>
@@ -849,6 +934,8 @@ export default function App() {
               })}
             </div>
           </Card>
+          {wide && indexCard}
+          </div>
 
           {/* CONFIGURE + START */}
           <div>
@@ -910,15 +997,7 @@ export default function App() {
             }} onMouseEnter={e => { if (filteredCount >= 4) e.currentTarget.style.background = C.accentHi; }} onMouseLeave={e => { if (filteredCount >= 4) e.currentTarget.style.background = C.accent; }}>
               Start Test
             </button>
-            <button onClick={() => setScreen("glossary")} className="btn-hover" style={{
-              width: "100%", marginTop: 8, padding: "12px 20px",
-              fontSize: 12, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase",
-              background: "transparent", color: C.inkDim,
-              border: `1px solid ${C.border}`, borderRadius: 10, cursor: "pointer",
-              fontFamily: FONT_LATIN, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
-            }}>
-              <IconBook size={13} /> Index 索引
-            </button>
+            {!wide && indexCard}
           </div>
         </div>
 
