@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { CATEGORIES, CATEGORY_GROUPS, SIM_GROUPS, ALL_DATA, PASS_SCORE, QUESTIONS_PER_TEST, TIMER_SECONDS } from "./data";
 import { playSound } from "./audio";
-import { loadHistory, saveSession, updateSRS, getSRSWeights } from "./storage";
+import { loadHistory, saveSession, updateSRS, getSRSWeights, loadSRS } from "./storage";
 
 // ─────────── DESIGN TOKENS ───────────
 const C = {
@@ -428,6 +428,197 @@ function WrongItem({ w, isLast }) {
   );
 }
 
+// ─────────── GLOSSARY ───────────
+function GlossaryItem({ item, mistakes, expanded, onToggle }) {
+  return (
+    <div onClick={onToggle} style={{ borderBottom: `1px solid ${C.border}`, padding: "12px 18px", cursor: "pointer" }} className="btn-hover">
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="jp" style={{ fontSize: 17, fontWeight: 700, color: C.ink, letterSpacing: "0.02em" }}>
+            {item.jp}
+            {item.num && <span className="num" style={{ fontSize: 11, color: C.faint, marginLeft: 8, fontWeight: 400 }}>#{item.num}</span>}
+          </div>
+          <div style={{ color: C.inkDim, fontSize: 14, marginTop: 2 }}>{item.en}</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          {mistakes > 0 && (
+            <span className="num" style={{ fontSize: 11, color: C.accent, fontWeight: 600, background: C.accentSoft, border: `1px solid ${C.accentLine}`, padding: "2px 8px", borderRadius: 4 }}>×{mistakes}</span>
+          )}
+          <IconChevDn size={14} style={{ color: C.faint, transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+        </div>
+      </div>
+      {expanded && (
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${C.border}` }} onClick={e => e.stopPropagation()}>
+          {item.heb && <HebText style={{ color: C.muted, fontSize: 14 }}>{item.heb}</HebText>}
+          {item.oneLiner && (
+            <div style={{ marginTop: 10, padding: "8px 12px", background: C.accentSoft, borderLeft: `2px solid ${C.accent}`, borderRadius: 5, fontSize: 13, color: C.inkDim, fontStyle: "italic", lineHeight: 1.5 }}>
+              &ldquo;{item.oneLiner}&rdquo;
+            </div>
+          )}
+          {item.conn && (
+            <div style={{ fontSize: 13, marginTop: 10, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ ...KICKER, fontSize: 10, color: C.faint }}>接続</span>
+              <span className="jp" style={{ fontSize: 14, fontWeight: 600 }}><ColoredConn conn={item.conn} /></span>
+            </div>
+          )}
+          {item.n5syn && (
+            <div style={{ fontSize: 13, marginTop: 6, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ ...KICKER, fontSize: 10, color: C.faint }}>≈ N5</span>
+              <span className="jp" style={{ fontSize: 13, color: C.inkDim, fontWeight: 600 }}>{item.n5syn}</span>
+            </div>
+          )}
+          {item.ex && (
+            <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", lineHeight: 1.6 }}>
+              <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>例</span>
+              <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 16, color: C.ink, fontWeight: 600 }}>{item.ex}</span>
+              <SpeakBtn text={item.ex} size={13} />
+            </div>
+          )}
+          {item.exHeb && <HebText style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>{item.exHeb}</HebText>}
+          {item.kanjiStory && (
+            <div style={{ marginTop: 12, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "3px solid #7C3AED", borderRadius: 8, padding: "10px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <span style={{ fontSize: 16, lineHeight: 1.1 }}>🧠</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ ...KICKER, color: C.kanji, marginBottom: 2, fontSize: 10 }}>Kanji Story</div>
+                <div style={{ fontSize: 14, color: "#5B21B6", fontWeight: 500, lineHeight: 1.55 }}>{item.kanjiStory}</div>
+              </div>
+            </div>
+          )}
+          <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 8 }}>
+            <span style={{ ...KICKER, fontSize: 9, color: C.faint }}>Listen</span>
+            <SpeakBtn text={item.jp} size={14} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Glossary({ srs, onBack }) {
+  const [search, setSearch] = useState("");
+  const [openCats, setOpenCats] = useState(() => new Set());
+  const [openItems, setOpenItems] = useState(() => new Set());
+  const ORDERED_CATS = CATEGORY_GROUPS.flatMap(g => g.cats);
+
+  const stats = ALL_DATA.reduce((acc, item) => {
+    acc.total++;
+    const s = srs[item.jp];
+    if (s) {
+      if (s.wrong > 0) acc.mistaken++;
+      else if (s.right > 0) acc.mastered++;
+    }
+    return acc;
+  }, { total: 0, mistaken: 0, mastered: 0 });
+
+  const matchesSearch = (item) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (item.jp || "").toLowerCase().includes(q)
+      || (item.en || "").toLowerCase().includes(q)
+      || (item.heb || "").includes(search)
+      || (item.kanjiStory || "").toLowerCase().includes(q)
+      || (item.oneLiner || "").toLowerCase().includes(q)
+      || (item.ex || "").toLowerCase().includes(q);
+  };
+
+  const toggleCat = (cat) => setOpenCats(prev => {
+    const next = new Set(prev);
+    if (next.has(cat)) next.delete(cat); else next.add(cat);
+    return next;
+  });
+  const toggleItem = (jp) => setOpenItems(prev => {
+    const next = new Set(prev);
+    if (next.has(jp)) next.delete(jp); else next.add(jp);
+    return next;
+  });
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <button onClick={onBack} className="btn-hover" style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", padding: "7px 12px", borderRadius: 8, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <IconArrowL size={12} /> Menu
+        </button>
+        <div style={{ ...KICKER, color: C.muted }}>索引 · Index</div>
+        <div style={{ width: 70 }} />
+      </div>
+
+      <input
+        type="text"
+        placeholder="Search · 検索 · חיפוש"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        style={{
+          width: "100%", padding: "12px 16px", fontSize: 15,
+          background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10,
+          outline: "none", color: C.ink, fontFamily: FONT_LATIN, marginBottom: 14,
+        }}
+      />
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: C.border, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", marginBottom: 16 }}>
+        <div style={{ background: C.surface, padding: "12px 8px", textAlign: "center" }}>
+          <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.ink }}>{stats.total}</div>
+          <div style={{ ...KICKER, fontSize: 9, marginTop: 4 }}>Total</div>
+        </div>
+        <div style={{ background: C.surface, padding: "12px 8px", textAlign: "center" }}>
+          <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.pass }}>{stats.mastered}</div>
+          <div style={{ ...KICKER, fontSize: 9, marginTop: 4 }}>Mastered</div>
+        </div>
+        <div style={{ background: C.surface, padding: "12px 8px", textAlign: "center" }}>
+          <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.accent }}>{stats.mistaken}</div>
+          <div style={{ ...KICKER, fontSize: 9, marginTop: 4 }}>Mistaken</div>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {ORDERED_CATS.map(cat => {
+          const items = ALL_DATA.filter(d => d.cat === cat);
+          const filtered = items.filter(matchesSearch);
+          if (filtered.length === 0) return null;
+          const catExpanded = !!search || openCats.has(cat);
+          const totalMistakes = items.reduce((s, i) => s + (srs[i.jp]?.wrong || 0), 0);
+          return (
+            <Card key={cat} flush>
+              <button onClick={() => toggleCat(cat)} className="btn-hover" style={{
+                width: "100%", padding: "14px 18px",
+                background: "transparent", border: "none",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                cursor: "pointer", textAlign: "left",
+                fontFamily: FONT_LATIN,
+              }}>
+                <span className="jp" style={{ fontSize: 16, fontWeight: 700, color: C.ink, letterSpacing: "0.02em" }}>
+                  {CATEGORIES[cat]}
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  {totalMistakes > 0 && (
+                    <span className="num" style={{ fontSize: 11, color: C.accent, fontWeight: 600 }}>×{totalMistakes}</span>
+                  )}
+                  <span className="num" style={{ fontSize: 12, color: C.faint }}>
+                    {filtered.length}{filtered.length !== items.length ? `/${items.length}` : ""}
+                  </span>
+                  <IconChevDn size={14} style={{ color: C.faint, transform: catExpanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+                </span>
+              </button>
+              {catExpanded && (
+                <div style={{ borderTop: `1px solid ${C.border}` }}>
+                  {filtered.map((item, i) => (
+                    <GlossaryItem
+                      key={item.jp + "_" + i}
+                      item={item}
+                      mistakes={srs[item.jp]?.wrong || 0}
+                      expanded={!!search || openItems.has(item.jp)}
+                      onToggle={() => toggleItem(item.jp)}
+                    />
+                  ))}
+                </div>
+              )}
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─────────── APP ───────────
 export default function App() {
   const wide = useIsWide();
@@ -449,6 +640,7 @@ export default function App() {
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
   const [timerActive, setTimerActive] = useState(false);
   const [history, setHistory] = useState(loadHistory);
+  const [srs, setSrs] = useState(loadSRS);
   const [historyModal, setHistoryModal] = useState(null);
   const [numQuestions, setNumQuestions] = useState(QUESTIONS_PER_TEST);
   const [timerMin, setTimerMin] = useState(Math.floor(TIMER_SECONDS / 60));
@@ -473,6 +665,7 @@ export default function App() {
       const slimWrong = wrongList.map(w => ({ jp: w.jp, en: w.en, heb: w.heb, cat: w.cat, num: w.num, conn: w.conn, ex: w.ex, exHeb: w.exHeb, kanjiStory: w.kanjiStory, n5syn: w.n5syn, oneLiner: w.oneLiner }));
       saveSession({ score, total, bestStreak, cats: selectedCats, wrongList: slimWrong });
       setHistory(loadHistory());
+      setSrs(loadSRS());
     }
   }, [screen, total, score, bestStreak, selectedCats, wrongList]);
 
@@ -565,6 +758,15 @@ export default function App() {
   const q = questions[current];
   const progress = questions.length > 0 ? ((current + 1) / questions.length) * 100 : 0;
   const filteredCount = ALL_DATA.filter(d => selectedCats.includes(d.cat)).length;
+
+  // ═════════ GLOSSARY ═════════
+  if (screen === "glossary") {
+    return (
+      <div style={PAGE}>
+        <Glossary srs={srs} onBack={() => setScreen("menu")} />
+      </div>
+    );
+  }
 
   // ═════════ MENU ═════════
   if (screen === "menu") {
@@ -707,6 +909,15 @@ export default function App() {
               fontFamily: FONT_LATIN,
             }} onMouseEnter={e => { if (filteredCount >= 4) e.currentTarget.style.background = C.accentHi; }} onMouseLeave={e => { if (filteredCount >= 4) e.currentTarget.style.background = C.accent; }}>
               Start Test
+            </button>
+            <button onClick={() => setScreen("glossary")} className="btn-hover" style={{
+              width: "100%", marginTop: 8, padding: "12px 20px",
+              fontSize: 12, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase",
+              background: "transparent", color: C.inkDim,
+              border: `1px solid ${C.border}`, borderRadius: 10, cursor: "pointer",
+              fontFamily: FONT_LATIN, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+            }}>
+              <IconBook size={13} /> Index 索引
             </button>
           </div>
         </div>
