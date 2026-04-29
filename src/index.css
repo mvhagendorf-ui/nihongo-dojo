@@ -2,12 +2,12 @@
 
 :root {
   /* SURFACES */
-  --bg: #EDE5D3;
+  --bg: #F1F1F3;
   --surface: #FFFFFF;
   --elevated: #F8F4EB;
-  --muted-bg: #E6DDC6;
-  --border: #DACFB4;
-  --border-strong: #BFB294;
+  --muted-bg: #E8E1CD;
+  --border: #E2E1E5;
+  --border-strong: #BCBBC2;
 
   /* TEXT */
   --ink: #141414;

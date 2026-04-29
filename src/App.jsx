@@ -6,12 +6,12 @@ import { cloudEnabled, getSession, signIn, signUp, signOut, onAuthChange, fetchC
 
 // ─────────── DESIGN TOKENS ───────────
 const C = {
-  bg: "#EDE5D3",
+  bg: "#F1F1F3",
   surface: "#FFFFFF",
   elevated: "#F8F4EB",
-  mutedBg: "#E6DDC6",
-  border: "#DACFB4",
-  borderStrong: "#BFB294",
+  mutedBg: "#E8E1CD",
+  border: "#E2E1E5",
+  borderStrong: "#BCBBC2",
   ink: "#141414",
   inkDim: "#3F3F3F",
   muted: "#7A7468",
