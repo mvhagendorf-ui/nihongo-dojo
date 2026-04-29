@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { CATEGORIES, CATEGORY_GROUPS, SIM_GROUPS, ALL_DATA, PASS_SCORE, QUESTIONS_PER_TEST, TIMER_SECONDS } from "./data";
 import { playSound } from "./audio";
 import { loadHistory, saveSession, updateSRS, getSRSWeights, loadSRS, loadBookmarks, saveBookmarks } from "./storage";
+import { cloudEnabled, getSession, signIn, signUp, signOut, onAuthChange, fetchCloud, scheduleSync, mergeSRS, mergeHistory, mergeBookmarks } from "./cloud";
 
 // ─────────── DESIGN TOKENS ───────────
 const C = {
@@ -53,6 +54,9 @@ const IconArrowL  = (p) => <Icon {...p} d={<><line x1="19" y1="12" x2="5" y2="12
 const IconPencil  = (p) => <Icon {...p} d={<><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></>} />;
 const IconBrain   = (p) => <Icon {...p} d="M9 4a3 3 0 0 1 3 3v10a3 3 0 0 1-6 0 3 3 0 0 1-2-3 3 3 0 0 1 1-5 3 3 0 0 1 4-5zM15 4a3 3 0 0 0-3 3v10a3 3 0 0 0 6 0 3 3 0 0 0 2-3 3 3 0 0 0-1-5 3 3 0 0 0-4-5z" />;
 const IconStar    = ({ filled, ...p }) => <Icon {...p} fill={filled ? "currentColor" : "none"} d="M12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />;
+const IconUser    = (p) => <Icon {...p} d={<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>} />;
+const IconCloud   = (p) => <Icon {...p} d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />;
+const IconLogOut  = (p) => <Icon {...p} d={<><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></>} />;
 
 // ─────────── HOOKS & HELPERS ───────────
 function useIsWide() {
@@ -654,10 +658,119 @@ function Glossary({ srs, bookmarks, onToggleBookmark, onBack }) {
   );
 }
 
+// ─────────── ACCOUNT ───────────
+function AuthModal({ session, onClose, onSignedIn }) {
+  const [mode, setMode] = useState("signin"); // 'signin' | 'signup'
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [info, setInfo] = useState("");
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true); setErr(""); setInfo("");
+    try {
+      if (mode === "signin") {
+        await signIn(email.trim(), password);
+        onSignedIn?.();
+      } else {
+        await signUp(email.trim(), password);
+        setInfo("Check your email to confirm — then sign in.");
+        setMode("signin");
+      }
+    } catch (e) {
+      setErr(e?.message || "Something went wrong");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const doSignOut = async () => {
+    setBusy(true);
+    try { await signOut(); onClose(); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,20,20,0.45)", backdropFilter: "blur(6px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, maxWidth: 420, width: "100%", padding: 24 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+            <IconCloud size={18} style={{ color: C.accent }} />
+            <span style={{ ...KICKER, color: C.ink, fontSize: 13 }}>{session ? "Account" : (mode === "signin" ? "Sign In" : "Create Account")}</span>
+          </div>
+          <button onClick={onClose} aria-label="Close" style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, cursor: "pointer", width: 30, height: 30, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }} className="btn-hover"><IconX size={13} /></button>
+        </div>
+
+        {!cloudEnabled ? (
+          <div style={{ fontSize: 13, color: C.inkDim, lineHeight: 1.6 }}>
+            Cloud sync isn't configured yet. Once <code style={{ background: C.mutedBg, padding: "1px 6px", borderRadius: 4 }}>VITE_SUPABASE_URL</code> and <code style={{ background: C.mutedBg, padding: "1px 6px", borderRadius: 4 }}>VITE_SUPABASE_ANON_KEY</code> are set in Vercel, sign-in will activate here.
+          </div>
+        ) : session ? (
+          <div>
+            <div style={{ fontSize: 13, color: C.muted, marginBottom: 4 }}>Signed in as</div>
+            <div className="num" style={{ fontSize: 15, color: C.ink, marginBottom: 16, wordBreak: "break-all" }}>{session.user?.email}</div>
+            <div style={{ background: C.passSoft, border: `1px solid ${C.passLine}`, borderRadius: 8, padding: "10px 12px", display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
+              <IconCloud size={14} style={{ color: C.pass }} />
+              <span style={{ color: C.pass, fontSize: 12, fontWeight: 600 }}>Auto-syncing across devices</span>
+            </div>
+            <button onClick={doSignOut} disabled={busy} className="btn-hover" style={{ width: "100%", padding: "12px 16px", fontSize: 12, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", background: "transparent", color: C.inkDim, border: `1px solid ${C.border}`, borderRadius: 10, cursor: busy ? "wait" : "pointer", fontFamily: FONT_LATIN, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <IconLogOut size={13} /> Sign Out
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={submit}>
+            <label style={{ ...KICKER, color: C.muted, display: "block", marginBottom: 6, fontSize: 10 }}>Email</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus style={{ width: "100%", padding: "10px 14px", fontSize: 15, background: C.mutedBg, border: `1px solid ${C.border}`, borderRadius: 8, outline: "none", color: C.ink, fontFamily: FONT_LATIN, marginBottom: 12 }} />
+            <label style={{ ...KICKER, color: C.muted, display: "block", marginBottom: 6, fontSize: 10 }}>Password</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} style={{ width: "100%", padding: "10px 14px", fontSize: 15, background: C.mutedBg, border: `1px solid ${C.border}`, borderRadius: 8, outline: "none", color: C.ink, fontFamily: FONT_LATIN, marginBottom: 14 }} />
+            {err && <div style={{ fontSize: 12, color: C.accent, marginBottom: 10, padding: "8px 12px", background: C.accentSoft, border: `1px solid ${C.accentLine}`, borderRadius: 6 }}>{err}</div>}
+            {info && <div style={{ fontSize: 12, color: C.pass, marginBottom: 10, padding: "8px 12px", background: C.passSoft, border: `1px solid ${C.passLine}`, borderRadius: 6 }}>{info}</div>}
+            <button type="submit" disabled={busy} className="btn-hover" style={{ width: "100%", padding: "12px 16px", fontSize: 12, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", background: C.accent, color: "#fff", border: `1px solid ${C.accent}`, borderRadius: 10, cursor: busy ? "wait" : "pointer", fontFamily: FONT_LATIN, marginBottom: 10 }}>
+              {busy ? "..." : (mode === "signin" ? "Sign In" : "Create Account")}
+            </button>
+            <button type="button" onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setErr(""); setInfo(""); }} style={{ width: "100%", background: "transparent", border: "none", color: C.muted, fontSize: 12, cursor: "pointer", padding: 6, fontFamily: FONT_LATIN }}>
+              {mode === "signin" ? "Don't have an account? Create one →" : "Already have an account? Sign in →"}
+            </button>
+            <div style={{ fontSize: 11, color: C.faint, marginTop: 10, lineHeight: 1.5 }}>
+              Your local progress will be merged with the cloud on first sign-in. Nothing is lost.
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AccountChip({ session, onClick }) {
+  if (!cloudEnabled) {
+    return (
+      <button onClick={onClick} className="btn-hover" style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.faint, fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", padding: "6px 10px", borderRadius: 8, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontFamily: FONT_LATIN }}>
+        <IconCloud size={11} /> Cloud Off
+      </button>
+    );
+  }
+  if (!session) {
+    return (
+      <button onClick={onClick} className="btn-hover" style={{ background: C.accentSoft, border: `1px solid ${C.accentLine}`, color: C.accent, fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", padding: "6px 10px", borderRadius: 8, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontFamily: FONT_LATIN }}>
+        <IconUser size={11} /> Sign In
+      </button>
+    );
+  }
+  const email = session.user?.email || "";
+  const display = email.length > 20 ? email.slice(0, 17) + "…" : email;
+  return (
+    <button onClick={onClick} className="btn-hover" style={{ background: C.passSoft, border: `1px solid ${C.passLine}`, color: C.pass, fontSize: 10, fontWeight: 600, padding: "6px 10px", borderRadius: 8, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontFamily: FONT_LATIN, letterSpacing: "0.04em", textTransform: "none" }}>
+      <IconCloud size={11} /> {display}
+    </button>
+  );
+}
+
 // ─────────── APP ───────────
 export default function App() {
   const wide = useIsWide();
-  const PAGE = { minHeight: "100dvh", padding: wide ? "32px 40px 48px" : "18px 18px 40px", maxWidth: wide ? 1180 : 560, margin: "0 auto", color: C.ink, fontFamily: FONT_LATIN };
+  const PAGE = { position: "relative", minHeight: "100dvh", padding: wide ? "32px 40px 48px" : "18px 18px 40px", maxWidth: wide ? 1180 : 560, margin: "0 auto", color: C.ink, fontFamily: FONT_LATIN };
 
   const [screen, setScreen] = useState("menu");
   const [selectedCats, setSelectedCats] = useState(Object.keys(CATEGORIES));
@@ -677,6 +790,10 @@ export default function App() {
   const [history, setHistory] = useState(loadHistory);
   const [srs, setSrs] = useState(loadSRS);
   const [bookmarks, setBookmarks] = useState(loadBookmarks);
+  const [session, setSession] = useState(null);
+  const [authOpen, setAuthOpen] = useState(false);
+  const userId = session?.user?.id || null;
+
   const toggleBookmark = useCallback((jp) => {
     setBookmarks(prev => {
       const next = new Set(prev);
@@ -686,6 +803,49 @@ export default function App() {
     });
   }, []);
   const [historyModal, setHistoryModal] = useState(null);
+
+  // Auth + sync wiring (no-ops if cloud not configured)
+  useEffect(() => {
+    if (!cloudEnabled) return;
+    let cancelled = false;
+    (async () => {
+      const s = await getSession();
+      if (!cancelled) setSession(s);
+    })();
+    const unsub = onAuthChange(async (s) => {
+      setSession(s);
+      if (s?.user?.id) {
+        // On sign-in: pull cloud, merge with local, save merged everywhere
+        try {
+          const cloud = await fetchCloud(s.user.id);
+          const localHistory = loadHistory();
+          const localSRS = loadSRS();
+          const localBookmarks = [...loadBookmarks()];
+          const mergedHistory = mergeHistory(localHistory, cloud?.history || []);
+          const mergedSRS = mergeSRS(localSRS, cloud?.srs || {});
+          const mergedBookmarks = mergeBookmarks(localBookmarks, cloud?.bookmarks || []);
+          // Save merged → local
+          localStorage.setItem("nihongo_dojo_history", JSON.stringify(mergedHistory));
+          localStorage.setItem("nihongo_dojo_srs", JSON.stringify(mergedSRS));
+          localStorage.setItem("nihongo_dojo_bookmarks", JSON.stringify(mergedBookmarks));
+          // Reflect in React state
+          setHistory(mergedHistory);
+          setSrs(mergedSRS);
+          setBookmarks(new Set(mergedBookmarks));
+          // Push merged → cloud
+          scheduleSync(s.user.id, { history: mergedHistory, srs: mergedSRS, bookmarks: mergedBookmarks });
+        } catch (e) {
+          console.warn("[cloud] initial sync failed:", e?.message || e);
+        }
+      }
+    });
+    return () => { cancelled = true; unsub?.(); };
+  }, []);
+
+  // Push to cloud whenever any synced data changes (debounced inside cloud.js)
+  useEffect(() => {
+    if (userId) scheduleSync(userId, { history, srs, bookmarks: [...bookmarks] });
+  }, [userId, history, srs, bookmarks]);
   const [numQuestions, setNumQuestions] = useState(QUESTIONS_PER_TEST);
   const [timerMin, setTimerMin] = useState(Math.floor(TIMER_SECONDS / 60));
   const [timerSec, setTimerSec] = useState(TIMER_SECONDS % 60);
@@ -859,6 +1019,9 @@ export default function App() {
     return (
       <div style={PAGE}>
         {/* HEADER */}
+        <div style={{ position: "absolute", top: wide ? 32 : 18, right: wide ? 40 : 18, zIndex: 5 }}>
+          <AccountChip session={session} onClick={() => setAuthOpen(true)} />
+        </div>
         <header style={{ textAlign: "center", marginBottom: wide ? 32 : 24, paddingTop: 4 }}>
           <div className="logo-wrap logo-wrap--light" role="button" tabIndex={0} aria-label="日本語道場" style={{ width: wide ? 300 : 240, height: wide ? 300 : 240, margin: "0 auto 10px" }}>
             <img className="logo-img" src="/logo.png" alt="日本語道場" style={{ width: "100%", height: "100%", clipPath: "circle(40% at 50% 50%)" }} />
@@ -1008,6 +1171,7 @@ export default function App() {
         </div>
 
         {historyModal && <HistoryModal session={historyModal} onClose={() => setHistoryModal(null)} />}
+        {authOpen && <AuthModal session={session} onClose={() => setAuthOpen(false)} onSignedIn={() => setAuthOpen(false)} />}
       </div>
     );
   }
