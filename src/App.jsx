@@ -33,6 +33,7 @@ const FONT_JP_DISPLAY = "'Noto Serif JP', 'Noto Sans JP', serif";
 const FONT_NUM = "'JetBrains Mono', 'SF Mono', Menlo, monospace";
 
 const KICKER = { fontFamily: FONT_LATIN, fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase", fontSize: 11, color: C.muted };
+const JP_LABEL = { fontFamily: FONT_JP, fontSize: 14, fontWeight: 700, color: C.faint, letterSpacing: "0.04em", textTransform: "none" };
 
 // ─────────── ICONS (2px stroke) ───────────
 const Icon = ({ d, size = 16, stroke = "currentColor", fill = "none", style }) => (
@@ -303,7 +304,7 @@ function Leaderboard({ history }) {
                 {t.showAll && w.heb && <HebText style={{ color: C.muted, fontSize: t.meta, marginTop: 3 }}>{w.heb}</HebText>}
                 {t.showAll && w.ex && (
                   <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, lineHeight: 1.55, flexWrap: "wrap" }}>
-                    <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>例</span>
+                    <span style={{ ...JP_LABEL, flexShrink: 0 }}>例</span>
                     <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: t.meta + 2, color: C.ink, fontWeight: 600 }}>{w.ex}</span>
                     <SpeakBtn text={w.ex} size={12} />
                   </div>
@@ -410,11 +411,11 @@ function WrongItem({ w, isLast }) {
           &ldquo;{w.oneLiner}&rdquo;
         </div>
       )}
-      {w.conn && <div style={{ fontSize: 13, marginTop: 10, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={{ ...KICKER, fontSize: 10, color: C.faint }}>接続</span><span className="jp" style={{ fontSize: 14 }}><ColoredConn conn={w.conn} /></span></div>}
+      {w.conn && <div style={{ fontSize: 13, marginTop: 10, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={JP_LABEL}>接続</span><span className="jp" style={{ fontSize: 14 }}><ColoredConn conn={w.conn} /></span></div>}
       {w.n5syn && <div style={{ fontSize: 13, marginTop: 6, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={{ ...KICKER, fontSize: 10, color: C.faint }}>≈ N5</span><span className="jp" style={{ fontSize: 13, color: C.inkDim, fontWeight: 600 }}>{w.n5syn}</span></div>}
       {w.ex && (
         <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-          <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>例</span>
+          <span style={{ ...JP_LABEL, flexShrink: 0 }}>例</span>
           <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 16, color: C.ink, fontWeight: 600, lineHeight: 1.55 }}>{w.ex}</span>
           <SpeakBtn text={w.ex} size={13} />
         </div>
@@ -470,7 +471,7 @@ function GlossaryItem({ item, mistakes, bookmarked, onToggle, onToggleBookmark, 
           )}
           {item.conn && (
             <div style={{ fontSize: 13, marginTop: 10, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
-              <span style={{ ...KICKER, fontSize: 10, color: C.faint }}>接続</span>
+              <span style={JP_LABEL}>接続</span>
               <span className="jp" style={{ fontSize: 14, fontWeight: 600 }}><ColoredConn conn={item.conn} /></span>
             </div>
           )}
@@ -482,7 +483,7 @@ function GlossaryItem({ item, mistakes, bookmarked, onToggle, onToggleBookmark, 
           )}
           {item.ex && (
             <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", lineHeight: 1.6 }}>
-              <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>例</span>
+              <span style={{ ...JP_LABEL, flexShrink: 0 }}>例</span>
               <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 16, color: C.ink, fontWeight: 600 }}>{item.ex}</span>
               <SpeakBtn text={item.ex} size={13} />
             </div>
@@ -1301,7 +1302,7 @@ export default function App() {
                   </div>
                   {q.conn && (
                     <div style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 10, padding: "8px 16px", background: C.mutedBg, border: `1px solid ${C.border}`, borderRadius: 8 }}>
-                      <span style={{ ...KICKER, fontSize: 11, color: C.faint }}>接続</span>
+                      <span style={JP_LABEL}>接続</span>
                       <span className="jp" style={{ fontSize: 15, fontWeight: 600 }}><ColoredConn conn={q.conn} /></span>
                     </div>
                   )}
@@ -1366,9 +1367,30 @@ export default function App() {
             {selected && (
               <div className="slide-up" style={{ marginTop: 16, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: "20px 22px" }}>
                 <KickerLabel style={{ color: C.pass, marginBottom: 12 }}>Answer</KickerLabel>
-                <div className="jp" style={{ fontSize: 24, fontWeight: 700, color: C.ink, letterSpacing: "0.02em" }}>{q.jp} <SpeakBtn text={q.jp} size={16} /></div>
-                <div style={{ color: C.inkDim, fontSize: 16, marginTop: 5 }}>{q.en}</div>
-                {q.heb && <HebText style={{ color: C.muted, fontSize: 15, marginTop: 4 }}>{q.heb}</HebText>}
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="jp" style={{ fontSize: 24, fontWeight: 700, color: C.ink, letterSpacing: "0.02em" }}>{q.jp} <SpeakBtn text={q.jp} size={16} /></div>
+                    <div style={{ color: C.inkDim, fontSize: 16, marginTop: 5 }}>{q.en}</div>
+                    {q.heb && <HebText style={{ color: C.muted, fontSize: 15, marginTop: 4 }}>{q.heb}</HebText>}
+                  </div>
+                  <button
+                    onClick={() => toggleBookmark(q.jp)}
+                    aria-label={bookmarks.has(q.jp) ? "Remove bookmark" : "Save to bookmarks"}
+                    className="btn-hover"
+                    style={{
+                      flexShrink: 0,
+                      background: bookmarks.has(q.jp) ? C.accentSoft : "transparent",
+                      border: `1px solid ${bookmarks.has(q.jp) ? C.accentLine : C.border}`,
+                      color: bookmarks.has(q.jp) ? C.accent : C.muted,
+                      padding: "8px 12px", borderRadius: 8, cursor: "pointer",
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      fontFamily: FONT_LATIN, fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase",
+                    }}
+                  >
+                    <IconStar size={13} filled={bookmarks.has(q.jp)} />
+                    {bookmarks.has(q.jp) ? "Saved" : "Save"}
+                  </button>
+                </div>
 
                 {q.oneLiner && (
                   <div style={{ marginTop: 12, padding: "10px 14px", background: C.accentSoft, borderLeft: `2px solid ${C.accent}`, borderRadius: 6, fontSize: 14, color: C.inkDim, fontStyle: "italic", lineHeight: 1.5 }}>
@@ -1378,7 +1400,7 @@ export default function App() {
 
                 {q.conn && (
                   <div style={{ marginTop: 12, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-                    <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>接続</span>
+                    <span style={{ ...JP_LABEL, flexShrink: 0 }}>接続</span>
                     <span className="jp" style={{ fontSize: 15, fontWeight: 600 }}><ColoredConn conn={q.conn} /></span>
                   </div>
                 )}
@@ -1392,7 +1414,7 @@ export default function App() {
 
                 {q.ex && (
                   <div style={{ marginTop: 16, display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap", lineHeight: 1.6 }}>
-                    <span style={{ ...KICKER, fontSize: 10, color: C.faint, flexShrink: 0 }}>例</span>
+                    <span style={{ ...JP_LABEL, flexShrink: 0 }}>例</span>
                     <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 18, color: C.ink, fontWeight: 600 }}>
                       {isFill && qCore ? q.ex.split(qCore).map((part, idx, arr) => (
                         <span key={idx}>{part}{idx < arr.length - 1 && <span style={{ background: C.passSoft, color: C.pass, padding: "1px 6px", borderRadius: 3, fontWeight: 700, border: `1px solid ${C.passLine}` }}>{qCore}</span>}</span>
