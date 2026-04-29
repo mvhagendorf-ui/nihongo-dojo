@@ -6,12 +6,12 @@ import { cloudEnabled, getSession, signIn, signUp, signOut, onAuthChange, fetchC
 
 // ─────────── DESIGN TOKENS ───────────
 const C = {
-  bg: "#FAF7F3",
+  bg: "#EDE5D3",
   surface: "#FFFFFF",
-  elevated: "#F5F2EC",
-  mutedBg: "#F2EEE7",
-  border: "#E4DFD4",
-  borderStrong: "#CFC9BC",
+  elevated: "#F8F4EB",
+  mutedBg: "#E6DDC6",
+  border: "#DACFB4",
+  borderStrong: "#BFB294",
   ink: "#141414",
   inkDim: "#3F3F3F",
   muted: "#7A7468",
@@ -220,7 +220,7 @@ function ColoredConn({ conn }) {
 // ─────────── PRIMITIVES ───────────
 function Card({ children, style, className, elevated, flush }) {
   return (
-    <div className={className} style={{ background: elevated ? C.elevated : C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: flush ? 0 : 18, ...style }}>
+    <div className={className} style={{ background: elevated ? C.elevated : C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: flush ? 0 : 18, boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 8px 28px -10px rgba(80,60,30,0.10)", ...style }}>
       {children}
     </div>
   );
