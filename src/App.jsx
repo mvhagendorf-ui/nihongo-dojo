@@ -71,6 +71,9 @@ function useIsWide() {
   return wide;
 }
 
+const hasKanji = (jp) => /[一-鿿]/.test(jp || "");
+const storyLabel = (jp) => hasKanji(jp) ? "Kanji Story" : "Etymology";
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -314,7 +317,7 @@ function Leaderboard({ history }) {
                   <div style={{ marginTop: 8, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "2px solid #7C3AED", padding: "7px 10px", borderRadius: 6, display: "flex", gap: 8, alignItems: "flex-start" }}>
                     <span style={{ fontSize: 13, lineHeight: 1.2 }}>🧠</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ ...KICKER, color: C.kanji, fontSize: 9, marginBottom: 2 }}>Kanji Story</div>
+                      <div style={{ ...KICKER, color: C.kanji, fontSize: 9, marginBottom: 2 }}>{storyLabel(w.jp)}</div>
                       <div style={{ fontSize: t.meta, color: "#5B21B6", fontWeight: 500, lineHeight: 1.5 }}>{w.kanjiStory}</div>
                     </div>
                   </div>
@@ -425,7 +428,7 @@ function WrongItem({ w, isLast }) {
         <div style={{ marginTop: 12, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "2px solid #7C3AED", padding: "10px 14px", borderRadius: 8, display: "flex", gap: 10, alignItems: "flex-start" }}>
           <span style={{ fontSize: 16, lineHeight: 1.2 }}>🧠</span>
           <div style={{ flex: 1 }}>
-            <div style={{ ...KICKER, color: C.kanji, fontSize: 10, marginBottom: 2 }}>Kanji Story</div>
+            <div style={{ ...KICKER, color: C.kanji, fontSize: 10, marginBottom: 2 }}>{storyLabel(w.jp)}</div>
             <div style={{ fontSize: 14, color: "#5B21B6", fontWeight: 500, lineHeight: 1.55 }}>{w.kanjiStory}</div>
           </div>
         </div>
@@ -493,7 +496,7 @@ function GlossaryItem({ item, mistakes, bookmarked, onToggle, onToggleBookmark, 
             <div style={{ marginTop: 12, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "3px solid #7C3AED", borderRadius: 8, padding: "10px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
               <span style={{ fontSize: 16, lineHeight: 1.1 }}>🧠</span>
               <div style={{ flex: 1 }}>
-                <div style={{ ...KICKER, color: C.kanji, marginBottom: 2, fontSize: 10 }}>Kanji Story</div>
+                <div style={{ ...KICKER, color: C.kanji, marginBottom: 2, fontSize: 10 }}>{storyLabel(item.jp)}</div>
                 <div style={{ fontSize: 14, color: "#5B21B6", fontWeight: 500, lineHeight: 1.55 }}>{item.kanjiStory}</div>
               </div>
             </div>
@@ -1429,7 +1432,7 @@ export default function App() {
                   <div style={{ marginTop: 16, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "3px solid #7C3AED", borderRadius: 10, padding: "14px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
                     <span style={{ fontSize: 22, lineHeight: 1.1 }}>🧠</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ ...KICKER, color: C.kanji, marginBottom: 4, fontSize: 11 }}>Kanji Story</div>
+                      <div style={{ ...KICKER, color: C.kanji, marginBottom: 4, fontSize: 11 }}>{storyLabel(q.jp)}</div>
                       <div style={{ fontSize: 16, color: "#5B21B6", fontWeight: 500, lineHeight: 1.6 }}>{q.kanjiStory}</div>
                     </div>
                   </div>
