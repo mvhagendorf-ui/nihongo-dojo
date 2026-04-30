@@ -807,6 +807,8 @@ export default function App() {
     });
   }, []);
   const [historyModal, setHistoryModal] = useState(null);
+  const [bookmarksOpen, setBookmarksOpen] = useState(false);
+  const [bookmarksExpanded, setBookmarksExpanded] = useState(null);
 
   // Auth + sync wiring (no-ops if cloud not configured)
   useEffect(() => {
@@ -1035,6 +1037,58 @@ export default function App() {
             N2 / N1 · {totalItems} items{history.length > 0 ? ` · ${history.length} tests · avg ${avg}%` : ""}
           </div>
         </header>
+
+        {bookmarks.size > 0 && (() => {
+          const bookmarkedItems = ALL_DATA.filter(d => bookmarks.has(d.jp));
+          return (
+            <div style={{ marginBottom: wide ? 18 : 14 }}>
+              <button
+                onClick={() => setBookmarksOpen(o => !o)}
+                className="btn-hover"
+                style={{
+                  width: "100%", background: C.surface, border: `1px solid ${C.border}`,
+                  borderRadius: 14, padding: "12px 18px",
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  cursor: "pointer", fontFamily: FONT_LATIN,
+                  boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 8px 28px -10px rgba(80,60,30,0.10)",
+                  borderBottomLeftRadius: bookmarksOpen ? 0 : 14,
+                  borderBottomRightRadius: bookmarksOpen ? 0 : 14,
+                  borderBottom: bookmarksOpen ? "none" : `1px solid ${C.border}`,
+                }}
+              >
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+                  <IconStar size={16} filled style={{ color: C.accent }} />
+                  <span style={{ ...KICKER, color: C.ink, fontSize: 12 }}>Bookmarks · 保存</span>
+                  <span className="num" style={{ color: C.accent, fontSize: 14, fontWeight: 500, marginLeft: 4 }}>{bookmarks.size}</span>
+                </span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+                  {!bookmarksOpen && <span style={{ ...KICKER, color: C.faint, fontSize: 10 }}>Tap to view</span>}
+                  <IconChevDn size={14} style={{ color: C.faint, transform: bookmarksOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+                </span>
+              </button>
+              {bookmarksOpen && (
+                <div style={{
+                  background: C.surface, border: `1px solid ${C.border}`, borderTop: "none",
+                  borderBottomLeftRadius: 14, borderBottomRightRadius: 14,
+                  maxHeight: 520, overflowY: "auto",
+                  boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 8px 28px -10px rgba(80,60,30,0.10)",
+                }}>
+                  {bookmarkedItems.map(item => (
+                    <GlossaryItem
+                      key={item.jp}
+                      item={item}
+                      mistakes={srs[item.jp]?.wrong || 0}
+                      bookmarked={true}
+                      onToggle={() => setBookmarksExpanded(p => p === item.jp ? null : item.jp)}
+                      onToggleBookmark={toggleBookmark}
+                      expanded={bookmarksExpanded === item.jp}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         <div style={wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, alignItems: "start" } : {}}>
           {/* LEFT COLUMN: CATEGORIES + (wide) INDEX */}
