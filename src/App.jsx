@@ -170,18 +170,59 @@ function stripFurigana(text) {
   return text.replace(/[（(]([぀-ゟ゠-ヿ〜ー・]+)[)）]/g, "");
 }
 
-// Per-kanji radical decomposition cache (localStorage). Format:
-//   "休": { radicals: [{ char: "人", meaning: "person", strokes: 2 }, { char: "木", meaning: "tree", strokes: 4 }], mnemonic: "person resting under a tree" }
+// Per-kanji radical decomposition. Three sources, in order:
+//   1. BUNDLED_RADICALS — pre-computed JSON shipped with the app (instant, zero API cost)
+//   2. localStorage cache — for kanji fetched at runtime (custom quizzes, new MY_WORDS)
+//   3. /api/decompose-kanji — fallback for anything not yet cached
+import BUNDLED_RADICALS from "./kanjiRadicals.json";
 const RADICAL_CACHE_KEY = "nihongo_dojo_kanji_radicals_v2";
 function loadRadicalCache() {
   try { return JSON.parse(localStorage.getItem(RADICAL_CACHE_KEY)) || {}; }
   catch { return {}; }
 }
 function saveRadicalCache(cache) {
-  try { localStorage.setItem(RADICAL_CACHE_KEY, JSON.stringify(cache)); } catch {}
+  try {
+    localStorage.setItem(RADICAL_CACHE_KEY, JSON.stringify(cache));
+    window.dispatchEvent(new CustomEvent("radical-cache-updated"));
+  } catch {}
+}
+function getRadicalEntry(k) {
+  return BUNDLED_RADICALS[k] || loadRadicalCache()[k] || null;
 }
 
-// Per-kanji radical tile grid — async fetches uncached kanji from /api/decompose-kanji.
+// Kicks off background prefetch of any uncached kanji from a list of jp strings.
+// Call at quiz start so radicals land in cache while the user works through questions.
+function prefetchRadicalsForJp(jpStrings) {
+  const need = new Set();
+  for (const jp of jpStrings) {
+    if (!jp) continue;
+    for (const ch of jp) if (isKanjiChar(ch) && !getRadicalEntry(ch)) need.add(ch);
+  }
+  if (need.size === 0) return;
+  const all = [...need];
+  // Batch into chunks of 15 (matches API ceiling); fire all in parallel.
+  for (let i = 0; i < all.length; i += 15) {
+    const chunk = all.slice(i, i + 15);
+    fetch("/api/decompose-kanji", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kanjis: chunk }),
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data?.decompositions) return;
+        const next = { ...loadRadicalCache() };
+        for (const d of data.decompositions) {
+          if (d?.kanji) next[d.kanji] = { radicals: d.radicals || [], mnemonic: d.mnemonic || "" };
+        }
+        saveRadicalCache(next);
+      })
+      .catch(() => {});
+  }
+}
+
+// Per-kanji radical tile grid — reads from BUNDLED_RADICALS first, then localStorage cache,
+// then fetches missing ones from /api/decompose-kanji on demand.
 function KanjiRadicals({ word }) {
   const kanjiList = useMemo(() => {
     if (!word) return [];
@@ -190,12 +231,29 @@ function KanjiRadicals({ word }) {
     return [...set];
   }, [word]);
 
-  const [cache, setCache] = useState(loadRadicalCache);
+  // Resolve current entries from bundled + localStorage cache. Re-resolves whenever the cache fires its update event.
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    const handler = () => setVersion(v => v + 1);
+    window.addEventListener("radical-cache-updated", handler);
+    return () => window.removeEventListener("radical-cache-updated", handler);
+  }, []);
+
+  const entries = useMemo(() => {
+    const lsCache = loadRadicalCache();
+    const out = {};
+    for (const k of kanjiList) {
+      out[k] = BUNDLED_RADICALS[k] || lsCache[k] || null;
+    }
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kanjiList.join(","), version]);
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (kanjiList.length === 0) return;
-    const missing = kanjiList.filter(k => !cache[k]);
+    const missing = kanjiList.filter(k => !entries[k]);
     if (missing.length === 0) return;
     let cancelled = false;
     setLoading(true);
@@ -212,11 +270,11 @@ function KanjiRadicals({ word }) {
           if (d?.kanji) next[d.kanji] = { radicals: d.radicals || [], mnemonic: d.mnemonic || "" };
         }
         saveRadicalCache(next);
-        setCache(next);
       })
       .catch(() => {})
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kanjiList.join(",")]);
 
   if (kanjiList.length === 0) return null;
@@ -226,7 +284,7 @@ function KanjiRadicals({ word }) {
       <div style={{ ...KICKER, color: C.kanji, fontSize: 10, marginBottom: 8 }}>Components · 部首</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {kanjiList.map(k => {
-          const entry = cache[k];
+          const entry = entries[k];
           return (
             <div key={k} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
               <div style={{ fontSize: 28, fontFamily: FONT_JP_DISPLAY, color: "#5B21B6", fontWeight: 500, lineHeight: 1, minWidth: 36, textAlign: "center" }}>{k}</div>
@@ -1269,6 +1327,7 @@ export default function App() {
     setTimerActive(true);
     setQuizPool(ALL_DATA);
     setChoices(generateChoices(picked[0], ALL_DATA));
+    prefetchRadicalsForJp(picked.map(p => p.jp));
     savedRef.current = false;
     setScreen("quiz");
   }, [selectedCats, numQuestions, timerMin, timerSec]);
@@ -1289,6 +1348,7 @@ export default function App() {
     setTimerActive(true);
     setQuizPool(items);
     setChoices(generateChoices(picked[0], items));
+    prefetchRadicalsForJp(picked.map(p => p.jp));
     savedRef.current = false;
     setScreen("quiz");
   }, [numQuestions, timerMin, timerSec]);
