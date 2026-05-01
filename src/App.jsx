@@ -164,6 +164,30 @@ function Furigana({ jp, reading, style, className }) {
 // Strips a parenthetical reading off jp, for places that just want the clean text (TTS, comparisons display)
 function cleanJp(jp) { return parseJpReading(jp).jp; }
 
+// Strips ALL inline `（kana）` annotations from a string (for TTS — otherwise the engine reads them aloud).
+function stripFurigana(text) {
+  if (!text) return text;
+  return text.replace(/[（(]([぀-ゟ゠-ヿ〜ー・]+)[)）]/g, "");
+}
+
+// Renders a sentence with inline `（kana）` annotations as <ruby> furigana over the preceding kanji block.
+// "健康診断（しんだん）の結果は頗る良好（りょうこう）だ" → ruby above 健康診断 / 良好.
+function FuriganaSentence({ text }) {
+  if (!text) return null;
+  const re = /([㐀-䶿一-龯豈-﫿]+)[（(]([぀-ゟ゠-ヿ〜ー・]+)[)）]/g;
+  const out = [];
+  let last = 0, m, key = 0;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) out.push(<span key={key++}>{text.slice(last, m.index)}</span>);
+    out.push(
+      <ruby key={key++}>{m[1]}<rt style={{ fontSize: "0.5em", fontWeight: 400, lineHeight: 1, color: "inherit", letterSpacing: 0, opacity: 0.85 }}>{m[2]}</rt></ruby>
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push(<span key={key++}>{text.slice(last)}</span>);
+  return <>{out}</>;
+}
+
 function extractCores(jp) {
   const cleaned = jp.replace(/^～/, "").replace(/[（(][^)）]*[)）]/g, "").trim();
   return cleaned.split("/").map(s => s.trim()).filter(Boolean);
@@ -371,8 +395,8 @@ function Leaderboard({ history }) {
                 {t.showAll && w.ex && (
                   <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, lineHeight: 1.55, flexWrap: "wrap" }}>
                     <span style={{ ...JP_LABEL, flexShrink: 0 }}>例</span>
-                    <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: t.meta + 2, color: C.ink, fontWeight: 600 }}>{w.ex}</span>
-                    <SpeakBtn text={w.ex} size={12} />
+                    <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: t.meta + 2, color: C.ink, fontWeight: 600 }}><FuriganaSentence text={w.ex} /></span>
+                    <SpeakBtn text={stripFurigana(w.ex)} size={12} />
                   </div>
                 )}
                 {t.showAll && w.exHeb && <HebText style={{ color: C.muted, fontSize: t.meta - 1, marginTop: 3 }}>{w.exHeb}</HebText>}
@@ -482,8 +506,8 @@ function WrongItem({ w, isLast }) {
       {w.ex && (
         <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
           <span style={{ ...JP_LABEL, flexShrink: 0 }}>例</span>
-          <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 16, color: C.ink, fontWeight: 600, lineHeight: 1.55 }}>{w.ex}</span>
-          <SpeakBtn text={w.ex} size={13} />
+          <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 16, color: C.ink, fontWeight: 600, lineHeight: 1.55 }}><FuriganaSentence text={w.ex} /></span>
+          <SpeakBtn text={stripFurigana(w.ex)} size={13} />
         </div>
       )}
       {w.exHeb && <HebText style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>{w.exHeb}</HebText>}
@@ -550,8 +574,8 @@ function GlossaryItem({ item, mistakes, bookmarked, onToggle, onToggleBookmark, 
           {item.ex && (
             <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", lineHeight: 1.6 }}>
               <span style={{ ...JP_LABEL, flexShrink: 0 }}>例</span>
-              <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 16, color: C.ink, fontWeight: 600 }}>{item.ex}</span>
-              <SpeakBtn text={item.ex} size={13} />
+              <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 16, color: C.ink, fontWeight: 600 }}><FuriganaSentence text={item.ex} /></span>
+              <SpeakBtn text={stripFurigana(item.ex)} size={13} />
             </div>
           )}
           {item.exHeb && <HebText style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>{item.exHeb}</HebText>}
@@ -1198,7 +1222,7 @@ export default function App() {
     }
     setTimeout(() => setShowNext(true), 450);
     const exText = questions[current].ex;
-    if (exText) setTimeout(() => speak(exText), 850);
+    if (exText) setTimeout(() => speak(stripFurigana(exText)), 850);
   };
 
   const next = () => {
@@ -1238,10 +1262,11 @@ export default function App() {
         // Fill-blank unanswered: read sentence with the answer hidden (・・・)
         // Otherwise: read the JP word/grammar point
         if (s.q._type === "fillBlank" && !s.selected && s.q.ex) {
-          const core = findCoreInEx(s.q.ex, extractCores(s.q.jp));
-          speak(core ? s.q.ex.replace(core, "・・・") : s.q.ex);
+          const cleanEx = stripFurigana(s.q.ex);
+          const core = findCoreInEx(cleanEx, extractCores(s.q.jp));
+          speak(core ? cleanEx.replace(core, "・・・") : cleanEx);
         } else {
-          speak(s.q.jp);
+          speak(cleanJp(s.q.jp));
         }
       }
     };
@@ -1704,7 +1729,7 @@ export default function App() {
               {isFill ? (
                 <>
                   <div className="jp-display" style={{ fontSize: wide ? 34 : 26, fontWeight: 500, color: C.ink, lineHeight: 1.7, letterSpacing: "0.04em" }}>
-                    {blanked} <SpeakBtn text={q.ex.replace(qCore, "・・・")} size={20} />
+                    <FuriganaSentence text={blanked} /> <SpeakBtn text={stripFurigana(q.ex).replace(qCore, "・・・")} size={20} />
                   </div>
                   <div style={{ ...KICKER, marginTop: 18, color: C.faint }}>Fill the blank</div>
                 </>
@@ -1830,10 +1855,10 @@ export default function App() {
                     <span style={{ ...JP_LABEL, flexShrink: 0 }}>例</span>
                     <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 18, color: C.ink, fontWeight: 600 }}>
                       {isFill && qCore ? q.ex.split(qCore).map((part, idx, arr) => (
-                        <span key={idx}>{part}{idx < arr.length - 1 && <span style={{ background: C.passSoft, color: C.pass, padding: "1px 6px", borderRadius: 3, fontWeight: 700, border: `1px solid ${C.passLine}` }}>{qCore}</span>}</span>
-                      )) : q.ex}
+                        <span key={idx}><FuriganaSentence text={part} />{idx < arr.length - 1 && <span style={{ background: C.passSoft, color: C.pass, padding: "1px 6px", borderRadius: 3, fontWeight: 700, border: `1px solid ${C.passLine}` }}>{qCore}</span>}</span>
+                      )) : <FuriganaSentence text={q.ex} />}
                     </span>
-                    <SpeakBtn text={q.ex} size={14} />
+                    <SpeakBtn text={stripFurigana(q.ex)} size={14} />
                   </div>
                 )}
                 {q.exHeb && <HebText style={{ fontSize: 14, color: C.muted, marginTop: 6 }}>{q.exHeb}</HebText>}
