@@ -83,9 +83,7 @@ export default async function handler(req, res) {
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4000,
-      thinking: { type: "adaptive" },
       output_config: {
-        effort: "medium",
         format: { type: "json_schema", schema: SCHEMA },
       },
       system: SYSTEM,
