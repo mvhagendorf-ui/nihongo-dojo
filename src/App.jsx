@@ -780,9 +780,21 @@ async function fileToImagePayload(file) {
     for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
     return { mediaType: "application/pdf", data: btoa(bin), preview: null, name: file.name };
   }
+  // iPhone HEIC/HEIF: browsers can't render these natively — convert to JPEG first
+  const isHeic = file.type === "image/heic" || file.type === "image/heif"
+    || /\.(heic|heif)$/i.test(file.name);
+  let workingFile = file;
+  let workingName = file.name;
+  if (isHeic) {
+    const heic2any = (await import("heic2any")).default;
+    const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.85 });
+    const jpegBlob = Array.isArray(blob) ? blob[0] : blob;
+    workingName = file.name.replace(/\.(heic|heif)$/i, ".jpg");
+    workingFile = new File([jpegBlob], workingName, { type: "image/jpeg" });
+  }
   // Images: downscale to 1568px max edge + JPEG 0.85 to keep upload small
   const img = new Image();
-  const url = URL.createObjectURL(file);
+  const url = URL.createObjectURL(workingFile);
   await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
   const max = 1568;
   const scale = Math.min(1, max / Math.max(img.width, img.height));
@@ -794,7 +806,7 @@ async function fileToImagePayload(file) {
   URL.revokeObjectURL(url);
   const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
   const base64 = dataUrl.split(",")[1];
-  return { mediaType: "image/jpeg", data: base64, preview: dataUrl, name: file.name };
+  return { mediaType: "image/jpeg", data: base64, preview: dataUrl, name: workingName };
 }
 
 const MAX_FILES = 4;
