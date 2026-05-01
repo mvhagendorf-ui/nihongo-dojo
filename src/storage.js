@@ -1,6 +1,15 @@
 const HISTORY_KEY = "nihongo_dojo_history";
 const SRS_KEY = "nihongo_dojo_srs";
 const BOOKMARKS_KEY = "nihongo_dojo_bookmarks";
+const CUSTOM_QUIZZES_KEY = "nihongo_dojo_custom_quizzes";
+
+export function loadCustomQuizzes() {
+  try { return JSON.parse(localStorage.getItem(CUSTOM_QUIZZES_KEY)) || []; }
+  catch { return []; }
+}
+export function saveCustomQuizzes(list) {
+  try { localStorage.setItem(CUSTOM_QUIZZES_KEY, JSON.stringify(list)); } catch {}
+}
 
 export function loadBookmarks() {
   try { return new Set(JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || []); }

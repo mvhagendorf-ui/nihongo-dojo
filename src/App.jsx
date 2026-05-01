@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { CATEGORIES, CATEGORY_GROUPS, SIM_GROUPS, ALL_DATA, PASS_SCORE, QUESTIONS_PER_TEST, TIMER_SECONDS } from "./data";
 import { playSound } from "./audio";
-import { loadHistory, saveSession, updateSRS, getSRSWeights, loadSRS, loadBookmarks, saveBookmarks } from "./storage";
+import { loadHistory, saveSession, updateSRS, getSRSWeights, loadSRS, loadBookmarks, saveBookmarks, loadCustomQuizzes, saveCustomQuizzes } from "./storage";
 import { cloudEnabled, getSession, signIn, signUp, signOut, onAuthChange, fetchCloud, scheduleSync, mergeSRS, mergeHistory, mergeBookmarks } from "./cloud";
 
 // ─────────── DESIGN TOKENS ───────────
@@ -771,6 +771,85 @@ function AccountChip({ session, onClick }) {
   );
 }
 
+function CustomQuizCreateModal({ onClose, onSaved }) {
+  const [name, setName] = useState("");
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const submit = async () => {
+    setError("");
+    if (!name.trim()) { setError("Give the quiz a name"); return; }
+    if (!text.trim()) { setError("Paste some Japanese vocabulary"); return; }
+    if (text.length > 12000) { setError("Paste is too long (>12000 chars)"); return; }
+    setBusy(true);
+    try {
+      const res = await fetch("/api/generate-quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || data.error || "Generation failed");
+      const items = data.items || [];
+      if (items.length === 0) { setError("No Japanese terms detected in your paste"); setBusy(false); return; }
+      const quiz = { id: `cq_${Date.now()}`, name: name.trim(), createdAt: Date.now(), items };
+      onSaved(quiz);
+    } catch (e) {
+      setError(e.message || "Generation failed. Check your Vercel ANTHROPIC_API_KEY.");
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div onClick={busy ? undefined : onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,20,20,0.45)", backdropFilter: "blur(6px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, maxWidth: 560, width: "100%", maxHeight: "85vh", overflowY: "auto", boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 12px 40px -10px rgba(80,60,30,0.18)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 22px", borderBottom: `1px solid ${C.border}`, position: "sticky", top: 0, background: C.surface }}>
+          <div style={{ ...KICKER, color: C.ink, fontSize: 12 }}>New Custom Quiz · 自作クイズ</div>
+          <button onClick={onClose} disabled={busy} aria-label="Close" style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, cursor: busy ? "not-allowed" : "pointer", width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", opacity: busy ? 0.4 : 1 }} className="btn-hover">
+            <IconX size={14} />
+          </button>
+        </div>
+        <div style={{ padding: 22 }}>
+          <div style={{ ...KICKER, color: C.muted, fontSize: 10, marginBottom: 6 }}>Name</div>
+          <input
+            type="text" value={name} onChange={e => setName(e.target.value)} disabled={busy}
+            placeholder="e.g. Job interview vocab"
+            style={{ width: "100%", padding: "10px 12px", border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: FONT_LATIN, background: C.surface, color: C.ink, outline: "none", marginBottom: 16 }}
+          />
+          <div style={{ ...KICKER, color: C.muted, fontSize: 10, marginBottom: 6 }}>Paste vocabulary · 単語リスト</div>
+          <textarea
+            value={text} onChange={e => setText(e.target.value)} disabled={busy}
+            placeholder={"Paste anything — bullet list, mixed languages, headings, the AI sorts it.\n\nExample:\n突然変異 - mutation\n進言（しんげん）- advice\n少子化 declining birth rate"}
+            rows={10}
+            style={{ width: "100%", padding: "12px 14px", border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, fontFamily: FONT_JP, background: C.surface, color: C.ink, outline: "none", resize: "vertical", lineHeight: 1.6 }}
+          />
+          {error && (
+            <div style={{ marginTop: 10, padding: "8px 12px", background: C.accentSoft, border: `1px solid ${C.accentLine}`, borderRadius: 6, color: C.accent, fontSize: 12 }}>
+              {error}
+            </div>
+          )}
+          <div style={{ marginTop: 8, fontSize: 11, color: C.faint, lineHeight: 1.5 }}>
+            AI will extract each term, fill in reading + English + Hebrew + example sentence. Powered by Claude Haiku.
+          </div>
+          <button
+            onClick={submit} disabled={busy} className={busy ? "" : "btn-hover"}
+            style={{
+              width: "100%", marginTop: 16, padding: "14px 20px",
+              fontSize: 13, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase",
+              background: busy ? C.mutedBg : C.accent, color: busy ? C.muted : "#fff",
+              border: `1px solid ${busy ? C.border : C.accent}`, borderRadius: 10,
+              cursor: busy ? "wait" : "pointer", fontFamily: FONT_LATIN,
+            }}
+          >
+            {busy ? "Generating…" : "Generate Quiz"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─────────── APP ───────────
 export default function App() {
   const wide = useIsWide();
@@ -809,6 +888,10 @@ export default function App() {
   const [historyModal, setHistoryModal] = useState(null);
   const [bookmarksOpen, setBookmarksOpen] = useState(false);
   const [bookmarksExpanded, setBookmarksExpanded] = useState(null);
+  const [customQuizzes, setCustomQuizzes] = useState(loadCustomQuizzes);
+  const [customOpen, setCustomOpen] = useState(false);
+  const [customCreateOpen, setCustomCreateOpen] = useState(false);
+  const [quizPool, setQuizPool] = useState(ALL_DATA);
 
   // Auth + sync wiring (no-ops if cloud not configured)
   useEffect(() => {
@@ -890,10 +973,31 @@ export default function App() {
     setShowNext(false);
     setTimeLeft(timerMin * 60 + timerSec);
     setTimerActive(true);
+    setQuizPool(ALL_DATA);
     setChoices(generateChoices(picked[0], ALL_DATA));
     savedRef.current = false;
     setScreen("quiz");
   }, [selectedCats, numQuestions, timerMin, timerSec]);
+
+  const startCustomQuiz = useCallback((quiz) => {
+    const items = (quiz.items || []).map((it, i) => ({ ...it, cat: "CUSTOM", num: i + 1 }));
+    if (items.length < 4) {
+      alert("This quiz needs at least 4 items to run. Add more and regenerate.");
+      return;
+    }
+    const count = Math.min(numQuestions, items.length);
+    const picked = weightedShuffle(items, count).map(q => ({ ...q, _type: pickQuestionType(q) }));
+    setQuestions(picked);
+    setCurrent(0); setSelected(null); setScore(0); setTotal(0);
+    setStreak(0); setBestStreak(0); setWrongList([]); setRetryQueue([]);
+    setShowNext(false);
+    setTimeLeft(timerMin * 60 + timerSec);
+    setTimerActive(true);
+    setQuizPool(items);
+    setChoices(generateChoices(picked[0], items));
+    savedRef.current = false;
+    setScreen("quiz");
+  }, [numQuestions, timerMin, timerSec]);
 
   const toggleCat = (cat) => setSelectedCats(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
 
@@ -921,14 +1025,14 @@ export default function App() {
     let nextIdx = current + 1;
     if (nextIdx < questions.length) {
       setCurrent(nextIdx); setSelected(null); setShowNext(false);
-      setChoices(generateChoices(questions[nextIdx], ALL_DATA));
+      setChoices(generateChoices(questions[nextIdx], quizPool));
     } else if (retryQueue.length > 0) {
       const retry = retryQueue[0];
       setRetryQueue(r => r.slice(1));
       setQuestions(q => [...q, retry]);
       setCurrent(questions.length);
       setSelected(null); setShowNext(false);
-      setChoices(generateChoices(retry, ALL_DATA));
+      setChoices(generateChoices(retry, quizPool));
     } else {
       setTimerActive(false); setScreen("results");
     }
@@ -1090,6 +1194,70 @@ export default function App() {
           );
         })()}
 
+        <div style={{ marginBottom: wide ? 18 : 14 }}>
+          <div style={{
+            background: C.surface, border: `1px solid ${C.border}`,
+            borderRadius: 14, padding: "12px 18px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 8px 28px -10px rgba(80,60,30,0.10)",
+            borderBottomLeftRadius: customOpen ? 0 : 14,
+            borderBottomRightRadius: customOpen ? 0 : 14,
+            borderBottom: customOpen ? "none" : `1px solid ${C.border}`,
+          }}>
+            <button onClick={() => setCustomOpen(o => !o)} className="btn-hover" style={{
+              flex: 1, background: "transparent", border: "none", cursor: "pointer",
+              padding: 0, display: "flex", alignItems: "center", gap: 10, fontFamily: FONT_LATIN, textAlign: "left",
+            }}>
+              <span style={{ fontSize: 14 }}>🎯</span>
+              <span style={{ ...KICKER, color: C.ink, fontSize: 12 }}>My Quizzes · 自作</span>
+              <span className="num" style={{ color: C.accent, fontSize: 14, fontWeight: 500, marginLeft: 4 }}>{customQuizzes.length}</span>
+              {!customOpen && customQuizzes.length > 0 && <span style={{ ...KICKER, color: C.faint, fontSize: 10, marginLeft: "auto" }}>Tap to view</span>}
+              <IconChevDn size={14} style={{ color: C.faint, transform: customOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", marginLeft: customOpen || customQuizzes.length === 0 ? "auto" : 0 }} />
+            </button>
+            <button onClick={() => setCustomCreateOpen(true)} className="btn-hover" style={{
+              marginLeft: 12, padding: "6px 12px", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase",
+              background: C.accentSoft, color: C.accent, border: `1px solid ${C.accentLine}`, borderRadius: 8,
+              cursor: "pointer", fontFamily: FONT_LATIN, display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap",
+            }}>+ New</button>
+          </div>
+          {customOpen && (
+            <div style={{
+              background: C.surface, border: `1px solid ${C.border}`, borderTop: "none",
+              borderBottomLeftRadius: 14, borderBottomRightRadius: 14,
+              maxHeight: 520, overflowY: "auto",
+              boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 8px 28px -10px rgba(80,60,30,0.10)",
+            }}>
+              {customQuizzes.length === 0 ? (
+                <div style={{ padding: "24px 18px", textAlign: "center", color: C.muted, fontSize: 13 }}>
+                  No custom quizzes yet. Tap <span style={{ color: C.accent, fontWeight: 600 }}>+ New</span> to paste vocab and let AI build one.
+                </div>
+              ) : customQuizzes.map((quiz, qi) => (
+                <div key={quiz.id} style={{ padding: "14px 18px", borderBottom: qi === customQuizzes.length - 1 ? "none" : `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{quiz.name}</div>
+                    <div style={{ ...KICKER, fontSize: 10, color: C.faint, marginTop: 3 }}>{quiz.items.length} items · {new Date(quiz.createdAt).toLocaleDateString()}</div>
+                  </div>
+                  <button onClick={() => startCustomQuiz(quiz)} className="btn-hover" style={{
+                    padding: "7px 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase",
+                    background: C.accent, color: "#fff", border: `1px solid ${C.accent}`, borderRadius: 8,
+                    cursor: "pointer", fontFamily: FONT_LATIN,
+                  }}>Run</button>
+                  <button onClick={() => {
+                    if (!confirm(`Delete "${quiz.name}"?`)) return;
+                    const next = customQuizzes.filter(q => q.id !== quiz.id);
+                    setCustomQuizzes(next); saveCustomQuizzes(next);
+                  }} aria-label="Delete quiz" className="btn-hover" style={{
+                    background: "transparent", border: "none", padding: 4, cursor: "pointer", color: C.faint,
+                    display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 6,
+                  }}>
+                    <IconX size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div style={wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, alignItems: "start" } : {}}>
           {/* LEFT COLUMN: CATEGORIES + (wide) INDEX */}
           <div>
@@ -1230,6 +1398,14 @@ export default function App() {
 
         {historyModal && <HistoryModal session={historyModal} onClose={() => setHistoryModal(null)} />}
         {authOpen && <AuthModal session={session} onClose={() => setAuthOpen(false)} onSignedIn={() => setAuthOpen(false)} />}
+        {customCreateOpen && <CustomQuizCreateModal
+          onClose={() => setCustomCreateOpen(false)}
+          onSaved={(quiz) => {
+            const next = [quiz, ...customQuizzes];
+            setCustomQuizzes(next); saveCustomQuizzes(next);
+            setCustomCreateOpen(false); setCustomOpen(true);
+          }}
+        />}
       </div>
     );
   }

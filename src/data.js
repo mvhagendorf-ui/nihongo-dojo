@@ -13,6 +13,7 @@ export const CATEGORIES = {
   UNIT2_KANJI: "Unit 2",
   UNIT2_VOCAB: "新出語彙",
   MY_WORDS: "My Saved Words 🗾",
+  CUSTOM: "Custom Quiz",
 };
 
 export const CATEGORY_GROUPS = [
