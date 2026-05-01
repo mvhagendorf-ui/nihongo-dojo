@@ -804,41 +804,41 @@ function CustomQuizCreateModal({ onClose, onSaved }) {
   return (
     <div onClick={busy ? undefined : onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,20,20,0.45)", backdropFilter: "blur(6px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <div onClick={e => e.stopPropagation()} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, maxWidth: 560, width: "100%", maxHeight: "85vh", overflowY: "auto", boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 12px 40px -10px rgba(80,60,30,0.18)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 22px", borderBottom: `1px solid ${C.border}`, position: "sticky", top: 0, background: C.surface }}>
-          <div style={{ ...KICKER, color: C.ink, fontSize: 12 }}>New Custom Quiz · 自作クイズ</div>
-          <button onClick={onClose} disabled={busy} aria-label="Close" style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, cursor: busy ? "not-allowed" : "pointer", width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", opacity: busy ? 0.4 : 1 }} className="btn-hover">
-            <IconX size={14} />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "22px 26px", borderBottom: `1px solid ${C.border}`, position: "sticky", top: 0, background: C.surface }}>
+          <div style={{ ...KICKER, color: C.ink, fontSize: 15, fontWeight: 700 }}>New Custom Quiz · 自作クイズ</div>
+          <button onClick={onClose} disabled={busy} aria-label="Close" style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, cursor: busy ? "not-allowed" : "pointer", width: 38, height: 38, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", opacity: busy ? 0.4 : 1 }} className="btn-hover">
+            <IconX size={18} />
           </button>
         </div>
-        <div style={{ padding: 22 }}>
-          <div style={{ ...KICKER, color: C.muted, fontSize: 10, marginBottom: 6 }}>Name</div>
+        <div style={{ padding: 26 }}>
+          <div style={{ ...KICKER, color: C.muted, fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Name</div>
           <input
             type="text" value={name} onChange={e => setName(e.target.value)} disabled={busy}
             placeholder="e.g. Job interview vocab"
-            style={{ width: "100%", padding: "10px 12px", border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: FONT_LATIN, background: C.surface, color: C.ink, outline: "none", marginBottom: 16 }}
+            style={{ width: "100%", padding: "14px 16px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 18, fontWeight: 500, fontFamily: FONT_LATIN, background: C.surface, color: C.ink, outline: "none", marginBottom: 22 }}
           />
-          <div style={{ ...KICKER, color: C.muted, fontSize: 10, marginBottom: 6 }}>Paste vocabulary · 単語リスト</div>
+          <div style={{ ...KICKER, color: C.muted, fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Paste vocabulary · 単語リスト</div>
           <textarea
             value={text} onChange={e => setText(e.target.value)} disabled={busy}
             placeholder={"Paste anything — bullet list, mixed languages, headings, the AI sorts it.\n\nExample:\n突然変異 - mutation\n進言（しんげん）- advice\n少子化 declining birth rate"}
-            rows={10}
-            style={{ width: "100%", padding: "12px 14px", border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, fontFamily: FONT_JP, background: C.surface, color: C.ink, outline: "none", resize: "vertical", lineHeight: 1.6 }}
+            rows={9}
+            style={{ width: "100%", padding: "16px 18px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 17, fontWeight: 500, fontFamily: FONT_JP, background: C.surface, color: C.ink, outline: "none", resize: "vertical", lineHeight: 1.65 }}
           />
           {error && (
-            <div style={{ marginTop: 10, padding: "8px 12px", background: C.accentSoft, border: `1px solid ${C.accentLine}`, borderRadius: 6, color: C.accent, fontSize: 12 }}>
+            <div style={{ marginTop: 14, padding: "12px 16px", background: C.accentSoft, border: `1px solid ${C.accentLine}`, borderRadius: 8, color: C.accent, fontSize: 14, fontWeight: 600 }}>
               {error}
             </div>
           )}
-          <div style={{ marginTop: 8, fontSize: 11, color: C.faint, lineHeight: 1.5 }}>
+          <div style={{ marginTop: 12, fontSize: 13, color: C.muted, lineHeight: 1.55 }}>
             AI will extract each term, fill in reading + English + Hebrew + example sentence. Powered by Claude Haiku.
           </div>
           <button
             onClick={submit} disabled={busy} className={busy ? "" : "btn-hover"}
             style={{
-              width: "100%", marginTop: 16, padding: "14px 20px",
-              fontSize: 13, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase",
+              width: "100%", marginTop: 22, padding: "18px 22px",
+              fontSize: 16, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase",
               background: busy ? C.mutedBg : C.accent, color: busy ? C.muted : "#fff",
-              border: `1px solid ${busy ? C.border : C.accent}`, borderRadius: 10,
+              border: `1px solid ${busy ? C.border : C.accent}`, borderRadius: 12,
               cursor: busy ? "wait" : "pointer", fontFamily: FONT_LATIN,
             }}
           >
