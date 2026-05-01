@@ -1391,7 +1391,7 @@ export default function App() {
         </div>
 
         {/* HISTORY + LEADERBOARD */}
-        <div style={{ ...(wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 } : {}), marginTop: 18, display: wide ? "grid" : "flex", flexDirection: wide ? undefined : "column", gap: wide ? 18 : 14 }}>
+        <div style={{ ...(wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, alignItems: "start" } : {}), marginTop: 18, display: wide ? "grid" : "flex", flexDirection: wide ? undefined : "column", gap: wide ? 18 : 14 }}>
           <HistoryChart history={history} onBarClick={(idx) => setHistoryModal(history[idx])} />
           <Leaderboard history={history} />
         </div>
