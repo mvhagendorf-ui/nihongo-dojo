@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { CATEGORIES, CATEGORY_GROUPS, SIM_GROUPS, ALL_DATA, PASS_SCORE, QUESTIONS_PER_TEST, TIMER_SECONDS } from "./data";
 import { playSound } from "./audio";
 import { loadHistory, saveSession, updateSRS, getSRSWeights, loadSRS, loadBookmarks, saveBookmarks, loadCustomQuizzes, saveCustomQuizzes } from "./storage";
@@ -170,35 +170,91 @@ function stripFurigana(text) {
   return text.replace(/[（(]([぀-ゟ゠-ヿ〜ー・]+)[)）]/g, "");
 }
 
-// Parses a kanji story like "違(against) + 法(law) + 駐(park) + 車(car) = car parked against the law"
-// into a list of components. Returns [] if there aren't at least 2 components.
-function parseKanjiComponents(story) {
-  if (!story) return [];
-  const re = /([㐀-䶿一-龯豈-﫿]+)\s*\(([^)]+)\)/g;
-  const parts = [];
-  let m;
-  while ((m = re.exec(story)) !== null) {
-    parts.push({ kanji: m[1], meaning: m[2].trim() });
-  }
-  return parts.length >= 2 ? parts : [];
+// Per-kanji radical decomposition cache (localStorage). Format:
+//   "休": { radicals: [{ char: "人", meaning: "person", strokes: 2 }, { char: "木", meaning: "tree", strokes: 4 }], mnemonic: "person resting under a tree" }
+const RADICAL_CACHE_KEY = "nihongo_dojo_kanji_radicals";
+function loadRadicalCache() {
+  try { return JSON.parse(localStorage.getItem(RADICAL_CACHE_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveRadicalCache(cache) {
+  try { localStorage.setItem(RADICAL_CACHE_KEY, JSON.stringify(cache)); } catch {}
 }
 
-function KanjiComponents({ story }) {
-  const parts = parseKanjiComponents(story);
-  if (parts.length === 0) return null;
+// Per-kanji radical tile grid — async fetches uncached kanji from /api/decompose-kanji.
+function KanjiRadicals({ word }) {
+  const kanjiList = useMemo(() => {
+    if (!word) return [];
+    const set = new Set();
+    for (const ch of word) if (isKanjiChar(ch)) set.add(ch);
+    return [...set];
+  }, [word]);
+
+  const [cache, setCache] = useState(loadRadicalCache);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (kanjiList.length === 0) return;
+    const missing = kanjiList.filter(k => !cache[k]);
+    if (missing.length === 0) return;
+    let cancelled = false;
+    setLoading(true);
+    fetch("/api/decompose-kanji", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kanjis: missing }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (cancelled) return;
+        const next = { ...loadRadicalCache() };
+        for (const d of data.decompositions || []) {
+          if (d?.kanji) next[d.kanji] = { radicals: d.radicals || [], mnemonic: d.mnemonic || "" };
+        }
+        saveRadicalCache(next);
+        setCache(next);
+      })
+      .catch(() => {})
+      .finally(() => !cancelled && setLoading(false));
+    return () => { cancelled = true; };
+  }, [kanjiList.join(",")]);
+
+  if (kanjiList.length === 0) return null;
+
   return (
-    <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px dashed rgba(124,58,237,0.22)" }}>
-      <div style={{ ...KICKER, color: C.kanji, fontSize: 10, marginBottom: 6 }}>Components · 部首</div>
-      <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.5, marginBottom: 10 }}>
-        Most kanji break into smaller parts. They're often semantic indicators of the meaning.
-      </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {parts.map((p, i) => (
-          <div key={i} style={{ background: C.surface, border: `1px solid rgba(124,58,237,0.22)`, borderRadius: 8, padding: "8px 10px", minWidth: 64, textAlign: "center" }}>
-            <div style={{ fontSize: 26, color: "#5B21B6", fontWeight: 500, lineHeight: 1.15, fontFamily: FONT_JP_DISPLAY }}>{p.kanji}</div>
-            <div style={{ fontSize: 10, color: C.muted, marginTop: 3, fontWeight: 500 }}>{p.meaning}</div>
-          </div>
-        ))}
+    <div style={{ marginTop: 12 }}>
+      <div style={{ ...KICKER, color: C.kanji, fontSize: 10, marginBottom: 8 }}>Components · 部首</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {kanjiList.map(k => {
+          const entry = cache[k];
+          return (
+            <div key={k} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <div style={{ fontSize: 28, fontFamily: FONT_JP_DISPLAY, color: "#5B21B6", fontWeight: 500, lineHeight: 1, minWidth: 36, textAlign: "center" }}>{k}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {entry ? (
+                  <>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {entry.radicals.map((r, i) => (
+                        <div key={i} style={{ background: C.surface, border: `1px solid rgba(124,58,237,0.25)`, borderRadius: 7, padding: "5px 9px", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                          <span style={{ fontSize: 20, fontFamily: FONT_JP_DISPLAY, color: "#5B21B6", lineHeight: 1 }}>{r.char}</span>
+                          <span style={{ fontSize: 11, color: C.inkDim, fontWeight: 500 }}>{r.meaning}</span>
+                          {typeof r.strokes === "number" && <span style={{ fontSize: 10, color: C.faint, fontFamily: FONT_NUM }}>{r.strokes}画</span>}
+                        </div>
+                      ))}
+                    </div>
+                    {entry.mnemonic && (
+                      <div style={{ fontSize: 11, color: C.muted, marginTop: 5, fontStyle: "italic", lineHeight: 1.4 }}>
+                        → {entry.mnemonic}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div style={{ fontSize: 11, color: C.faint, fontStyle: "italic", paddingTop: 6 }}>{loading ? "Decomposing…" : "—"}</div>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -1898,15 +1954,15 @@ export default function App() {
                 {q.exHeb && <HebText style={{ fontSize: 14, color: C.muted, marginTop: 6 }}>{q.exHeb}</HebText>}
 
                 {q.kanjiStory && (
-                  <div style={{ marginTop: 16, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "3px solid #7C3AED", borderRadius: 10, padding: "14px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
-                    <span style={{ fontSize: 22, lineHeight: 1.1 }}>🧠</span>
+                  <div style={{ marginTop: 16, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "3px solid #7C3AED", borderRadius: 10, padding: "16px 18px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <span style={{ fontSize: 24, lineHeight: 1.1 }}>🧠</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ ...KICKER, color: C.kanji, marginBottom: 4, fontSize: 11 }}>{storyLabel(q.jp)}</div>
-                      <div style={{ fontSize: 16, color: "#5B21B6", fontWeight: 500, lineHeight: 1.6 }}>{q.kanjiStory}</div>
-                      <KanjiComponents story={q.kanjiStory} />
+                      <div style={{ ...KICKER, color: C.kanji, marginBottom: 6, fontSize: 12, fontWeight: 700 }}>{storyLabel(q.jp)}</div>
+                      <div style={{ fontSize: 18, color: "#5B21B6", fontWeight: 500, lineHeight: 1.6 }}>{q.kanjiStory}</div>
                     </div>
                   </div>
                 )}
+                {q.kanjiStory && <KanjiRadicals word={q.jp} />}
               </div>
             )}
 
