@@ -1782,9 +1782,9 @@ export default function App() {
                 <KickerLabel style={{ color: C.pass, marginBottom: 12 }}>Answer</KickerLabel>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="jp" style={{ fontSize: 24, fontWeight: 700, color: C.ink, letterSpacing: "0.02em" }}><Furigana jp={q.jp} reading={q.reading} /> <SpeakBtn text={cleanJp(q.jp)} size={16} /></div>
-                    <div style={{ color: C.inkDim, fontSize: 16, marginTop: 5 }}>{q.en}</div>
-                    {q.heb && <HebText style={{ color: C.muted, fontSize: 15, marginTop: 4 }}>{q.heb}</HebText>}
+                    <div className="jp" style={{ fontSize: 36, fontWeight: 700, color: C.ink, letterSpacing: "0.02em", lineHeight: 1.4 }}><Furigana jp={q.jp} reading={q.reading} /> <SpeakBtn text={cleanJp(q.jp)} size={22} /></div>
+                    <div style={{ color: C.inkDim, fontSize: 18, marginTop: 8 }}>{q.en}</div>
+                    {q.heb && <HebText style={{ color: C.muted, fontSize: 16, marginTop: 5 }}>{q.heb}</HebText>}
                   </div>
                   <button
                     onClick={() => toggleBookmark(q.jp)}
