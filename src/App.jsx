@@ -170,6 +170,40 @@ function stripFurigana(text) {
   return text.replace(/[（(]([぀-ゟ゠-ヿ〜ー・]+)[)）]/g, "");
 }
 
+// Parses a kanji story like "違(against) + 法(law) + 駐(park) + 車(car) = car parked against the law"
+// into a list of components. Returns [] if there aren't at least 2 components.
+function parseKanjiComponents(story) {
+  if (!story) return [];
+  const re = /([㐀-䶿一-龯豈-﫿]+)\s*\(([^)]+)\)/g;
+  const parts = [];
+  let m;
+  while ((m = re.exec(story)) !== null) {
+    parts.push({ kanji: m[1], meaning: m[2].trim() });
+  }
+  return parts.length >= 2 ? parts : [];
+}
+
+function KanjiComponents({ story }) {
+  const parts = parseKanjiComponents(story);
+  if (parts.length === 0) return null;
+  return (
+    <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px dashed rgba(124,58,237,0.22)" }}>
+      <div style={{ ...KICKER, color: C.kanji, fontSize: 10, marginBottom: 6 }}>Components · 部首</div>
+      <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.5, marginBottom: 10 }}>
+        Most kanji break into smaller parts. They're often semantic indicators of the meaning.
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {parts.map((p, i) => (
+          <div key={i} style={{ background: C.surface, border: `1px solid rgba(124,58,237,0.22)`, borderRadius: 8, padding: "8px 10px", minWidth: 64, textAlign: "center" }}>
+            <div style={{ fontSize: 26, color: "#5B21B6", fontWeight: 500, lineHeight: 1.15, fontFamily: FONT_JP_DISPLAY }}>{p.kanji}</div>
+            <div style={{ fontSize: 10, color: C.muted, marginTop: 3, fontWeight: 500 }}>{p.meaning}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // Renders a sentence with inline `（kana）` annotations as <ruby> furigana over the preceding kanji block.
 // "健康診断（しんだん）の結果は頗る良好（りょうこう）だ" → ruby above 健康診断 / 良好.
 function FuriganaSentence({ text }) {
@@ -1869,6 +1903,7 @@ export default function App() {
                     <div style={{ flex: 1 }}>
                       <div style={{ ...KICKER, color: C.kanji, marginBottom: 4, fontSize: 11 }}>{storyLabel(q.jp)}</div>
                       <div style={{ fontSize: 16, color: "#5B21B6", fontWeight: 500, lineHeight: 1.6 }}>{q.kanjiStory}</div>
+                      <KanjiComponents story={q.kanjiStory} />
                     </div>
                   </div>
                 )}
