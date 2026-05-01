@@ -57,42 +57,52 @@ export default async function handler(req, res) {
   try {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
     const text = (body?.text || "").trim();
-    const image = body?.image; // { mediaType: "image/png" | "image/jpeg" | "image/webp" | "application/pdf", data: "<base64>" }
+    // Accept `images: [...]` (preferred) or legacy single `image` for back-compat
+    const images = Array.isArray(body?.images) ? body.images : (body?.image ? [body.image] : []);
 
-    if (!text && !image) {
-      return res.status(400).json({ error: "invalid_input", message: "Provide text, an image, or both" });
+    if (!text && images.length === 0) {
+      return res.status(400).json({ error: "invalid_input", message: "Provide text, files, or both" });
     }
     if (text.length > 12000) {
       return res.status(400).json({ error: "too_long", message: "Paste under 12000 chars" });
     }
-    if (image) {
-      const allowed = ["image/png", "image/jpeg", "image/webp", "image/gif", "application/pdf"];
-      if (!allowed.includes(image.mediaType) || typeof image.data !== "string") {
-        return res.status(400).json({ error: "invalid_image", message: "Image must be PNG/JPEG/WebP/GIF or PDF" });
+    if (images.length > 4) {
+      return res.status(400).json({ error: "too_many_files", message: "Up to 4 files at a time" });
+    }
+
+    const allowed = ["image/png", "image/jpeg", "image/webp", "image/gif", "application/pdf"];
+    let totalBytes = 0;
+    for (const im of images) {
+      if (!im || !allowed.includes(im.mediaType) || typeof im.data !== "string") {
+        return res.status(400).json({ error: "invalid_image", message: "Files must be PNG/JPEG/WebP/GIF or PDF" });
       }
-      if (image.data.length > 4_000_000) {
-        return res.status(400).json({ error: "image_too_large", message: "File too large — resize and try again" });
-      }
+      totalBytes += im.data.length;
+    }
+    if (totalBytes > 4_000_000) {
+      return res.status(400).json({ error: "image_too_large", message: "Combined file size too large — remove a file or use smaller ones" });
     }
 
     const userContent = [];
-    if (image) {
-      if (image.mediaType === "application/pdf") {
+    for (const im of images) {
+      if (im.mediaType === "application/pdf") {
         userContent.push({
           type: "document",
-          source: { type: "base64", media_type: "application/pdf", data: image.data },
+          source: { type: "base64", media_type: "application/pdf", data: im.data },
         });
       } else {
         userContent.push({
           type: "image",
-          source: { type: "base64", media_type: image.mediaType, data: image.data },
+          source: { type: "base64", media_type: im.mediaType, data: im.data },
         });
       }
     }
     if (text) {
       userContent.push({ type: "text", text });
-    } else if (image) {
-      userContent.push({ type: "text", text: "Extract Japanese vocabulary from this source." });
+    } else if (images.length > 0) {
+      const hint = images.length > 1
+        ? "Extract Japanese vocabulary from these sources. Treat them as a single connected source (e.g. consecutive pages)."
+        : "Extract Japanese vocabulary from this source.";
+      userContent.push({ type: "text", text: hint });
     }
 
     const response = await client.messages.create({

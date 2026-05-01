@@ -797,33 +797,47 @@ async function fileToImagePayload(file) {
   return { mediaType: "image/jpeg", data: base64, preview: dataUrl, name: file.name };
 }
 
+const MAX_FILES = 4;
+
 function CustomQuizCreateModal({ onClose, onSaved }) {
   const [name, setName] = useState("");
   const [text, setText] = useState("");
-  const [image, setImage] = useState(null); // { mediaType, data, preview, name }
+  const [images, setImages] = useState([]); // [{ mediaType, data, preview, name }]
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
 
-  const handleFile = async (file) => {
-    if (!file) return;
+  const handleFiles = async (fileList) => {
+    if (!fileList || fileList.length === 0) return;
     setError("");
-    if (file.size > 15 * 1024 * 1024) {
-      setError("File too large (>15MB) — pick a smaller one or screenshot just the relevant page");
-      return;
+    const remaining = MAX_FILES - images.length;
+    const incoming = Array.from(fileList).slice(0, remaining);
+    if (fileList.length > remaining) {
+      setError(`Only ${remaining} more file${remaining === 1 ? "" : "s"} can be added (max ${MAX_FILES} total)`);
     }
-    try {
-      const payload = await fileToImagePayload(file);
-      setImage(payload);
-    } catch (e) {
-      setError("Could not read that file. Try PNG/JPG/PDF.");
+    for (const file of incoming) {
+      if (file.size > 15 * 1024 * 1024) {
+        setError(`"${file.name}" is over 15MB — skipped`);
+        continue;
+      }
+      try {
+        const payload = await fileToImagePayload(file);
+        setImages(prev => [...prev, payload]);
+      } catch (e) {
+        setError(`Could not read "${file.name}". Try PNG/JPG/PDF.`);
+      }
     }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeImage = (idx) => {
+    setImages(prev => prev.filter((_, i) => i !== idx));
   };
 
   const submit = async () => {
     setError("");
     if (!name.trim()) { setError("Give the quiz a name"); return; }
-    if (!text.trim() && !image) { setError("Paste vocabulary or attach an image/PDF"); return; }
+    if (!text.trim() && images.length === 0) { setError("Paste vocabulary or attach files"); return; }
     if (text.length > 12000) { setError("Paste is too long (>12000 chars)"); return; }
     setBusy(true);
     try {
@@ -832,7 +846,7 @@ function CustomQuizCreateModal({ onClose, onSaved }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text: text.trim() || undefined,
-          image: image ? { mediaType: image.mediaType, data: image.data } : undefined,
+          images: images.length > 0 ? images.map(i => ({ mediaType: i.mediaType, data: i.data })) : undefined,
         }),
       });
       const data = await res.json();
@@ -876,35 +890,42 @@ function CustomQuizCreateModal({ onClose, onSaved }) {
             <span style={{ ...KICKER, fontSize: 11, color: C.faint }}>and / or</span>
             <div style={{ flex: 1, height: 1, background: C.border }} />
           </div>
-          <div style={{ ...KICKER, color: C.muted, fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Attach page · 画像 / PDF</div>
+          <div style={{ ...KICKER, color: C.muted, fontSize: 13, fontWeight: 700, marginBottom: 10 }}>
+            Attach pages · 画像 / PDF <span style={{ color: C.faint, fontWeight: 500, marginLeft: 6 }}>({images.length}/{MAX_FILES})</span>
+          </div>
           <input
-            ref={fileInputRef} type="file" accept="image/*,application/pdf" disabled={busy}
-            onChange={e => handleFile(e.target.files?.[0])}
+            ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple disabled={busy}
+            onChange={e => handleFiles(e.target.files)}
             style={{ display: "none" }}
           />
-          {image ? (
-            <div style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: 12, display: "flex", alignItems: "center", gap: 12, background: C.elevated }}>
-              {image.preview ? (
-                <img src={image.preview} alt="preview" style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 6, border: `1px solid ${C.border}` }} />
-              ) : (
-                <div style={{ width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, border: `1px solid ${C.border}`, background: C.surface, fontSize: 20 }}>📄</div>
-              )}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{image.name}</div>
-                <div style={{ ...KICKER, fontSize: 10, color: C.faint, marginTop: 3 }}>{image.mediaType}</div>
-              </div>
-              <button onClick={() => { setImage(null); if (fileInputRef.current) fileInputRef.current.value = ""; }} disabled={busy} aria-label="Remove" className="btn-hover" style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, cursor: busy ? "not-allowed" : "pointer", width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <IconX size={14} />
-              </button>
+          {images.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 10 }}>
+              {images.map((img, idx) => (
+                <div key={idx} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: 12, display: "flex", alignItems: "center", gap: 12, background: C.elevated }}>
+                  {img.preview ? (
+                    <img src={img.preview} alt={`preview ${idx + 1}`} style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 6, border: `1px solid ${C.border}` }} />
+                  ) : (
+                    <div style={{ width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, border: `1px solid ${C.border}`, background: C.surface, fontSize: 20 }}>📄</div>
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{img.name}</div>
+                    <div style={{ ...KICKER, fontSize: 10, color: C.faint, marginTop: 3 }}>{img.mediaType}</div>
+                  </div>
+                  <button onClick={() => removeImage(idx)} disabled={busy} aria-label="Remove" className="btn-hover" style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, cursor: busy ? "not-allowed" : "pointer", width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <IconX size={14} />
+                  </button>
+                </div>
+              ))}
             </div>
-          ) : (
+          )}
+          {images.length < MAX_FILES && (
             <button onClick={() => fileInputRef.current?.click()} disabled={busy} className="btn-hover" style={{
-              width: "100%", padding: "20px", border: `2px dashed ${C.border}`, borderRadius: 10,
+              width: "100%", padding: images.length === 0 ? "20px" : "14px", border: `2px dashed ${C.border}`, borderRadius: 10,
               background: "transparent", cursor: busy ? "not-allowed" : "pointer", color: C.muted,
               fontSize: 14, fontFamily: FONT_LATIN, display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
             }}>
               <span style={{ fontSize: 18 }}>📎</span>
-              <span>Choose a textbook page, newspaper, or PDF…</span>
+              <span>{images.length === 0 ? "Choose textbook pages, newspaper, or PDFs…" : `Add another (up to ${MAX_FILES - images.length} more)`}</span>
             </button>
           )}
 
