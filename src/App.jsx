@@ -771,28 +771,74 @@ function AccountChip({ session, onClick }) {
   );
 }
 
+async function fileToImagePayload(file) {
+  // PDFs: send raw bytes as base64
+  if (file.type === "application/pdf") {
+    const buf = await file.arrayBuffer();
+    let bin = "";
+    const bytes = new Uint8Array(buf);
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return { mediaType: "application/pdf", data: btoa(bin), preview: null, name: file.name };
+  }
+  // Images: downscale to 1568px max edge + JPEG 0.85 to keep upload small
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+  const max = 1568;
+  const scale = Math.min(1, max / Math.max(img.width, img.height));
+  const w = Math.round(img.width * scale);
+  const h = Math.round(img.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w; canvas.height = h;
+  canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+  URL.revokeObjectURL(url);
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+  const base64 = dataUrl.split(",")[1];
+  return { mediaType: "image/jpeg", data: base64, preview: dataUrl, name: file.name };
+}
+
 function CustomQuizCreateModal({ onClose, onSaved }) {
   const [name, setName] = useState("");
   const [text, setText] = useState("");
+  const [image, setImage] = useState(null); // { mediaType, data, preview, name }
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const fileInputRef = useRef(null);
+
+  const handleFile = async (file) => {
+    if (!file) return;
+    setError("");
+    if (file.size > 15 * 1024 * 1024) {
+      setError("File too large (>15MB) — pick a smaller one or screenshot just the relevant page");
+      return;
+    }
+    try {
+      const payload = await fileToImagePayload(file);
+      setImage(payload);
+    } catch (e) {
+      setError("Could not read that file. Try PNG/JPG/PDF.");
+    }
+  };
 
   const submit = async () => {
     setError("");
     if (!name.trim()) { setError("Give the quiz a name"); return; }
-    if (!text.trim()) { setError("Paste some Japanese vocabulary"); return; }
+    if (!text.trim() && !image) { setError("Paste vocabulary or attach an image/PDF"); return; }
     if (text.length > 12000) { setError("Paste is too long (>12000 chars)"); return; }
     setBusy(true);
     try {
       const res = await fetch("/api/generate-quiz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({
+          text: text.trim() || undefined,
+          image: image ? { mediaType: image.mediaType, data: image.data } : undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || data.error || "Generation failed");
       const items = data.items || [];
-      if (items.length === 0) { setError("No Japanese terms detected in your paste"); setBusy(false); return; }
+      if (items.length === 0) { setError("No Japanese terms detected"); setBusy(false); return; }
       const quiz = { id: `cq_${Date.now()}`, name: name.trim(), createdAt: Date.now(), items };
       onSaved(quiz);
     } catch (e) {
@@ -821,16 +867,54 @@ function CustomQuizCreateModal({ onClose, onSaved }) {
           <textarea
             value={text} onChange={e => setText(e.target.value)} disabled={busy}
             placeholder={"Paste anything — bullet list, mixed languages, headings, the AI sorts it.\n\nExample:\n突然変異 - mutation\n進言（しんげん）- advice\n少子化 declining birth rate"}
-            rows={9}
+            rows={7}
             style={{ width: "100%", padding: "16px 18px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 17, fontWeight: 500, fontFamily: FONT_JP, background: C.surface, color: C.ink, outline: "none", resize: "vertical", lineHeight: 1.65 }}
           />
+
+          <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "20px 0 10px" }}>
+            <div style={{ flex: 1, height: 1, background: C.border }} />
+            <span style={{ ...KICKER, fontSize: 11, color: C.faint }}>and / or</span>
+            <div style={{ flex: 1, height: 1, background: C.border }} />
+          </div>
+          <div style={{ ...KICKER, color: C.muted, fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Attach page · 画像 / PDF</div>
+          <input
+            ref={fileInputRef} type="file" accept="image/*,application/pdf" disabled={busy}
+            onChange={e => handleFile(e.target.files?.[0])}
+            style={{ display: "none" }}
+          />
+          {image ? (
+            <div style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: 12, display: "flex", alignItems: "center", gap: 12, background: C.elevated }}>
+              {image.preview ? (
+                <img src={image.preview} alt="preview" style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 6, border: `1px solid ${C.border}` }} />
+              ) : (
+                <div style={{ width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, border: `1px solid ${C.border}`, background: C.surface, fontSize: 20 }}>📄</div>
+              )}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{image.name}</div>
+                <div style={{ ...KICKER, fontSize: 10, color: C.faint, marginTop: 3 }}>{image.mediaType}</div>
+              </div>
+              <button onClick={() => { setImage(null); if (fileInputRef.current) fileInputRef.current.value = ""; }} disabled={busy} aria-label="Remove" className="btn-hover" style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, cursor: busy ? "not-allowed" : "pointer", width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <IconX size={14} />
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => fileInputRef.current?.click()} disabled={busy} className="btn-hover" style={{
+              width: "100%", padding: "20px", border: `2px dashed ${C.border}`, borderRadius: 10,
+              background: "transparent", cursor: busy ? "not-allowed" : "pointer", color: C.muted,
+              fontSize: 14, fontFamily: FONT_LATIN, display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+            }}>
+              <span style={{ fontSize: 18 }}>📎</span>
+              <span>Choose a textbook page, newspaper, or PDF…</span>
+            </button>
+          )}
+
           {error && (
             <div style={{ marginTop: 14, padding: "12px 16px", background: C.accentSoft, border: `1px solid ${C.accentLine}`, borderRadius: 8, color: C.accent, fontSize: 14, fontWeight: 600 }}>
               {error}
             </div>
           )}
           <div style={{ marginTop: 12, fontSize: 13, color: C.muted, lineHeight: 1.55 }}>
-            AI will extract each term, fill in reading + English + Hebrew + example sentence. Powered by Claude Haiku.
+            AI extracts each term, fills in reading + English + Hebrew + example. For images, examples come from the actual sentences on the page. Powered by Claude Haiku.
           </div>
           <button
             onClick={submit} disabled={busy} className={busy ? "" : "btn-hover"}

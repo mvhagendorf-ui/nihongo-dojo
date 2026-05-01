@@ -2,19 +2,24 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
 
-const SYSTEM = `You build Japanese vocabulary quiz items from messy pasted text.
+const SYSTEM = `You build Japanese vocabulary quiz items from user input. Input can be:
+1. Pasted text (a messy list of words, sentences, mixed languages)
+2. An image of a Japanese textbook / newspaper / book page
+3. A PDF
+4. Any combination
 
-The user dumps a list of Japanese words / phrases / vocabulary they need to memorize — possibly with readings, English meanings, Hebrew, headings, bullet points, mixed languages, or just bare Japanese.
+For each distinct, learnable Japanese term you find — focus on substantive vocabulary: nouns, verbs, adjectives, set phrases, idioms, grammar points. Skip particles, super-common function words (です, ます, の, は, etc.), pure proper names, and obvious cognates unless they're the point of the lesson.
 
-For EACH distinct Japanese term you find, output a structured item:
-- jp: the term in its natural written form (with kanji where natural; e.g. "突然変異", "面接（めんせつ）", "謙譲語"). Preserve okurigana. Strip surrounding quotes/punctuation/list markers.
+For each item output:
+- jp: the term in its natural written form (with kanji where natural; e.g. "突然変異", "謙譲語"). Preserve okurigana. Strip surrounding quotes/punctuation/list markers.
 - reading: hiragana reading only (no katakana unless the term itself is katakana, e.g. "コンサル"). For pure-kana terms, repeat the term itself.
-- en: short clear English meaning (≤ 80 chars). If the user gave one, use it; otherwise infer.
-- ex: ONE natural Japanese example sentence using the term, ≤ 30 characters. Write a new one if none was provided.
+- en: short clear English meaning (≤ 80 chars). If the user provided one, prefer it; otherwise infer.
+- ex: ONE Japanese example sentence using the term, ≤ 35 characters.
+  • If the term came from an image/PDF/passage and a real sentence containing it is visible in the source — use that exact sentence (or shorten it to its core clause if too long).
+  • Otherwise write a natural example.
 - exHeb: clean Hebrew translation of the example sentence.
 
-Skip headings, dates, formatting noise, separators, and English-only lines that aren't translations. Skip duplicates.
-Keep items in the order they appear.
+Skip duplicates. Keep items in the order they appear. Cap output at ~40 items even if the source has more — pick the most learning-worthy.
 If the input has no recognizable Japanese terms, return { "items": [] }.`;
 
 const SCHEMA = {
@@ -51,19 +56,50 @@ export default async function handler(req, res) {
 
   try {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-    const text = body?.text;
-    if (!text || typeof text !== "string" || !text.trim()) {
-      return res.status(400).json({ error: "invalid_input", message: "text is required" });
+    const text = (body?.text || "").trim();
+    const image = body?.image; // { mediaType: "image/png" | "image/jpeg" | "image/webp" | "application/pdf", data: "<base64>" }
+
+    if (!text && !image) {
+      return res.status(400).json({ error: "invalid_input", message: "Provide text, an image, or both" });
     }
     if (text.length > 12000) {
       return res.status(400).json({ error: "too_long", message: "Paste under 12000 chars" });
+    }
+    if (image) {
+      const allowed = ["image/png", "image/jpeg", "image/webp", "image/gif", "application/pdf"];
+      if (!allowed.includes(image.mediaType) || typeof image.data !== "string") {
+        return res.status(400).json({ error: "invalid_image", message: "Image must be PNG/JPEG/WebP/GIF or PDF" });
+      }
+      if (image.data.length > 4_000_000) {
+        return res.status(400).json({ error: "image_too_large", message: "File too large — resize and try again" });
+      }
+    }
+
+    const userContent = [];
+    if (image) {
+      if (image.mediaType === "application/pdf") {
+        userContent.push({
+          type: "document",
+          source: { type: "base64", media_type: "application/pdf", data: image.data },
+        });
+      } else {
+        userContent.push({
+          type: "image",
+          source: { type: "base64", media_type: image.mediaType, data: image.data },
+        });
+      }
+    }
+    if (text) {
+      userContent.push({ type: "text", text });
+    } else if (image) {
+      userContent.push({ type: "text", text: "Extract Japanese vocabulary from this source." });
     }
 
     const response = await client.messages.create({
       model: "claude-haiku-4-5",
       max_tokens: 16000,
       system: SYSTEM,
-      messages: [{ role: "user", content: text }],
+      messages: [{ role: "user", content: userContent }],
       output_config: {
         format: { type: "json_schema", schema: SCHEMA },
       },
