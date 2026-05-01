@@ -172,7 +172,7 @@ function stripFurigana(text) {
 
 // Per-kanji radical decomposition cache (localStorage). Format:
 //   "休": { radicals: [{ char: "人", meaning: "person", strokes: 2 }, { char: "木", meaning: "tree", strokes: 4 }], mnemonic: "person resting under a tree" }
-const RADICAL_CACHE_KEY = "nihongo_dojo_kanji_radicals";
+const RADICAL_CACHE_KEY = "nihongo_dojo_kanji_radicals_v2";
 function loadRadicalCache() {
   try { return JSON.parse(localStorage.getItem(RADICAL_CACHE_KEY)) || {}; }
   catch { return {}; }
