@@ -101,6 +101,69 @@ function weightedShuffle(items, count) {
   return picked;
 }
 
+// Strips `（kana）` reading from a jp string. "お越しになる（おこしになる）" → { jp: "お越しになる", reading: "おこしになる" }
+function parseJpReading(rawJp) {
+  if (!rawJp) return { jp: "", reading: null };
+  const m = rawJp.match(/^(.*?)\s*[（(]([^)）]+)[)）]\s*$/);
+  if (m && /^[぀-ゟ゠-ヿ〜ー・]+$/.test(m[2].trim())) {
+    return { jp: m[1].trim(), reading: m[2].trim() };
+  }
+  return { jp: rawJp, reading: null };
+}
+const isKanjiChar = (ch) => /[㐀-䶿一-龯豈-﫿]/.test(ch);
+
+// Aligns kanji blocks in jp with their reading from the kana-only reading string.
+// Returns segments: { type: "plain" | "ruby", text? , kanji? , reading? }
+function buildFuriganaSegments(jp, reading) {
+  if (!reading || reading === jp) return [{ type: "plain", text: jp }];
+  const segments = [];
+  let i = 0, j = 0;
+  while (i < jp.length) {
+    const ch = jp[i];
+    if (!isKanjiChar(ch)) {
+      segments.push({ type: "plain", text: ch });
+      i++;
+      if (reading[j] === ch) j++;
+      continue;
+    }
+    let end = i;
+    while (end < jp.length && isKanjiChar(jp[end])) end++;
+    const kanjiBlock = jp.slice(i, end);
+    const nextChar = end < jp.length ? jp[end] : null;
+    let readingEnd;
+    if (nextChar === null) readingEnd = reading.length;
+    else {
+      readingEnd = reading.indexOf(nextChar, j);
+      if (readingEnd === -1) readingEnd = reading.length;
+    }
+    const blockReading = reading.slice(j, readingEnd);
+    if (blockReading) segments.push({ type: "ruby", kanji: kanjiBlock, reading: blockReading });
+    else segments.push({ type: "plain", text: kanjiBlock });
+    i = end;
+    j = readingEnd;
+  }
+  return segments;
+}
+
+function Furigana({ jp, reading, style, className }) {
+  const parsed = parseJpReading(jp);
+  const finalJp = parsed.jp;
+  const finalReading = reading || parsed.reading;
+  const segments = buildFuriganaSegments(finalJp, finalReading);
+  return (
+    <span className={className} style={style}>
+      {segments.map((seg, idx) =>
+        seg.type === "plain"
+          ? <span key={idx}>{seg.text}</span>
+          : <ruby key={idx}>{seg.kanji}<rt style={{ fontSize: "0.42em", fontWeight: 400, lineHeight: 1, color: "inherit", letterSpacing: "0", opacity: 0.85 }}>{seg.reading}</rt></ruby>
+      )}
+    </span>
+  );
+}
+
+// Strips a parenthetical reading off jp, for places that just want the clean text (TTS, comparisons display)
+function cleanJp(jp) { return parseJpReading(jp).jp; }
+
 function extractCores(jp) {
   const cleaned = jp.replace(/^～/, "").replace(/[（(][^)）]*[)）]/g, "").trim();
   return cleaned.split("/").map(s => s.trim()).filter(Boolean);
@@ -404,9 +467,9 @@ function WrongItem({ w, isLast }) {
     <div style={{ padding: "14px 0", borderBottom: isLast ? "none" : `1px solid ${C.border}` }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
         <Chip tone="accent">{CATEGORIES[w.cat]}{w.num ? ` · #${w.num}` : ""}</Chip>
-        <SpeakBtn text={w.jp} size={14} />
+        <SpeakBtn text={cleanJp(w.jp)} size={14} />
       </div>
-      <div className="jp" style={{ color: C.ink, fontWeight: 700, fontSize: 22, marginTop: 8, letterSpacing: "0.02em" }}>{w.jp}</div>
+      <div className="jp" style={{ color: C.ink, fontWeight: 700, fontSize: 22, marginTop: 8, letterSpacing: "0.02em" }}><Furigana jp={w.jp} reading={w.reading} /></div>
       <div style={{ color: C.inkDim, fontSize: 15, marginTop: 4 }}>{w.en}</div>
       {w.heb && <HebText style={{ color: C.muted, fontSize: 14, marginTop: 3 }}>{w.heb}</HebText>}
       {w.oneLiner && (
@@ -1648,7 +1711,7 @@ export default function App() {
               ) : (
                 <>
                   <div className="jp-display" style={{ fontSize: wide ? 56 : 42, fontWeight: 500, color: C.ink, lineHeight: 1.4, letterSpacing: "0.05em" }}>
-                    {q.jp} <SpeakBtn text={q.jp} size={wide ? 26 : 22} />
+                    <Furigana jp={q.jp} reading={q.reading} /> <SpeakBtn text={cleanJp(q.jp)} size={wide ? 26 : 22} />
                   </div>
                   {q.conn && (
                     <div style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 10, padding: "8px 16px", background: C.mutedBg, border: `1px solid ${C.border}`, borderRadius: 8 }}>
@@ -1719,7 +1782,7 @@ export default function App() {
                 <KickerLabel style={{ color: C.pass, marginBottom: 12 }}>Answer</KickerLabel>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="jp" style={{ fontSize: 24, fontWeight: 700, color: C.ink, letterSpacing: "0.02em" }}>{q.jp} <SpeakBtn text={q.jp} size={16} /></div>
+                    <div className="jp" style={{ fontSize: 24, fontWeight: 700, color: C.ink, letterSpacing: "0.02em" }}><Furigana jp={q.jp} reading={q.reading} /> <SpeakBtn text={cleanJp(q.jp)} size={16} /></div>
                     <div style={{ color: C.inkDim, fontSize: 16, marginTop: 5 }}>{q.en}</div>
                     {q.heb && <HebText style={{ color: C.muted, fontSize: 15, marginTop: 4 }}>{q.heb}</HebText>}
                   </div>

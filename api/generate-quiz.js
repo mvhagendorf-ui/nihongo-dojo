@@ -11,7 +11,7 @@ const SYSTEM = `You build Japanese vocabulary quiz items from user input. Input 
 For each distinct, learnable Japanese term you find — focus on substantive vocabulary: nouns, verbs, adjectives, set phrases, idioms, grammar points. Skip particles, super-common function words (です, ます, の, は, etc.), pure proper names, and obvious cognates unless they're the point of the lesson.
 
 For each item output:
-- jp: the term in its natural written form (with kanji where natural; e.g. "突然変異", "謙譲語"). Preserve okurigana. Strip surrounding quotes/punctuation/list markers.
+- jp: the term in its natural written form (with kanji where natural; e.g. "突然変異", "謙譲語", "お越しになる"). Preserve okurigana. Strip surrounding quotes/punctuation/list markers. NEVER include the reading in parentheses inside this field — the reading goes in the "reading" field only. ✗ "お越しになる（おこしになる）" ✓ "お越しになる".
 - reading: hiragana reading only (no katakana unless the term itself is katakana, e.g. "コンサル"). For pure-kana terms, repeat the term itself.
 - en: short clear English meaning (≤ 80 chars). If the user provided one, prefer it; otherwise infer.
 - ex: ONE Japanese example sentence using the term, ≤ 35 characters.
