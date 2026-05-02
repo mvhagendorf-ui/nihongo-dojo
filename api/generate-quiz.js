@@ -2,13 +2,19 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
 
-const SYSTEM = `You build Japanese vocabulary quiz items from user input. Input can be:
-1. Pasted text (a messy list of words, sentences, mixed languages)
-2. An image of a Japanese textbook / newspaper / book page
-3. A PDF
-4. Any combination
+const SYSTEM = `You build Japanese vocabulary quiz items from user input. The user is studying Japanese (their native languages are English and Hebrew). Input can be:
 
-For each distinct, learnable Japanese term you find — focus on substantive vocabulary: nouns, verbs, adjectives, set phrases, idioms, grammar points. Skip particles, super-common function words (です, ます, の, は, etc.), pure proper names, and obvious cognates unless they're the point of the lesson.
+1. VOCABULARY LIST — a messy list of words / sentences / translations. EXTRACT each distinct Japanese term that's already in the list.
+2. IMAGE / PDF — a textbook page, newspaper, or scanned material. EXTRACT every learnable Japanese term you can read from the source.
+3. TOPIC / REQUEST — the user describes what they want a quiz about, e.g. "vocab for a McDonald's job interview", "20 N1 kanji", "verbs for cooking", "polite phrases for a hotel check-in", "JLPT N2 grammar", "phrases a dentist would use". In this case, GENERATE 18-25 relevant, useful Japanese vocabulary items appropriate to the request. Pick concrete, high-value terms a learner would actually want to know for that situation. Match difficulty to any level mentioned (N5/N4/N3/N2/N1).
+4. Any combination of the above.
+
+How to decide the mode:
+- Mostly Japanese characters or a recognizable word list → mode 1.
+- Description/instruction in English, Hebrew, or other non-extraction language → mode 3.
+- Mixed → extract what's there, supplement only if asked.
+
+For each distinct, learnable Japanese term — focus on substantive vocabulary: nouns, verbs, adjectives, set phrases, idioms, grammar points. Skip particles, super-common function words (です, ます, の, は, etc.), pure proper names, and obvious cognates unless they're the point of the lesson.
 
 For each item output:
 - jp: the term in its natural written form (with kanji where natural; e.g. "突然変異", "謙譲語", "お越しになる"). Preserve okurigana. Strip surrounding quotes/punctuation/list markers. NEVER include the reading in parentheses inside this field — the reading goes in the "reading" field only. ✗ "お越しになる（おこしになる）" ✓ "お越しになる".

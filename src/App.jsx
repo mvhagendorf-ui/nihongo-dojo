@@ -1124,10 +1124,10 @@ function CustomQuizCreateModal({ onClose, onSaved }) {
             placeholder="e.g. Job interview vocab"
             style={{ width: "100%", padding: "14px 16px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 18, fontWeight: 500, fontFamily: FONT_LATIN, background: C.surface, color: C.ink, outline: "none", marginBottom: 22 }}
           />
-          <div style={{ ...KICKER, color: C.muted, fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Paste vocabulary · 単語リスト</div>
+          <div style={{ ...KICKER, color: C.muted, fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Paste vocabulary OR describe a topic · 単語 / トピック</div>
           <textarea
             value={text} onChange={e => setText(e.target.value)} disabled={busy}
-            placeholder={"Paste anything — bullet list, mixed languages, headings, the AI sorts it.\n\nExample:\n突然変異 - mutation\n進言（しんげん）- advice\n少子化 declining birth rate"}
+            placeholder={"Two ways to use this:\n\n— PASTE A LIST: 突然変異 - mutation / 進言 - advice / …\n— DESCRIBE A TOPIC: 'vocabulary for a McDonald's job interview', '20 N1 kanji for tomorrow's test', 'phrases for a hotel check-in', 'JLPT N2 grammar', etc."}
             rows={7}
             style={{ width: "100%", padding: "16px 18px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 17, fontWeight: 500, fontFamily: FONT_JP, background: C.surface, color: C.ink, outline: "none", resize: "vertical", lineHeight: 1.65 }}
           />
@@ -1182,7 +1182,7 @@ function CustomQuizCreateModal({ onClose, onSaved }) {
             </div>
           )}
           <div style={{ marginTop: 12, fontSize: 13, color: C.muted, lineHeight: 1.55 }}>
-            AI extracts each term, fills in reading + English + Hebrew + example. For images, examples come from the actual sentences on the page. Powered by Claude Haiku.
+            AI either <strong>extracts</strong> from your list/image, or <strong>generates</strong> a fresh quiz from your description. Each item gets reading + English + Hebrew + example sentence.
           </div>
           <button
             onClick={submit} disabled={busy} className={busy ? "" : "btn-hover"}
