@@ -2022,7 +2022,7 @@ export default function App() {
                     </div>
                   </div>
                 )}
-                {q.kanjiStory && <KanjiRadicals word={q.jp} />}
+                <KanjiRadicals word={q.jp} />
               </div>
             )}
 
