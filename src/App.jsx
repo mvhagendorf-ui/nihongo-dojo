@@ -635,6 +635,38 @@ function HistoryModal({ session, onClose }) {
 }
 
 function WrongItem({ w, isLast }) {
+  if (w._aiQuestion) {
+    const correct = w.choices?.[w.correctIdx];
+    return (
+      <div style={{ padding: "14px 0", borderBottom: isLast ? "none" : `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+          <Chip tone="accent">{CATEGORIES[w.cat] || "Quiz"} · {w.type}</Chip>
+          {w.source?.jp && <SpeakBtn text={cleanJp(w.source.jp)} size={14} />}
+        </div>
+        <div style={{ marginTop: 10, fontSize: 15, color: C.inkDim, lineHeight: 1.5, fontWeight: 500 }}>
+          <span className="jp">{w.prompt}</span>
+        </div>
+        <div style={{ marginTop: 10, padding: "8px 12px", background: C.passSoft, borderLeft: `2px solid ${C.pass}`, borderRadius: 5 }}>
+          <div style={{ ...KICKER, fontSize: 9, color: C.pass, marginBottom: 4 }}>Correct</div>
+          <div className="jp" style={{ fontSize: 16, color: C.pass, fontWeight: 700 }}>{correct}</div>
+        </div>
+        {w.explanation && (
+          <div style={{ marginTop: 8, fontSize: 13, color: C.muted, fontStyle: "italic", lineHeight: 1.5 }}>
+            {w.explanation}
+          </div>
+        )}
+        {w.source?.jp && (w.source.en || w.source.heb) && (
+          <div style={{ marginTop: 10, padding: "8px 12px", background: C.mutedBg, borderRadius: 6, fontSize: 13 }}>
+            <div style={{ ...KICKER, fontSize: 9, color: C.faint, marginBottom: 3 }}>From</div>
+            <div className="jp" style={{ fontSize: 15, color: C.ink, fontWeight: 700 }}>{w.source.jp}</div>
+            {w.source.reading && w.source.reading !== w.source.jp && <div className="jp" style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{w.source.reading}</div>}
+            {w.source.en && <div style={{ color: C.inkDim, marginTop: 3 }}>{w.source.en}</div>}
+            {w.source.heb && <HebText style={{ color: C.muted, marginTop: 2 }}>{w.source.heb}</HebText>}
+          </div>
+        )}
+      </div>
+    );
+  }
   return (
     <div style={{ padding: "14px 0", borderBottom: isLast ? "none" : `1px solid ${C.border}` }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
@@ -1049,6 +1081,7 @@ const MAX_FILES = 4;
 function CustomQuizCreateModal({ onClose, onSaved }) {
   const [name, setName] = useState("");
   const [text, setText] = useState("");
+  const [instructions, setInstructions] = useState("");
   const [images, setImages] = useState([]); // [{ mediaType, data, preview, name }]
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -1093,11 +1126,21 @@ function CustomQuizCreateModal({ onClose, onSaved }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text: text.trim() || undefined,
+          instructions: instructions.trim() || undefined,
           images: images.length > 0 ? images.map(i => ({ mediaType: i.mediaType, data: i.data })) : undefined,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || data.error || "Generation failed");
+      // New mode: AI returned full questions with prompts + choices
+      if (data.mode === "questions") {
+        const questions = data.questions || [];
+        if (questions.length === 0) { setError("No questions could be generated from this input"); setBusy(false); return; }
+        const quiz = { id: `cq_${Date.now()}`, name: name.trim(), createdAt: Date.now(), questions, instructions: instructions.trim() };
+        onSaved(quiz);
+        return;
+      }
+      // Default mode: AI returned vocab items, client builds choices at quiz time
       const items = data.items || [];
       if (items.length === 0) { setError("No Japanese terms detected"); setBusy(false); return; }
       const quiz = { id: `cq_${Date.now()}`, name: name.trim(), createdAt: Date.now(), items };
@@ -1130,6 +1173,17 @@ function CustomQuizCreateModal({ onClose, onSaved }) {
             placeholder={"Two ways to use this:\n\n— PASTE A LIST: 突然変異 - mutation / 進言 - advice / …\n— DESCRIBE A TOPIC: 'vocabulary for a McDonald's job interview', '20 N1 kanji for tomorrow's test', 'phrases for a hotel check-in', 'JLPT N2 grammar', etc."}
             rows={7}
             style={{ width: "100%", padding: "16px 18px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 17, fontWeight: 500, fontFamily: FONT_JP, background: C.surface, color: C.ink, outline: "none", resize: "vertical", lineHeight: 1.65 }}
+          />
+
+          <div style={{ marginTop: 22, ...KICKER, color: C.muted, fontSize: 13, fontWeight: 700, marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
+            <span>Quiz style · 出題スタイル</span>
+            <span style={{ ...KICKER, fontSize: 9, color: C.faint, fontWeight: 500 }}>(optional)</span>
+          </div>
+          <textarea
+            value={instructions} onChange={e => setInstructions(e.target.value)} disabled={busy}
+            placeholder={"Tell the AI how to design questions. Examples:\n\n— 'Fill-in-the-blank only, focus on N1 grammar'\n— 'Drill keigo: humble vs respectful forms'\n— 'Test reading recognition (kanji → hiragana)'\n— 'Mix particles, conjugations, and meanings'\n— 'Synonym discrimination — pick closest meaning'\n\nLeave blank for a standard meaning + fill-blank mix."}
+            rows={5}
+            style={{ width: "100%", padding: "14px 16px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 14, fontWeight: 500, fontFamily: FONT_LATIN, background: C.surface, color: C.ink, outline: "none", resize: "vertical", lineHeight: 1.55 }}
           />
 
           <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "20px 0 10px" }}>
@@ -1182,7 +1236,11 @@ function CustomQuizCreateModal({ onClose, onSaved }) {
             </div>
           )}
           <div style={{ marginTop: 12, fontSize: 13, color: C.muted, lineHeight: 1.55 }}>
-            AI either <strong>extracts</strong> from your list/image, or <strong>generates</strong> a fresh quiz from your description. Each item gets reading + English + Hebrew + example sentence.
+            {instructions.trim() ? (
+              <>AI <strong>designs questions</strong> matching your style — multiple types possible (fill-blank, reading, particle, conjugation, register, synonym, etc.). Uses Sonnet 4.6.</>
+            ) : (
+              <>AI either <strong>extracts</strong> from your list/image, or <strong>generates</strong> a fresh quiz from your description. Each item gets reading + English + Hebrew + example sentence.</>
+            )}
           </div>
           <button
             onClick={submit} disabled={busy} className={busy ? "" : "btn-hover"}
@@ -1307,7 +1365,10 @@ export default function App() {
   useEffect(() => {
     if (screen === "results" && !savedRef.current && total > 0) {
       savedRef.current = true;
-      const slimWrong = wrongList.map(w => ({ jp: w.jp, en: w.en, heb: w.heb, cat: w.cat, num: w.num, conn: w.conn, ex: w.ex, exHeb: w.exHeb, kanjiStory: w.kanjiStory, n5syn: w.n5syn, oneLiner: w.oneLiner }));
+      const slimWrong = wrongList.map(w => w._aiQuestion
+        ? { _aiQuestion: true, jp: w.jp, cat: w.cat, num: w.num, type: w.type, prompt: w.prompt, promptKind: w.promptKind, choices: w.choices, correctIdx: w.correctIdx, explanation: w.explanation, source: w.source }
+        : { jp: w.jp, en: w.en, heb: w.heb, cat: w.cat, num: w.num, conn: w.conn, ex: w.ex, exHeb: w.exHeb, kanjiStory: w.kanjiStory, n5syn: w.n5syn, oneLiner: w.oneLiner }
+      );
       saveSession({ score, total, bestStreak, cats: selectedCats, wrongList: slimWrong });
       setHistory(loadHistory());
       setSrs(loadSRS());
@@ -1333,6 +1394,35 @@ export default function App() {
   }, [selectedCats, numQuestions, timerMin, timerSec]);
 
   const startCustomQuiz = useCallback((quiz) => {
+    // NEW FORMAT: quiz has full AI-designed questions with prompts + choices
+    if (Array.isArray(quiz.questions) && quiz.questions.length > 0) {
+      const aiQs = quiz.questions
+        .filter(q => Array.isArray(q.choices) && q.choices.length === 4 && typeof q.correctIdx === "number")
+        .map((q, i) => ({
+          ...q,
+          _aiQuestion: true,
+          // Mirror SRS-relevant fields onto top level so weightedShuffle keys correctly
+          jp: q.source?.jp || `__q_${i}`,
+          cat: "CUSTOM",
+          num: i + 1,
+        }));
+      if (aiQs.length < 4) { alert("This quiz needs at least 4 valid questions to run."); return; }
+      const count = Math.min(numQuestions, aiQs.length);
+      const picked = weightedShuffle(aiQs, count);
+      setQuestions(picked);
+      setCurrent(0); setSelected(null); setScore(0); setTotal(0);
+      setStreak(0); setBestStreak(0); setWrongList([]); setRetryQueue([]);
+      setShowNext(false);
+      setTimeLeft(timerMin * 60 + timerSec);
+      setTimerActive(true);
+      setQuizPool([]);
+      setChoices([]);
+      prefetchRadicalsForJp(picked.map(p => p.source?.jp).filter(Boolean));
+      savedRef.current = false;
+      setScreen("quiz");
+      return;
+    }
+    // LEGACY FORMAT: items + client-side choice generation
     const items = (quiz.items || []).map((it, i) => ({ ...it, cat: "CUSTOM", num: i + 1 }));
     if (items.length < 4) {
       alert("This quiz needs at least 4 items to run. Add more and regenerate.");
@@ -1357,36 +1447,44 @@ export default function App() {
 
   const handleChoice = (choice) => {
     if (selected) return;
-    setSelected(choice);
+    const q = questions[current];
+    // For AI questions, `choice` is the index 0-3 → wrap so `selected` stays truthy when idx===0
+    setSelected(q._aiQuestion ? { idx: choice } : choice);
     setTotal(t => t + 1);
-    const correct = choice.jp === questions[current].jp;
+    const correct = q._aiQuestion ? (choice === q.correctIdx) : (choice.jp === q.jp);
     playSound(correct);
-    updateSRS(questions[current].jp, correct);
+    updateSRS(q.jp, correct);
     if (correct) {
       setScore(s => s + 1);
       setStreak(s => { const ns = s + 1; setBestStreak(b => Math.max(b, ns)); return ns; });
     } else {
       setStreak(0);
-      setWrongList(w => [...w, questions[current]]);
-      setRetryQueue(r => [...r, questions[current]]);
+      setWrongList(w => [...w, q]);
+      setRetryQueue(r => [...r, q]);
     }
     setTimeout(() => setShowNext(true), 450);
-    const exText = questions[current].ex;
-    if (exText) setTimeout(() => speak(stripFurigana(exText)), 850);
+    // Speak relevant audio after answer: AI question speaks source.jp; item speaks ex
+    if (q._aiQuestion) {
+      const speakText = q.source?.jp || q.prompt;
+      if (speakText) setTimeout(() => speak(stripFurigana(speakText)), 850);
+    } else if (q.ex) {
+      setTimeout(() => speak(stripFurigana(q.ex)), 850);
+    }
   };
 
   const next = () => {
     let nextIdx = current + 1;
     if (nextIdx < questions.length) {
+      const nextQ = questions[nextIdx];
       setCurrent(nextIdx); setSelected(null); setShowNext(false);
-      setChoices(generateChoices(questions[nextIdx], quizPool));
+      if (!nextQ._aiQuestion) setChoices(generateChoices(nextQ, quizPool));
     } else if (retryQueue.length > 0) {
       const retry = retryQueue[0];
       setRetryQueue(r => r.slice(1));
       setQuestions(q => [...q, retry]);
       setCurrent(questions.length);
       setSelected(null); setShowNext(false);
-      setChoices(generateChoices(retry, quizPool));
+      if (!retry._aiQuestion) setChoices(generateChoices(retry, quizPool));
     } else {
       setTimerActive(false); setScreen("results");
     }
@@ -1402,16 +1500,24 @@ export default function App() {
       const tag = e.target?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || e.target?.isContentEditable) return;
       const s = kbRef.current;
-      if (e.key >= "1" && e.key <= "4" && !s.selected && s.choices.length > 0) {
+      const isAi = s.q?._aiQuestion;
+      const choiceCount = isAi ? (s.q.choices?.length || 0) : s.choices.length;
+      if (e.key >= "1" && e.key <= "4" && !s.selected && choiceCount > 0) {
         const idx = parseInt(e.key, 10) - 1;
-        if (s.choices[idx]) { e.preventDefault(); s.handleChoice(s.choices[idx]); }
+        if (idx < choiceCount) {
+          e.preventDefault();
+          // AI questions take an index; legacy items take the choice object
+          s.handleChoice(isAi ? idx : s.choices[idx]);
+        }
       } else if (e.key === "Enter" && s.showNext) {
         e.preventDefault(); s.next();
       } else if (e.key === " " && s.q) {
         e.preventDefault();
-        // Fill-blank unanswered: read sentence with the answer hidden (・・・)
-        // Otherwise: read the JP word/grammar point
-        if (s.q._type === "fillBlank" && !s.selected && s.q.ex) {
+        if (isAi) {
+          // AI questions: speak the prompt itself (it's the question text)
+          speak(stripFurigana(s.q.prompt || s.q.source?.jp || ""));
+        } else if (s.q._type === "fillBlank" && !s.selected && s.q.ex) {
+          // Fill-blank unanswered: read sentence with the answer hidden (・・・)
           const cleanEx = stripFurigana(s.q.ex);
           const core = findCoreInEx(cleanEx, extractCores(s.q.jp));
           speak(core ? cleanEx.replace(core, "・・・") : cleanEx);
@@ -1860,6 +1966,157 @@ export default function App() {
       </div>
 
       {q && (() => {
+        // ─── AI-DESIGNED QUESTION (new format) ───
+        if (q._aiQuestion) {
+          const TYPE_LABELS = {
+            meaning: "Meaning",
+            fillBlank: "Fill in the Blank",
+            reading: "Reading · 読み方",
+            particle: "Particle",
+            conjugation: "Conjugation",
+            register: "Keigo · 敬語",
+            synonym: "Synonym · 類義",
+            general: "Question",
+          };
+          const promptKind = q.promptKind || "instruction";
+          const promptFontSize = promptKind === "kanji"
+            ? (wide ? 64 : 50)
+            : promptKind === "sentence"
+            ? (wide ? 30 : 24)
+            : (wide ? 22 : 18);
+          const sourceJp = q.source?.jp;
+          const bookmarked = sourceJp ? bookmarks.has(sourceJp) : false;
+          return (
+            <>
+              {/* BADGES */}
+              <div className="fade-in" key={current + "_badge"} style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+                <Chip tone="accent">{CATEGORIES[q.cat] || "Quiz"}{q.num ? ` · #${q.num}` : ""}</Chip>
+                <Chip tone="default">{TYPE_LABELS[q.type] || q.type}</Chip>
+              </div>
+
+              {/* QUESTION CARD */}
+              <div className="pop-in" key={current + "_q"} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: wide ? "40px 32px" : "32px 22px", marginBottom: 14, textAlign: "center", position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${C.accent}, transparent)`, opacity: 0.5 }} />
+                <div className={promptKind === "kanji" ? "jp-display" : "jp"} style={{ fontSize: promptFontSize, fontWeight: promptKind === "kanji" ? 500 : 600, color: C.ink, lineHeight: promptKind === "kanji" ? 1.4 : 1.6, letterSpacing: "0.02em" }}>
+                  <FuriganaSentence text={q.prompt} />
+                </div>
+                <div style={{ marginTop: 14 }}>
+                  <SpeakBtn text={stripFurigana(q.prompt)} size={20} />
+                </div>
+              </div>
+
+              {/* CHOICES */}
+              <div className="fade-in" key={current + "_choices"} style={{ display: "grid", gridTemplateColumns: wide ? "1fr 1fr" : "1fr", gap: 8 }}>
+                {q.choices.map((choice, i) => {
+                  const isCorrect = i === q.correctIdx;
+                  const isPicked = selected?.idx === i;
+                  const isPickedWrong = isPicked && !isCorrect;
+                  let bg = C.surface, border = C.border, col = C.ink, accentBar = "transparent", anim = "";
+                  if (selected) {
+                    if (isPicked && isCorrect) { bg = C.passSoft; border = C.passLine; col = C.pass; accentBar = C.pass; }
+                    else if (isPickedWrong) { bg = C.accentSoft; border = C.accentLine; col = C.accent; accentBar = C.accent; anim = "shake 0.4s"; }
+                    else if (isCorrect) { bg = C.passSoft; border = C.passLine; col = C.pass; accentBar = C.pass; }
+                    else { bg = C.mutedBg; border = C.border; col = C.faint; }
+                  }
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => handleChoice(i)}
+                      disabled={!!selected}
+                      className={selected ? "" : "choice-hover"}
+                      style={{
+                        background: bg, border: `1px solid ${border}`,
+                        borderLeft: `2px solid ${accentBar === "transparent" ? border : accentBar}`,
+                        color: col, borderRadius: 12, padding: "16px 18px",
+                        textAlign: "left", cursor: selected ? "default" : "pointer",
+                        display: "flex", gap: 14, alignItems: "flex-start",
+                        fontFamily: FONT_LATIN, animation: anim, transition: "background 0.2s, border 0.2s, color 0.2s",
+                      }}
+                    >
+                      <span className="num" style={{ color: selected ? col : C.accent, fontWeight: 600, fontSize: 22, minWidth: 30, lineHeight: 1, letterSpacing: "-0.01em" }}>
+                        {(i + 1).toString().padStart(2, "0")}
+                      </span>
+                      <div className="jp" style={{ flex: 1, minWidth: 0, fontSize: 18, fontWeight: 600, color: selected ? col : C.ink, lineHeight: 1.4, wordBreak: "break-word" }}>
+                        {choice}
+                      </div>
+                      {selected && isCorrect && <IconCheck size={20} style={{ color: C.pass, marginTop: 2, flexShrink: 0 }} />}
+                      {isPickedWrong && <IconX size={20} style={{ color: C.accent, marginTop: 2, flexShrink: 0 }} />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* REVEAL PANEL */}
+              {selected && (
+                <div className="slide-up" style={{ marginTop: 16, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: "20px 22px" }}>
+                  <KickerLabel style={{ color: C.pass, marginBottom: 10 }}>Answer</KickerLabel>
+                  <div className="jp" style={{ fontSize: 26, fontWeight: 700, color: C.pass, letterSpacing: "0.02em", lineHeight: 1.3 }}>
+                    {q.choices[q.correctIdx]}
+                  </div>
+                  {q.explanation && (
+                    <div style={{ marginTop: 12, padding: "10px 14px", background: C.accentSoft, borderLeft: `2px solid ${C.accent}`, borderRadius: 6, fontSize: 14, color: C.inkDim, lineHeight: 1.55 }}>
+                      {q.explanation}
+                    </div>
+                  )}
+                  {sourceJp && (q.source.en || q.source.heb || q.source.reading) && (
+                    <div style={{ marginTop: 16, padding: "12px 14px", background: C.elevated, border: `1px solid ${C.border}`, borderRadius: 10 }}>
+                      <div style={{ ...KICKER, color: C.faint, fontSize: 9, marginBottom: 6 }}>From</div>
+                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div className="jp" style={{ fontSize: 22, fontWeight: 700, color: C.ink, letterSpacing: "0.02em" }}>
+                            <Furigana jp={sourceJp} reading={q.source.reading} /> <SpeakBtn text={cleanJp(sourceJp)} size={16} />
+                          </div>
+                          {q.source.en && <div style={{ color: C.inkDim, fontSize: 14, marginTop: 4 }}>{q.source.en}</div>}
+                          {q.source.heb && <HebText style={{ color: C.muted, fontSize: 13, marginTop: 3 }}>{q.source.heb}</HebText>}
+                        </div>
+                        <button
+                          onClick={() => toggleBookmark(sourceJp)}
+                          aria-label={bookmarked ? "Remove bookmark" : "Save to bookmarks"}
+                          className="btn-hover"
+                          style={{
+                            flexShrink: 0,
+                            background: bookmarked ? C.accentSoft : "transparent",
+                            border: `1px solid ${bookmarked ? C.accentLine : C.border}`,
+                            color: bookmarked ? C.accent : C.muted,
+                            padding: "6px 10px", borderRadius: 6, cursor: "pointer",
+                            display: "inline-flex", alignItems: "center", gap: 4,
+                            fontSize: 11, fontWeight: 600,
+                          }}
+                        >
+                          <IconStar size={11} filled={bookmarked} />
+                        </button>
+                      </div>
+                      <KanjiRadicals word={sourceJp} />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* NEXT BUTTON */}
+              {showNext && (
+                <button onClick={next} className="btn-hover slide-up" style={{
+                  width: "100%", marginTop: 14, padding: "15px 20px",
+                  fontSize: 13, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase",
+                  background: C.accent, color: "#fff",
+                  border: `1px solid ${C.accent}`, borderRadius: 10, cursor: "pointer",
+                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  fontFamily: FONT_LATIN,
+                }} onMouseEnter={e => e.currentTarget.style.background = C.accentHi} onMouseLeave={e => e.currentTarget.style.background = C.accent}>
+                  {current + 1 >= questions.length && retryQueue.length === 0 ? "Results" : retryQueue.length > 0 && current + 1 >= questions.length ? `Retry (${retryQueue.length})` : "Next"}
+                  <IconChevRt size={13} />
+                </button>
+              )}
+
+              {wide && (
+                <div style={{ textAlign: "center", marginTop: 18, ...KICKER, color: C.faint, fontSize: 10 }}>
+                  <kbd>1&ndash;4</kbd> answer · <kbd>Space</kbd> hear · <kbd>Enter</kbd> continue
+                </div>
+              )}
+            </>
+          );
+        }
+
+        // ─── LEGACY ITEM-BASED QUESTION ───
         const isFill = q._type === "fillBlank";
         const qCore = isFill ? findCoreInEx(q.ex, extractCores(q.jp)) : null;
         const blanked = isFill && qCore ? blankExample(q.ex, qCore) : null;
