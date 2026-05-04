@@ -1,0 +1,3186 @@
+{
+  "grammar": [
+    {
+      "jp": "あえて",
+      "reading": "aete",
+      "en": "dare to"
+    },
+    {
+      "jp": "あくまでも",
+      "reading": "akumade mo",
+      "en": "to the end, to the utmost degree"
+    },
+    {
+      "jp": "案の定",
+      "reading": "an no jou",
+      "en": "just as one thought"
+    },
+    {
+      "jp": "あらかじめ",
+      "reading": "arakajime",
+      "en": "beforehand, in advance"
+    },
+    {
+      "jp": "あっての",
+      "reading": "atte no",
+      "en": "to owe everything to"
+    },
+    {
+      "jp": "場合によっては",
+      "reading": "baai ni yotte wa",
+      "en": "depending on the situation"
+    },
+    {
+      "jp": "ばこそ",
+      "reading": "ba koso",
+      "en": "only because"
+    },
+    {
+      "jp": "ばそれまでだ",
+      "reading": "ba sore made da",
+      "en": "if… then it’s over"
+    },
+    {
+      "jp": "べからず",
+      "reading": "bekarazu",
+      "en": "must not, should not"
+    },
+    {
+      "jp": "べく",
+      "reading": "beku",
+      "en": "in order to, should"
+    },
+    {
+      "jp": "べくもない",
+      "reading": "beku mo nai",
+      "en": "can’t"
+    },
+    {
+      "jp": "びる",
+      "reading": "biru",
+      "en": "seeming to be"
+    },
+    {
+      "jp": "ぶり",
+      "reading": "buri",
+      "en": "style, manner"
+    },
+    {
+      "jp": "ぶる",
+      "reading": "buru",
+      "en": "behaving like"
+    },
+    {
+      "jp": "だに",
+      "reading": "dani",
+      "en": "even"
+    },
+    {
+      "jp": "だの～だの",
+      "reading": "dano~dano",
+      "en": "and, and so forth"
+    },
+    {
+      "jp": "であれ～であれ",
+      "reading": "de are~de are",
+      "en": "whether A or B"
+    },
+    {
+      "jp": "であれ/であろうと",
+      "reading": "de are/de arou to",
+      "en": "whoever/whatever/however"
+    },
+    {
+      "jp": "でも何でもない",
+      "reading": "demo nan demo nai",
+      "en": "not in the least"
+    },
+    {
+      "jp": "でなくてなんだろう",
+      "reading": "denakute nan darou",
+      "en": "must be, is definitely"
+    },
+    {
+      "jp": "ではあるまいか",
+      "reading": "dewa aru mai ka",
+      "en": "I wonder if it’s not"
+    },
+    {
+      "jp": "ではあるまいし",
+      "reading": "dewa aru mai shi",
+      "en": "it’s not like, it isn’t as if"
+    },
+    {
+      "jp": "ではすまない",
+      "reading": "dewa sumanai",
+      "en": "it doesn’t end with just"
+    },
+    {
+      "jp": "どうにも～ない",
+      "reading": "dou nimo~nai",
+      "en": "not … by any means"
+    },
+    {
+      "jp": "がてら",
+      "reading": "gatera",
+      "en": "on the same occasion"
+    },
+    {
+      "jp": "が早いか",
+      "reading": "ga hayai ka",
+      "en": "as soon as"
+    },
+    {
+      "jp": "が最後",
+      "reading": "ga saigo",
+      "en": "once something occurs, something else happens"
+    },
+    {
+      "jp": "ごとき/ごとく",
+      "reading": "gotoki/gotoku",
+      "en": "like, as if"
+    },
+    {
+      "jp": "ぐるみ",
+      "reading": "gurumi",
+      "en": "together with"
+    },
+    {
+      "jp": "羽目になる",
+      "reading": "hame ni naru",
+      "en": "to end up with (something unpleasant)"
+    },
+    {
+      "jp": "ひとつ",
+      "reading": "hitotsu",
+      "en": "to give something a try"
+    },
+    {
+      "jp": "ほどのことはない",
+      "reading": "hodo no koto wa nai",
+      "en": "not worth, no need to"
+    },
+    {
+      "jp": "ほかに～ない",
+      "reading": "hoka ni~nai",
+      "en": "no other"
+    },
+    {
+      "jp": "ほうがましだ",
+      "reading": "hou ga mashi da",
+      "en": "I would rather"
+    },
+    {
+      "jp": "いかなる",
+      "reading": "ikanaru",
+      "en": "any kind of"
+    },
+    {
+      "jp": "いかんでは/いかんによっては",
+      "reading": "ikan dewa/ikan ni yotte wa",
+      "en": "depending on"
+    },
+    {
+      "jp": "いかんによらず",
+      "reading": "ikan ni yorazu",
+      "en": "regardless of"
+    },
+    {
+      "jp": "いかに",
+      "reading": "ikani",
+      "en": "how"
+    },
+    {
+      "jp": "いかにも",
+      "reading": "ikanimo",
+      "en": "indeed, really"
+    },
+    {
+      "jp": "いまだに",
+      "reading": "ima da ni",
+      "en": "still, even now"
+    },
+    {
+      "jp": "いずれにせよ",
+      "reading": "izure nise yo",
+      "en": "at any rate, in any case"
+    },
+    {
+      "jp": "じみた",
+      "reading": "jimita",
+      "en": "to look like"
+    },
+    {
+      "jp": "限りだ",
+      "reading": "kagiri da",
+      "en": "I feel so"
+    },
+    {
+      "jp": "かいもなく",
+      "reading": "kai mo naku",
+      "en": "even though"
+    },
+    {
+      "jp": "か否か",
+      "reading": "ka ina ka",
+      "en": "whether or not"
+    },
+    {
+      "jp": "可能性がある",
+      "reading": "kanousei ga aru",
+      "en": "there’s a possibility"
+    },
+    {
+      "jp": "からある",
+      "reading": "kara aru",
+      "en": "as much as, as many as"
+    },
+    {
+      "jp": "かれ～かれ",
+      "reading": "kare~kare",
+      "en": "or"
+    },
+    {
+      "jp": "かたがた",
+      "reading": "katagata",
+      "en": "while, for the purpose of"
+    },
+    {
+      "jp": "かたわら",
+      "reading": "katawara",
+      "en": "while, at the same time"
+    },
+    {
+      "jp": "かつて",
+      "reading": "katsute",
+      "en": "once, before"
+    },
+    {
+      "jp": "嫌いがある",
+      "reading": "kirai ga aru",
+      "en": "to have a tendency to"
+    },
+    {
+      "jp": "きっての",
+      "reading": "kitte no",
+      "en": "the most … of all"
+    },
+    {
+      "jp": "きりがない",
+      "reading": "kiri ga nai",
+      "en": "there’s no end to"
+    },
+    {
+      "jp": "極まる/極まりない",
+      "reading": "kiwamaru/kiwamarinai",
+      "en": "extremely"
+    },
+    {
+      "jp": "極めて",
+      "reading": "kiwamete",
+      "en": "extremely, exceedingly"
+    },
+    {
+      "jp": "ことだし",
+      "reading": "koto dashi",
+      "en": "because, since"
+    },
+    {
+      "jp": "ことごとく",
+      "reading": "koto gotoku",
+      "en": "altogether, entirely"
+    },
+    {
+      "jp": "ことなしに",
+      "reading": "koto nashi ni",
+      "en": "without doing something"
+    },
+    {
+      "jp": "ことのないよう",
+      "reading": "koto no nai you",
+      "en": "so as not to"
+    },
+    {
+      "jp": "こととて",
+      "reading": "kototote",
+      "en": "because, since"
+    },
+    {
+      "jp": "くらいなら",
+      "reading": "kurai nara",
+      "en": "rather than"
+    },
+    {
+      "jp": "くらいのものだ",
+      "reading": "kurai no mono da",
+      "en": "only"
+    },
+    {
+      "jp": "までだ",
+      "reading": "made da",
+      "en": "only"
+    },
+    {
+      "jp": "までもない",
+      "reading": "made mo nai",
+      "en": "it’s not necessary to"
+    },
+    {
+      "jp": "まじき",
+      "reading": "majiki",
+      "en": "should not, must not"
+    },
+    {
+      "jp": "ままに",
+      "reading": "mama ni",
+      "en": "to do as"
+    },
+    {
+      "jp": "まるっきり",
+      "reading": "marukkiri",
+      "en": "totally, completely"
+    },
+    {
+      "jp": "めく",
+      "reading": "meku",
+      "en": "to show signs of"
+    },
+    {
+      "jp": "もはや",
+      "reading": "mohaya",
+      "en": "already, no longer"
+    },
+    {
+      "jp": "も顧みず/を顧みず",
+      "reading": "mo kaerimizu/o kaerimizu",
+      "en": "regardless of, despite"
+    },
+    {
+      "jp": "もしないで",
+      "reading": "mo shinaide",
+      "en": "without even doing"
+    },
+    {
+      "jp": "もので",
+      "reading": "mono de",
+      "en": "because, for that reason"
+    },
+    {
+      "jp": "ものを",
+      "reading": "mono o",
+      "en": "I wish, if only"
+    },
+    {
+      "jp": "ものと思われる",
+      "reading": "mono to omowareru",
+      "en": "to think, to suppose"
+    },
+    {
+      "jp": "ものとして",
+      "reading": "mono toshite",
+      "en": "to assume, to suppose"
+    },
+    {
+      "jp": "もさることながら",
+      "reading": "mo saru koto nagara",
+      "en": "not only… but also"
+    },
+    {
+      "jp": "もしくは",
+      "reading": "moshikuwa",
+      "en": "or, otherwise"
+    },
+    {
+      "jp": "ながらに/ながらの",
+      "reading": "nagara ni/nagara no",
+      "en": "while, during"
+    },
+    {
+      "jp": "ないではおかない/ずにはおかない",
+      "reading": "nai dewa okanai/zu niwa okanai",
+      "en": "will definitely, cannot not"
+    },
+    {
+      "jp": "ないではすまない/ずにはすまない",
+      "reading": "nai dewa sumanai/zu niwa sumanai",
+      "en": "must"
+    },
+    {
+      "jp": "ないまでも",
+      "reading": "nai made mo",
+      "en": "even if something isn’t done"
+    },
+    {
+      "jp": "ないものか",
+      "reading": "nai mono ka",
+      "en": "can’t we…?, can’t I…?"
+    },
+    {
+      "jp": "ないものでもない",
+      "reading": "nai mono demo nai",
+      "en": "(something) is not entirely impossible"
+    },
+    {
+      "jp": "ないとも限らない",
+      "reading": "nai tomo kagiranai",
+      "en": "might"
+    },
+    {
+      "jp": "なくして",
+      "reading": "nakushite",
+      "en": "without"
+    },
+    {
+      "jp": "何しろ",
+      "reading": "nani shiro",
+      "en": "in any case, as you know"
+    },
+    {
+      "jp": "なしに",
+      "reading": "nashi ni",
+      "en": "without"
+    },
+    {
+      "jp": "ならでは",
+      "reading": "nara dewa",
+      "en": "uniquely applying to"
+    },
+    {
+      "jp": "ならいざしらず",
+      "reading": "nara iza shirazu",
+      "en": "I don’t know about A, but B"
+    },
+    {
+      "jp": "なり",
+      "reading": "nari",
+      "en": "as soon as"
+    },
+    {
+      "jp": "なりに/なりの",
+      "reading": "nari ni/nari no",
+      "en": "in one’s own way or style"
+    },
+    {
+      "jp": "なりとも",
+      "reading": "naritomo",
+      "en": "even a little, at least"
+    },
+    {
+      "jp": "に値する",
+      "reading": "ni atai suru",
+      "en": "to be worth, to deserve"
+    },
+    {
+      "jp": "にあたらない",
+      "reading": "ni ataranai",
+      "en": "it’s not worth, there’s no need to"
+    },
+    {
+      "jp": "にあって",
+      "reading": "ni atte",
+      "en": "at, during, in the condition of"
+    },
+    {
+      "jp": "にひきかえ",
+      "reading": "ni hikikae",
+      "en": "in contrast to"
+    },
+    {
+      "jp": "に言わせれば",
+      "reading": "ni iwasereba",
+      "en": "if you ask, if one may say"
+    },
+    {
+      "jp": "にかかっている",
+      "reading": "ni kakatte iru",
+      "en": "to depend on"
+    },
+    {
+      "jp": "にかたくない",
+      "reading": "ni katakunai",
+      "en": "it’s not hard to"
+    },
+    {
+      "jp": "にまつわる",
+      "reading": "ni matsuwaru",
+      "en": "to be related to"
+    },
+    {
+      "jp": "にもほどがある",
+      "reading": "nimo hodo ga aru",
+      "en": "to have a limit, to go too far"
+    },
+    {
+      "jp": "に則って",
+      "reading": "ni nottotte",
+      "en": "in accordance with"
+    },
+    {
+      "jp": "に先駆けて",
+      "reading": "ni saki gakete",
+      "en": "to be the first"
+    },
+    {
+      "jp": "にしたって",
+      "reading": "ni shitatte",
+      "en": "even, even if"
+    },
+    {
+      "jp": "に即して",
+      "reading": "ni sokushite",
+      "en": "in keeping with"
+    },
+    {
+      "jp": "にたえる/にたえない",
+      "reading": "ni taeru/ni taenai",
+      "en": "can/can’t do something"
+    },
+    {
+      "jp": "に足る/に足りる",
+      "reading": "ni taru/ni tariru",
+      "en": "to be enough, to be worthy of"
+    },
+    {
+      "jp": "に足りない",
+      "reading": "ni tarinai",
+      "en": "to be not worth"
+    },
+    {
+      "jp": "に照らして",
+      "reading": "ni terashite",
+      "en": "in comparison with, according to"
+    },
+    {
+      "jp": "にとどまらず",
+      "reading": "ni todomarazu",
+      "en": "not limited to"
+    },
+    {
+      "jp": "には及ばない",
+      "reading": "niwa oyobanai",
+      "en": "there’s no need to"
+    },
+    {
+      "jp": "によらず",
+      "reading": "ni yorazu",
+      "en": "regardless of"
+    },
+    {
+      "jp": "んばかりに",
+      "reading": "n bakari ni",
+      "en": "as if, as though"
+    },
+    {
+      "jp": "んがため",
+      "reading": "n ga tame",
+      "en": "in order to"
+    },
+    {
+      "jp": "の至り",
+      "reading": "no itari",
+      "en": "utmost"
+    },
+    {
+      "jp": "の極み",
+      "reading": "no kiwami",
+      "en": "utmost"
+    },
+    {
+      "jp": "のみか",
+      "reading": "nomika",
+      "en": "not only… but also"
+    },
+    {
+      "jp": "のなんのって",
+      "reading": "no nan no tte",
+      "en": "extremely"
+    },
+    {
+      "jp": "を踏まえて",
+      "reading": "o fumaete",
+      "en": "based on"
+    },
+    {
+      "jp": "を経て",
+      "reading": "o hete",
+      "en": "through, after, via"
+    },
+    {
+      "jp": "をいいことに",
+      "reading": "o ii koto ni",
+      "en": "to take advantage of"
+    },
+    {
+      "jp": "を限りに",
+      "reading": "o kagiri ni",
+      "en": "starting from"
+    },
+    {
+      "jp": "を兼ねて",
+      "reading": "o kanete",
+      "en": "also for the purpose of"
+    },
+    {
+      "jp": "を機に",
+      "reading": "o ki ni",
+      "en": "as an opportunity to"
+    },
+    {
+      "jp": "を禁じえない",
+      "reading": "o kinjienai",
+      "en": "can’t help but"
+    },
+    {
+      "jp": "をものともせず",
+      "reading": "o monotomo sezu",
+      "en": "in defiance of"
+    },
+    {
+      "jp": "をおいて",
+      "reading": "o oite",
+      "en": "other than, without"
+    },
+    {
+      "jp": "思いをする",
+      "reading": "omoi o suru",
+      "en": "to feel"
+    },
+    {
+      "jp": "折に",
+      "reading": "ori ni",
+      "en": "when, on the occasion"
+    },
+    {
+      "jp": "およそ",
+      "reading": "oyoso",
+      "en": "totally, (not) at all"
+    },
+    {
+      "jp": "さもないと",
+      "reading": "samonaito",
+      "en": "otherwise, else, if not so"
+    },
+    {
+      "jp": "さぞ",
+      "reading": "sazo",
+      "en": "I’m sure, I’m certain"
+    },
+    {
+      "jp": "そばから",
+      "reading": "soba kara",
+      "en": "as soon as"
+    },
+    {
+      "jp": "さも",
+      "reading": "samo",
+      "en": "truly, really"
+    },
+    {
+      "jp": "それなりに",
+      "reading": "sore nari ni",
+      "en": "as it is, in its own way"
+    },
+    {
+      "jp": "そうにもない",
+      "reading": "sou nimo nai",
+      "en": "impossible, unlikely"
+    },
+    {
+      "jp": "ただ～のみだ",
+      "reading": "tada~nomi da",
+      "en": "can do nothing but"
+    },
+    {
+      "jp": "た拍子に",
+      "reading": "ta hyoushi ni",
+      "en": "the instant"
+    },
+    {
+      "jp": "ためしがない",
+      "reading": "tameshi ga nai",
+      "en": "(something) is never the case"
+    },
+    {
+      "jp": "たりとも",
+      "reading": "taritomo",
+      "en": "(not) even, (not) any"
+    },
+    {
+      "jp": "た瞬間に",
+      "reading": "ta shunkan ni",
+      "en": "the moment"
+    },
+    {
+      "jp": "てっきり",
+      "reading": "tekkiri",
+      "en": "surely, certainly"
+    },
+    {
+      "jp": "たところで",
+      "reading": "ta tokoro de",
+      "en": "even if one does something"
+    },
+    {
+      "jp": "てからというもの",
+      "reading": "te kara to iu mono",
+      "en": "after, since"
+    },
+    {
+      "jp": "てかなわない",
+      "reading": "te kanawanai",
+      "en": "can’t stand, unable to"
+    },
+    {
+      "jp": "てまで",
+      "reading": "te made",
+      "en": "even"
+    },
+    {
+      "jp": "てみせる",
+      "reading": "te miseru",
+      "en": "I’ll definitely"
+    },
+    {
+      "jp": "てもどうにもならない",
+      "reading": "temo dou nimo naranai",
+      "en": "it’s no use"
+    },
+    {
+      "jp": "ても始まらない",
+      "reading": "temo hajimaranai",
+      "en": "it’s no use"
+    },
+    {
+      "jp": "ても差し支えない",
+      "reading": "temo sashitsukaenai",
+      "en": "can, it’s okay if"
+    },
+    {
+      "jp": "てしかるべきだ",
+      "reading": "te shikaru beki da",
+      "en": "should"
+    },
+    {
+      "jp": "ってば",
+      "reading": "tteba",
+      "en": "I said, I told you to"
+    },
+    {
+      "jp": "と相まって",
+      "reading": "to aimatte",
+      "en": "together with"
+    },
+    {
+      "jp": "とあれば",
+      "reading": "to areba",
+      "en": "if, if it’s the case that"
+    },
+    {
+      "jp": "とばかりに",
+      "reading": "to bakari ni",
+      "en": "as if, as though"
+    },
+    {
+      "jp": "といい～といい",
+      "reading": "to ii~to ii",
+      "en": "and, or"
+    },
+    {
+      "jp": "といったらない",
+      "reading": "to ittara nai",
+      "en": "very, extremely"
+    },
+    {
+      "jp": "という",
+      "reading": "to iu",
+      "en": "all, every"
+    },
+    {
+      "jp": "というか",
+      "reading": "to iu ka",
+      "en": "or, or more precisely"
+    },
+    {
+      "jp": "というか～というか",
+      "reading": "to iu ka~to iu ka",
+      "en": "(I’m not sure if it’s) A or B"
+    },
+    {
+      "jp": "というところだ/といったところだ",
+      "reading": "to iu tokoro da/to itta tokoro da",
+      "en": "approximately, about"
+    },
+    {
+      "jp": "というもの",
+      "reading": "to iu mono",
+      "en": "during a period of time"
+    },
+    {
+      "jp": "というわけだ",
+      "reading": "to iu wake da",
+      "en": "this means"
+    },
+    {
+      "jp": "というわけではない",
+      "reading": "to iu wake dewa nai",
+      "en": "it’s not that, it doesn’t mean that"
+    },
+    {
+      "jp": "といわず",
+      "reading": "to iwazu",
+      "en": "not just, both"
+    },
+    {
+      "jp": "ときたら",
+      "reading": "tokitara",
+      "en": "when it comes to, concerning"
+    },
+    {
+      "jp": "ときている",
+      "reading": "to kite iru",
+      "en": "because"
+    },
+    {
+      "jp": "ところがある",
+      "reading": "tokoro ga aru",
+      "en": "there is"
+    },
+    {
+      "jp": "ところから",
+      "reading": "tokoro kara",
+      "en": "from the fact that"
+    },
+    {
+      "jp": "とみられる",
+      "reading": "to mirareru",
+      "en": "to be regarded as, to be expected to"
+    },
+    {
+      "jp": "とみるや",
+      "reading": "to miru ya",
+      "en": "at the sight of, upon seeing"
+    },
+    {
+      "jp": "ともなく",
+      "reading": "tomonaku",
+      "en": "to do something without thinking about it"
+    },
+    {
+      "jp": "ともなると/ともなれば",
+      "reading": "tomo naru to/tomo nareba",
+      "en": "when, once (something happens)"
+    },
+    {
+      "jp": "ともすれば",
+      "reading": "tomo sureba",
+      "en": "apt to, prone to"
+    },
+    {
+      "jp": "と思いきや",
+      "reading": "to omoikiya",
+      "en": "I thought"
+    },
+    {
+      "jp": "とりわけ",
+      "reading": "toriwake",
+      "en": "especially"
+    },
+    {
+      "jp": "とされる",
+      "reading": "to sareru",
+      "en": "is considered"
+    },
+    {
+      "jp": "とっさに",
+      "reading": "tossa ni",
+      "en": "at once, right away"
+    },
+    {
+      "jp": "としたって/としたところで",
+      "reading": "to shitatte/to shita tokoro de",
+      "en": "even if"
+    },
+    {
+      "jp": "として～ない",
+      "reading": "toshite~nai",
+      "en": "not even one"
+    },
+    {
+      "jp": "とて",
+      "reading": "tote",
+      "en": "even if, even though"
+    },
+    {
+      "jp": "とても～ない",
+      "reading": "totemo~nai",
+      "en": "cannot possibly"
+    },
+    {
+      "jp": "とは",
+      "reading": "towa",
+      "en": "[indicates word or phrase being defined]"
+    },
+    {
+      "jp": "とはいえ",
+      "reading": "towaie",
+      "en": "nonetheless, although"
+    },
+    {
+      "jp": "とはいうものの",
+      "reading": "towa iu mono no",
+      "en": "having said that, be that as it may"
+    },
+    {
+      "jp": "つ～つ",
+      "reading": "tsu~tsu",
+      "en": "[indicates two contrasting actions]"
+    },
+    {
+      "jp": "はさておき",
+      "reading": "wa sateoki",
+      "en": "setting aside"
+    },
+    {
+      "jp": "や否や",
+      "reading": "ya ina ya",
+      "en": "the moment that, as soon as"
+    },
+    {
+      "jp": "やしない",
+      "reading": "yashinai",
+      "en": "not (emphatic negative)"
+    },
+    {
+      "jp": "(よ)うが/(よ)うと",
+      "reading": "you ga/you to",
+      "en": "no matter how/what"
+    },
+    {
+      "jp": "(よ)うが～まいが/(よ)うと～まいと",
+      "reading": "you ga~mai ga/you to~mai to",
+      "en": "whether or not"
+    },
+    {
+      "jp": "(よ)うか～まいか",
+      "reading": "you ka~mai ka",
+      "en": "whether or not"
+    },
+    {
+      "jp": "(よ)うものなら",
+      "reading": "you mono nara",
+      "en": "if one chooses to"
+    },
+    {
+      "jp": "(よ)うにも～ない",
+      "reading": "you nimo~nai",
+      "en": "even if one tries to do something, it can’t be done"
+    },
+    {
+      "jp": "ようによっては",
+      "reading": "you ni yotte wa",
+      "en": "depending on"
+    },
+    {
+      "jp": "ゆえに",
+      "reading": "yue ni",
+      "en": "therefore, consequently"
+    },
+    {
+      "jp": "ざる",
+      "reading": "zaru",
+      "en": "not, -un"
+    },
+    {
+      "jp": "ずじまい",
+      "reading": "zu jimai",
+      "en": "never"
+    },
+    {
+      "jp": "ずとも",
+      "reading": "zu tomo",
+      "en": "even without doing"
+    }
+  ],
+  "vocab": [
+    {
+      "jp": "赤字",
+      "reading": "akaji",
+      "en": "deficit"
+    },
+    {
+      "jp": "悪事",
+      "reading": "akuji",
+      "en": "evil deed, crime"
+    },
+    {
+      "jp": "圧倒",
+      "reading": "attou",
+      "en": "overwhelm, overpower"
+    },
+    {
+      "jp": "扱い",
+      "reading": "atsukai",
+      "en": "treatment, service​"
+    },
+    {
+      "jp": "圧力",
+      "reading": "atsuryoku",
+      "en": "pressure, stress​"
+    },
+    {
+      "jp": "過ち",
+      "reading": "ayamachi",
+      "en": "fault, error, indiscretion"
+    },
+    {
+      "jp": "買収",
+      "reading": "baishuu",
+      "en": "acquisition, buy-out, takeover"
+    },
+    {
+      "jp": "爆弾",
+      "reading": "bakudan",
+      "en": "bomb"
+    },
+    {
+      "jp": "弁護",
+      "reading": "bengo",
+      "en": "defence, pleading, advocacy​"
+    },
+    {
+      "jp": "弁解",
+      "reading": "benkai",
+      "en": "justification, explanation"
+    },
+    {
+      "jp": "弁明",
+      "reading": "benmei",
+      "en": "explanation, excuse"
+    },
+    {
+      "jp": "貧乏",
+      "reading": "binbou",
+      "en": "poverty, destitute, poor​"
+    },
+    {
+      "jp": "敏感",
+      "reading": "binkan",
+      "en": "sensibility, susceptibility"
+    },
+    {
+      "jp": "微笑",
+      "reading": "bishou",
+      "en": "smile"
+    },
+    {
+      "jp": "膨張",
+      "reading": "bouchou",
+      "en": "expansion, swelling, increase"
+    },
+    {
+      "jp": "防衛",
+      "reading": "bouei",
+      "en": "defense, protection"
+    },
+    {
+      "jp": "暴力",
+      "reading": "bouryoku",
+      "en": "violence, mayhem"
+    },
+    {
+      "jp": "侮辱",
+      "reading": "bujoku",
+      "en": "insult, affront, slight"
+    },
+    {
+      "jp": "部下",
+      "reading": "buka",
+      "en": "subordinate person"
+    },
+    {
+      "jp": "分配",
+      "reading": "bunpai",
+      "en": "division, splitting, sharing"
+    },
+    {
+      "jp": "分散",
+      "reading": "bunsan",
+      "en": "dispersion, breakup"
+    },
+    {
+      "jp": "文書",
+      "reading": "bunsho",
+      "en": "document, writing, paperwork"
+    },
+    {
+      "jp": "無礼",
+      "reading": "burei",
+      "en": "impolite, rude​"
+    },
+    {
+      "jp": "武装",
+      "reading": "busou",
+      "en": "arms, armament​"
+    },
+    {
+      "jp": "着手",
+      "reading": "chakushu",
+      "en": "to start work (on), to undertake​"
+    },
+    {
+      "jp": "近づく",
+      "reading": "chikazuku",
+      "en": "to approach, to draw near"
+    },
+    {
+      "jp": "蓄積",
+      "reading": "chikuseki",
+      "en": "accumulation, accumulate"
+    },
+    {
+      "jp": "賃金",
+      "reading": "chingin",
+      "en": "wages"
+    },
+    {
+      "jp": "沈黙",
+      "reading": "chinmoku",
+      "en": "silence, being silent"
+    },
+    {
+      "jp": "知性",
+      "reading": "chisei",
+      "en": "intelligence"
+    },
+    {
+      "jp": "秩序",
+      "reading": "chitsujo",
+      "en": "order, regularity"
+    },
+    {
+      "jp": "直感",
+      "reading": "chokkan",
+      "en": "intuition, instinct, hunch"
+    },
+    {
+      "jp": "直面",
+      "reading": "chokumen",
+      "en": "confrontation, to face"
+    },
+    {
+      "jp": "挑戦",
+      "reading": "chousen",
+      "en": "challenge, defiance, dare"
+    },
+    {
+      "jp": "調達",
+      "reading": "choutatsu",
+      "en": "supply, provision"
+    },
+    {
+      "jp": "中断",
+      "reading": "chuudan",
+      "en": "interruption, suspension, break​"
+    },
+    {
+      "jp": "忠実",
+      "reading": "chuujitsu",
+      "en": "faithfulness, devotion, loyalty"
+    },
+    {
+      "jp": "忠告",
+      "reading": "chuukoku",
+      "en": "advice, warning​"
+    },
+    {
+      "jp": "打撃",
+      "reading": "dageki",
+      "en": "blow, shock, strike"
+    },
+    {
+      "jp": "大胆",
+      "reading": "daitan",
+      "en": "bold, daring, audacious​"
+    },
+    {
+      "jp": "妥協",
+      "reading": "dakyou",
+      "en": "compromise, giving in​"
+    },
+    {
+      "jp": "団結",
+      "reading": "danketsu",
+      "en": "unity, union, combination"
+    },
+    {
+      "jp": "脱出",
+      "reading": "dasshutsu",
+      "en": "escape, break-out​"
+    },
+    {
+      "jp": "土台",
+      "reading": "dodai",
+      "en": "foundation, base, basis​"
+    },
+    {
+      "jp": "独裁",
+      "reading": "dokusai",
+      "en": "dictatorship, despotism​"
+    },
+    {
+      "jp": "独占",
+      "reading": "dokusen",
+      "en": "monopoly, monopolization​"
+    },
+    {
+      "jp": "度胸",
+      "reading": "dokyou",
+      "en": "courage, bravery, nerve"
+    },
+    {
+      "jp": "動員",
+      "reading": "douin",
+      "en": "mobilization"
+    },
+    {
+      "jp": "同情",
+      "reading": "doujou",
+      "en": "sympathy, compassion"
+    },
+    {
+      "jp": "動機",
+      "reading": "douki",
+      "en": "motive, incentive​"
+    },
+    {
+      "jp": "同盟",
+      "reading": "doumei",
+      "en": "alliance, union, league"
+    },
+    {
+      "jp": "同類",
+      "reading": "dourui",
+      "en": "the same kind"
+    },
+    {
+      "jp": "同士",
+      "reading": "doushi",
+      "en": "fellow, companion, comrade"
+    },
+    {
+      "jp": "同等",
+      "reading": "doutou",
+      "en": "equality, equal, same rights"
+    },
+    {
+      "jp": "動揺",
+      "reading": "douyou",
+      "en": "shaking, trembling, disturbance"
+    },
+    {
+      "jp": "映像",
+      "reading": "eizou",
+      "en": "reflection, image, video"
+    },
+    {
+      "jp": "演じる",
+      "reading": "enjiru",
+      "en": "to perform (a play), to play (a part)"
+    },
+    {
+      "jp": "不動産",
+      "reading": "fudousan",
+      "en": "real estate​"
+    },
+    {
+      "jp": "腐敗",
+      "reading": "fuhai",
+      "en": "decomposition, corruption, decay"
+    },
+    {
+      "jp": "不可欠",
+      "reading": "fukaketsu",
+      "en": "indispensable, essential​"
+    },
+    {
+      "jp": "復讐",
+      "reading": "fukushuu",
+      "en": "revenge"
+    },
+    {
+      "jp": "紛争",
+      "reading": "funsou",
+      "en": "dispute, trouble, strife​"
+    },
+    {
+      "jp": "相応しい",
+      "reading": "fusawashii",
+      "en": "appropriate, adequate"
+    },
+    {
+      "jp": "負傷",
+      "reading": "fushou",
+      "en": "injury, wound​"
+    },
+    {
+      "jp": "負担",
+      "reading": "futan",
+      "en": "burden, charge, responsibility​"
+    },
+    {
+      "jp": "不当",
+      "reading": "futou",
+      "en": "injustice, impropriety, unfair"
+    },
+    {
+      "jp": "封鎖",
+      "reading": "fuusa",
+      "en": "blockade"
+    },
+    {
+      "jp": "概念",
+      "reading": "gainen",
+      "en": "general idea, concept"
+    },
+    {
+      "jp": "現地",
+      "reading": "genchi",
+      "en": "actual place, local"
+    },
+    {
+      "jp": "厳密",
+      "reading": "genmitsu",
+      "en": "strict, close, precise"
+    },
+    {
+      "jp": "減少",
+      "reading": "genshou",
+      "en": "decrease, reduction, decline"
+    },
+    {
+      "jp": "原則",
+      "reading": "gensoku",
+      "en": "principle, general rule​"
+    },
+    {
+      "jp": "幻想",
+      "reading": "gensou",
+      "en": "illusions"
+    },
+    {
+      "jp": "犠牲",
+      "reading": "gisei",
+      "en": "victim, sacrifice, scapegoat"
+    },
+    {
+      "jp": "合成",
+      "reading": "gousei",
+      "en": "composition, synthesis"
+    },
+    {
+      "jp": "軍事",
+      "reading": "gunji",
+      "en": "military affairs​"
+    },
+    {
+      "jp": "業務",
+      "reading": "gyoumu",
+      "en": "business, affairs, duties"
+    },
+    {
+      "jp": "業績",
+      "reading": "gyouseki",
+      "en": "achievement, performance, results"
+    },
+    {
+      "jp": "把握",
+      "reading": "haaku",
+      "en": "grasp, catch, understanding​"
+    },
+    {
+      "jp": "阻む",
+      "reading": "habamu",
+      "en": "to keep someone from doing, to prevent"
+    },
+    {
+      "jp": "肺",
+      "reading": "hai",
+      "en": "lung"
+    },
+    {
+      "jp": "配置",
+      "reading": "haichi",
+      "en": "arrangement, deployment"
+    },
+    {
+      "jp": "背後",
+      "reading": "haigo",
+      "en": "back, rear, ​background"
+    },
+    {
+      "jp": "排除",
+      "reading": "haijo",
+      "en": "exclusion, removal, elimination"
+    },
+    {
+      "jp": "配慮",
+      "reading": "hairyo",
+      "en": "consideration, concern, attention"
+    },
+    {
+      "jp": "廃止",
+      "reading": "haishi",
+      "en": "abolition, repeal​"
+    },
+    {
+      "jp": "破壊",
+      "reading": "hakai",
+      "en": "destruction, disruption​"
+    },
+    {
+      "jp": "派遣",
+      "reading": "haken",
+      "en": "dispatch, despatch, deployment​"
+    },
+    {
+      "jp": "白状",
+      "reading": "hakujou",
+      "en": "confession"
+    },
+    {
+      "jp": "繁栄",
+      "reading": "han’ei",
+      "en": "prosperity, thriving"
+    },
+    {
+      "jp": "反応",
+      "reading": "hannou",
+      "en": "reaction, response​"
+    },
+    {
+      "jp": "反乱",
+      "reading": "hanran",
+      "en": "insurrection, rebellion"
+    },
+    {
+      "jp": "発生",
+      "reading": "hassei",
+      "en": "outbreak, spring forth, occurrence"
+    },
+    {
+      "jp": "果たす",
+      "reading": "hatasu",
+      "en": "to accomplish, to achieve"
+    },
+    {
+      "jp": "発言",
+      "reading": "hatsugen",
+      "en": "statement, remark"
+    },
+    {
+      "jp": "兵器",
+      "reading": "heiki",
+      "en": "arms, weapons, ordnance​"
+    },
+    {
+      "jp": "閉鎖",
+      "reading": "heisa",
+      "en": "closing, shutdown, lockout"
+    },
+    {
+      "jp": "兵士",
+      "reading": "heishi",
+      "en": "soldier"
+    },
+    {
+      "jp": "変動",
+      "reading": "hendou",
+      "en": "change, fluctuation​"
+    },
+    {
+      "jp": "変革",
+      "reading": "henkaku",
+      "en": "change, transformation"
+    },
+    {
+      "jp": "偏見",
+      "reading": "henken",
+      "en": "prejudice, narrow view​"
+    },
+    {
+      "jp": "率いる",
+      "reading": "hikiiru",
+      "en": "to lead, to command"
+    },
+    {
+      "jp": "悲鳴",
+      "reading": "himei",
+      "en": "shriek, scream​"
+    },
+    {
+      "jp": "非難",
+      "reading": "hinan",
+      "en": "criticism, blame, reproach"
+    },
+    {
+      "jp": "避難",
+      "reading": "hinan",
+      "en": "taking refuge, finding shelter"
+    },
+    {
+      "jp": "貧困",
+      "reading": "hinkon",
+      "en": "poor, needy​"
+    },
+    {
+      "jp": "頻繁",
+      "reading": "hinpan",
+      "en": "frequent, incessant"
+    },
+    {
+      "jp": "疲労",
+      "reading": "hirou",
+      "en": "fatigue, weariness​"
+    },
+    {
+      "jp": "悲惨",
+      "reading": "hisan",
+      "en": "disastrous, tragic"
+    },
+    {
+      "jp": "匹敵",
+      "reading": "hitteki",
+      "en": "to be a match for, to rival"
+    },
+    {
+      "jp": "必然",
+      "reading": "hitsuzen",
+      "en": "inevitable, necessary"
+    },
+    {
+      "jp": "施す",
+      "reading": "hodokosu",
+      "en": "to give, to do, to conduct"
+    },
+    {
+      "jp": "保護",
+      "reading": "hogo",
+      "en": "care, protection, shelter"
+    },
+    {
+      "jp": "保険",
+      "reading": "hoken",
+      "en": "insurance, guarantee​"
+    },
+    {
+      "jp": "本能",
+      "reading": "honnou",
+      "en": "instinct"
+    },
+    {
+      "jp": "本心",
+      "reading": "honshin",
+      "en": "true feelings​"
+    },
+    {
+      "jp": "本質",
+      "reading": "honshitsu",
+      "en": "essence, true nature"
+    },
+    {
+      "jp": "崩壊",
+      "reading": "houkai",
+      "en": "collapse, crumbling"
+    },
+    {
+      "jp": "放棄",
+      "reading": "houki",
+      "en": "abandonment, renunciation"
+    },
+    {
+      "jp": "方策",
+      "reading": "housaku",
+      "en": "plan, policy​"
+    },
+    {
+      "jp": "報酬",
+      "reading": "houshuu",
+      "en": "remuneration, recompense, reward"
+    },
+    {
+      "jp": "法廷",
+      "reading": "houtei",
+      "en": "courtroom"
+    },
+    {
+      "jp": "票",
+      "reading": "hyou",
+      "en": "vote, ballot"
+    },
+    {
+      "jp": "一部",
+      "reading": "ichibu",
+      "en": "one part, one portion"
+    },
+    {
+      "jp": "著しい",
+      "reading": "ichijirushii",
+      "en": "striking, remarkable, considerable"
+    },
+    {
+      "jp": "移住",
+      "reading": "ijuu",
+      "en": "migration, immigration​"
+    },
+    {
+      "jp": "怒り",
+      "reading": "ikari",
+      "en": "anger, rage, fury"
+    },
+    {
+      "jp": "一刻",
+      "reading": "ikkoku",
+      "en": "minute, moment, an instant​"
+    },
+    {
+      "jp": "移行",
+      "reading": "ikou",
+      "en": "migration, transition​"
+    },
+    {
+      "jp": "移民",
+      "reading": "imin",
+      "en": "emigration, immigration"
+    },
+    {
+      "jp": "痛める",
+      "reading": "itameru",
+      "en": "to hurt, to cause pain"
+    },
+    {
+      "jp": "痛む",
+      "reading": "itamu",
+      "en": "to hurt, to ache, to feel a pain​"
+    },
+    {
+      "jp": "意図",
+      "reading": "ito",
+      "en": "intention, aim, design​"
+    },
+    {
+      "jp": "営む",
+      "reading": "itonamu",
+      "en": "to run (a business), to operate"
+    },
+    {
+      "jp": "意欲",
+      "reading": "iyoku",
+      "en": "will, desire, ambition"
+    },
+    {
+      "jp": "依然",
+      "reading": "izen",
+      "en": "still, as yet"
+    },
+    {
+      "jp": "依存",
+      "reading": "izon",
+      "en": "dependence, reliance​"
+    },
+    {
+      "jp": "地獄",
+      "reading": "jigoku",
+      "en": "hell"
+    },
+    {
+      "jp": "事業",
+      "reading": "jigyou",
+      "en": "enterprise, business, industry"
+    },
+    {
+      "jp": "自覚",
+      "reading": "jikaku",
+      "en": "self-consciousness, self-awareness​"
+    },
+    {
+      "jp": "地元",
+      "reading": "jimoto",
+      "en": "home area, local"
+    },
+    {
+      "jp": "迅速",
+      "reading": "jinsoku",
+      "en": "quick, fast, rapid, swift"
+    },
+    {
+      "jp": "実践",
+      "reading": "jissen",
+      "en": "practice, putting into practice"
+    },
+    {
+      "jp": "実質",
+      "reading": "jisshitsu",
+      "en": "substance, essence​"
+    },
+    {
+      "jp": "事前",
+      "reading": "jizen",
+      "en": "prior, beforehand"
+    },
+    {
+      "jp": "持続",
+      "reading": "jizoku",
+      "en": "continuation, persisting, lasting"
+    },
+    {
+      "jp": "助言",
+      "reading": "jogen",
+      "en": "advice, suggestion​"
+    },
+    {
+      "jp": "譲歩",
+      "reading": "jouho",
+      "en": "concession, conciliation"
+    },
+    {
+      "jp": "情熱",
+      "reading": "jounetsu",
+      "en": "passion, enthusiasm"
+    },
+    {
+      "jp": "上陸",
+      "reading": "jouriku",
+      "en": "landing, disembarkation"
+    },
+    {
+      "jp": "情勢",
+      "reading": "jousei",
+      "en": "state of things, state of affairs"
+    },
+    {
+      "jp": "従業員",
+      "reading": "juugyouin",
+      "en": "employee, worker​"
+    },
+    {
+      "jp": "柔軟",
+      "reading": "juunan",
+      "en": "flexible, lithe, soft, pliable​"
+    },
+    {
+      "jp": "株式",
+      "reading": "kabushiki",
+      "en": "stock (company)​"
+    },
+    {
+      "jp": "課題",
+      "reading": "kadai",
+      "en": "subject, theme, issue, matter​"
+    },
+    {
+      "jp": "開発",
+      "reading": "kaihatsu",
+      "en": "development, exploitation​"
+    },
+    {
+      "jp": "回避",
+      "reading": "kaihi",
+      "en": "evasion, avoidance​"
+    },
+    {
+      "jp": "解除",
+      "reading": "kaijo",
+      "en": "cancellation, release"
+    },
+    {
+      "jp": "改革",
+      "reading": "kaikaku",
+      "en": "reform, reformation"
+    },
+    {
+      "jp": "階級",
+      "reading": "kaikyuu",
+      "en": "(social) class, rank, grade​"
+    },
+    {
+      "jp": "介入",
+      "reading": "kainyuu",
+      "en": "intervention"
+    },
+    {
+      "jp": "賭け",
+      "reading": "kake",
+      "en": "betting, gambling"
+    },
+    {
+      "jp": "賭ける",
+      "reading": "kakeru",
+      "en": "to wager, to bet, to gamble"
+    },
+    {
+      "jp": "確保",
+      "reading": "kakuho",
+      "en": "guarantee, maintain, ensure"
+    },
+    {
+      "jp": "革命",
+      "reading": "kakumei",
+      "en": "revolution"
+    },
+    {
+      "jp": "確信",
+      "reading": "kakushin",
+      "en": "conviction, belief, confidence​"
+    },
+    {
+      "jp": "肝心",
+      "reading": "kanjin",
+      "en": "essential, fundamental, crucial"
+    },
+    {
+      "jp": "完璧",
+      "reading": "kanpeki",
+      "en": "perfect, complete, flawless​"
+    },
+    {
+      "jp": "官僚",
+      "reading": "kanryou",
+      "en": "bureaucrat, bureaucracy​"
+    },
+    {
+      "jp": "監視",
+      "reading": "kanshi",
+      "en": "monitoring, watching, observation"
+    },
+    {
+      "jp": "干渉",
+      "reading": "kanshou",
+      "en": "interference, intervention, meddling​"
+    },
+    {
+      "jp": "関与",
+      "reading": "kanyo",
+      "en": "participation, taking part in"
+    },
+    {
+      "jp": "寛容",
+      "reading": "kanyou",
+      "en": "tolerance, generosity"
+    },
+    {
+      "jp": "固める",
+      "reading": "katameru",
+      "en": "to harden, to solidify"
+    },
+    {
+      "jp": "傾ける",
+      "reading": "katamukeru",
+      "en": "to incline, to lean, to tilt"
+    },
+    {
+      "jp": "交わす",
+      "reading": "kawasu",
+      "en": "to exchange, to intersect, to cross"
+    },
+    {
+      "jp": "軽減",
+      "reading": "keigen",
+      "en": "abatement, reduction​"
+    },
+    {
+      "jp": "経費",
+      "reading": "keihi",
+      "en": "expenses, cost, outlay​"
+    },
+    {
+      "jp": "経過",
+      "reading": "keika",
+      "en": "passage, expiration, progress"
+    },
+    {
+      "jp": "警戒",
+      "reading": "keikai",
+      "en": "vigilance, caution, alertness"
+    },
+    {
+      "jp": "経歴",
+      "reading": "keireki",
+      "en": "personal history, career​"
+    },
+    {
+      "jp": "経路",
+      "reading": "keiro",
+      "en": "course, route, means"
+    },
+    {
+      "jp": "形成",
+      "reading": "keisei",
+      "en": "formation, molding, taking form​"
+    },
+    {
+      "jp": "携帯",
+      "reading": "keitai",
+      "en": "something carried (in the hand)"
+    },
+    {
+      "jp": "権限",
+      "reading": "kengen",
+      "en": "power, authority, jurisdiction​"
+    },
+    {
+      "jp": "権威",
+      "reading": "ken’i",
+      "en": "authority, power, influence​"
+    },
+    {
+      "jp": "権力",
+      "reading": "kenryoku",
+      "en": "(political) power, authority"
+    },
+    {
+      "jp": "決断",
+      "reading": "ketsudan",
+      "en": "decision, determination​"
+    },
+    {
+      "jp": "決意",
+      "reading": "ketsui",
+      "en": "decision, determination"
+    },
+    {
+      "jp": "規模",
+      "reading": "kibo",
+      "en": "scale, scope, plan"
+    },
+    {
+      "jp": "危機",
+      "reading": "kiki",
+      "en": "crisis, danger, risk​"
+    },
+    {
+      "jp": "機構",
+      "reading": "kikou",
+      "en": "mechanism, organization"
+    },
+    {
+      "jp": "勤勉",
+      "reading": "kinben",
+      "en": "diligent, industrious​"
+    },
+    {
+      "jp": "緊急",
+      "reading": "kinkyuu",
+      "en": "urgent, pressing, emergency​"
+    },
+    {
+      "jp": "規制",
+      "reading": "kisei",
+      "en": "regulation, control, restriction"
+    },
+    {
+      "jp": "奇跡",
+      "reading": "kiseki",
+      "en": "miracle, wonder, marvel​"
+    },
+    {
+      "jp": "競う",
+      "reading": "kisou",
+      "en": "to compete, to contest"
+    },
+    {
+      "jp": "規定",
+      "reading": "kitei",
+      "en": "provision, regulation, rule​"
+    },
+    {
+      "jp": "気絶",
+      "reading": "kizetsu",
+      "en": "faint, swoon​"
+    },
+    {
+      "jp": "築く",
+      "reading": "kizuku",
+      "en": "to build, to construct"
+    },
+    {
+      "jp": "傷つける",
+      "reading": "kizutsukeru",
+      "en": "to wound, to injure​"
+    },
+    {
+      "jp": "拒む",
+      "reading": "kobamu",
+      "en": "to refuse, to reject, to decline​"
+    },
+    {
+      "jp": "​誇張",
+      "reading": "kochou",
+      "en": "exaggeration"
+    },
+    {
+      "jp": "孤独",
+      "reading": "kodoku",
+      "en": "solitude, loneliness, isolation"
+    },
+    {
+      "jp": "試みる",
+      "reading": "kokoromiru",
+      "en": "to try, to attempt"
+    },
+    {
+      "jp": "根拠",
+      "reading": "konkyo",
+      "en": "basis, foundation​"
+    },
+    {
+      "jp": "個性",
+      "reading": "kosei",
+      "en": "individuality, personality"
+    },
+    {
+      "jp": "固定",
+      "reading": "kotei",
+      "en": "fixation, fixing"
+    },
+    {
+      "jp": "興奮",
+      "reading": "koufun",
+      "en": "excitement, stimulation, agitation"
+    },
+    {
+      "jp": "抗議",
+      "reading": "kougi",
+      "en": "protest, objection​"
+    },
+    {
+      "jp": "行為",
+      "reading": "koui",
+      "en": "act, deed, conduct​"
+    },
+    {
+      "jp": "好意",
+      "reading": "koui",
+      "en": "good will, favor, courtesy"
+    },
+    {
+      "jp": "公開",
+      "reading": "koukai",
+      "en": "making available to the public"
+    },
+    {
+      "jp": "後悔",
+      "reading": "koukai",
+      "en": "regret, repentance, remorse​"
+    },
+    {
+      "jp": "購入",
+      "reading": "kounyuu",
+      "en": "purchase, buy​"
+    },
+    {
+      "jp": "効率",
+      "reading": "kouritsu",
+      "en": "efficiency"
+    },
+    {
+      "jp": "交渉",
+      "reading": "koushou",
+      "en": "negotiations, discussions​"
+    },
+    {
+      "jp": "雇用",
+      "reading": "koyou",
+      "en": "employment, hire​"
+    },
+    {
+      "jp": "口調",
+      "reading": "kuchou",
+      "en": "tone, (verbal) expression​"
+    },
+    {
+      "jp": "苦しみ",
+      "reading": "kurushimi",
+      "en": "pain, anguish, suffering"
+    },
+    {
+      "jp": "屈辱",
+      "reading": "kutsujoku",
+      "en": "disgrace, humiliation​"
+    },
+    {
+      "jp": "拒否",
+      "reading": "kyohi",
+      "en": "refusal, rejection, denial"
+    },
+    {
+      "jp": "極端",
+      "reading": "kyokutan",
+      "en": "extreme, extremity​"
+    },
+    {
+      "jp": "脅迫",
+      "reading": "kyouhaku",
+      "en": "threat, menace, coercion"
+    },
+    {
+      "jp": "脅威",
+      "reading": "kyoui",
+      "en": "threat, menace​"
+    },
+    {
+      "jp": "享受",
+      "reading": "kyouju",
+      "en": "reception, acceptance, enjoyment"
+    },
+    {
+      "jp": "共感",
+      "reading": "kyoukan",
+      "en": "sympathy, empathy, response​"
+    },
+    {
+      "jp": "教訓",
+      "reading": "kyoukun",
+      "en": "lesson, precept"
+    },
+    {
+      "jp": "強烈",
+      "reading": "kyouretsu",
+      "en": "strong, intense, severe​"
+    },
+    {
+      "jp": "共産",
+      "reading": "kyousan",
+      "en": "communism"
+    },
+    {
+      "jp": "強制",
+      "reading": "kyousei",
+      "en": "obligation, coercion, compulsion"
+    },
+    {
+      "jp": "究極",
+      "reading": "kyuukyoku",
+      "en": "ultimate, extreme, final"
+    },
+    {
+      "jp": "救済",
+      "reading": "kyuusai",
+      "en": "relief, aid, rescue"
+    },
+    {
+      "jp": "恵む",
+      "reading": "megumu",
+      "en": "to bless, to show mercy to​"
+    },
+    {
+      "jp": "明白",
+      "reading": "meihaku",
+      "en": "obvious, clear, plain"
+    },
+    {
+      "jp": "明瞭",
+      "reading": "meiryou",
+      "en": "clarity, clearness​"
+    },
+    {
+      "jp": "名誉",
+      "reading": "meiyo",
+      "en": "honor, credit, prestige​"
+    },
+    {
+      "jp": "未知",
+      "reading": "michi",
+      "en": "not yet known, unknown"
+    },
+    {
+      "jp": "身近",
+      "reading": "midjika",
+      "en": "near oneself, close to one, familiar"
+    },
+    {
+      "jp": "見方",
+      "reading": "mikata",
+      "en": "viewpoint, point of view"
+    },
+    {
+      "jp": "源",
+      "reading": "minamoto",
+      "en": "source, origin, root​"
+    },
+    {
+      "jp": "満たす",
+      "reading": "mitasu",
+      "en": "to satisfy, to fulfill, to gratify"
+    },
+    {
+      "jp": "漏らす",
+      "reading": "morasu",
+      "en": "to let leak, to reveal​"
+    },
+    {
+      "jp": "摸索",
+      "reading": "mosaku",
+      "en": "groping (for), exploring for a solution"
+    },
+    {
+      "jp": "齎す",
+      "reading": "motarasu",
+      "en": "to bring, to take, to bring about​"
+    },
+    {
+      "jp": "無実",
+      "reading": "mujitsu",
+      "en": "innocence, guiltlessness"
+    },
+    {
+      "jp": "無効",
+      "reading": "mukou",
+      "en": "invalid, no effect"
+    },
+    {
+      "jp": "無力",
+      "reading": "muryoku",
+      "en": "powerlessness, incompetent"
+    },
+    {
+      "jp": "悩み",
+      "reading": "nayami",
+      "en": "trouble, worry, distress"
+    },
+    {
+      "jp": "燃料",
+      "reading": "nenryou",
+      "en": "fuel"
+    },
+    {
+      "jp": "熱意",
+      "reading": "netsui",
+      "en": "zeal, enthusiasm​"
+    },
+    {
+      "jp": "憎しみ",
+      "reading": "nikushimi",
+      "en": "hatred"
+    },
+    {
+      "jp": "肉体",
+      "reading": "nikutai",
+      "en": "the body, the flesh​"
+    },
+    {
+      "jp": "担う",
+      "reading": "ninau",
+      "en": "to carry on shoulder, to bear"
+    },
+    {
+      "jp": "認識",
+      "reading": "ninshiki",
+      "en": "recognition, awareness, perception"
+    },
+    {
+      "jp": "妊娠",
+      "reading": "ninshin",
+      "en": "conception, pregnancy​"
+    },
+    {
+      "jp": "農場",
+      "reading": "noujou",
+      "en": "farm (agriculture)​"
+    },
+    {
+      "jp": "覚え",
+      "reading": "oboe",
+      "en": "memory, sense, experience​"
+    },
+    {
+      "jp": "犯す",
+      "reading": "okasu",
+      "en": "to commit (e.g. crime)"
+    },
+    {
+      "jp": "重荷",
+      "reading": "omoni",
+      "en": "load, heavy burden"
+    },
+    {
+      "jp": "大幅",
+      "reading": "oohaba",
+      "en": "big, large, substantial"
+    },
+    {
+      "jp": "愚か",
+      "reading": "oroka",
+      "en": "foolish, stupid​"
+    },
+    {
+      "jp": "恐れ",
+      "reading": "osore",
+      "en": "fear, horror, anxiety"
+    },
+    {
+      "jp": "襲う",
+      "reading": "osou",
+      "en": "to attack, to assail"
+    },
+    {
+      "jp": "訪れる",
+      "reading": "otozureru",
+      "en": "to visit, to call on​"
+    },
+    {
+      "jp": "負う",
+      "reading": "ou",
+      "en": "to bear, to take responsibility for"
+    },
+    {
+      "jp": "楽観",
+      "reading": "rakkan",
+      "en": "optimism"
+    },
+    {
+      "jp": "連中",
+      "reading": "renchuu",
+      "en": "company, lot, bunch"
+    },
+    {
+      "jp": "理屈",
+      "reading": "rikutsu",
+      "en": "theory, reason​"
+    },
+    {
+      "jp": "理性",
+      "reading": "risei",
+      "en": "reason, reasoning power"
+    },
+    {
+      "jp": "利息",
+      "reading": "risoku",
+      "en": "interest (bank)​"
+    },
+    {
+      "jp": "理論",
+      "reading": "riron",
+      "en": "theory"
+    },
+    {
+      "jp": "論理",
+      "reading": "ronri",
+      "en": "logic, logical"
+    },
+    {
+      "jp": "浪費",
+      "reading": "rouhi",
+      "en": "waste, extravagance​"
+    },
+    {
+      "jp": "領域",
+      "reading": "ryouiki",
+      "en": "area, domain, territory"
+    },
+    {
+      "jp": "良心",
+      "reading": "ryoushin",
+      "en": "conscience"
+    },
+    {
+      "jp": "察知",
+      "reading": "sacchi",
+      "en": "sense, infer​"
+    },
+    {
+      "jp": "定める",
+      "reading": "sadameru",
+      "en": "to decide, to establish, to determine"
+    },
+    {
+      "jp": "最悪",
+      "reading": "saiaku",
+      "en": "the worst​"
+    },
+    {
+      "jp": "細部",
+      "reading": "saibu",
+      "en": "details"
+    },
+    {
+      "jp": "再生",
+      "reading": "saisei",
+      "en": "resuscitation, regeneration"
+    },
+    {
+      "jp": "採用",
+      "reading": "saiyou",
+      "en": "use, adoption, acceptance​"
+    },
+    {
+      "jp": "最善",
+      "reading": "saizen",
+      "en": "the very best, utmost​"
+    },
+    {
+      "jp": "栄える",
+      "reading": "sakaeru",
+      "en": "to prosper, to flourish​"
+    },
+    {
+      "jp": "作戦",
+      "reading": "sakusen",
+      "en": "tactics, strategy​"
+    },
+    {
+      "jp": "悟る",
+      "reading": "satoru",
+      "en": "to perceive, to sense, to understand"
+    },
+    {
+      "jp": "世代",
+      "reading": "sedai",
+      "en": "generation, the world, the age​"
+    },
+    {
+      "jp": "征服",
+      "reading": "seifuku",
+      "en": "conquest, subjugation"
+    },
+    {
+      "jp": "制服",
+      "reading": "seifuku",
+      "en": "uniform"
+    },
+    {
+      "jp": "正義",
+      "reading": "seigi",
+      "en": "justice, right, righteousness"
+    },
+    {
+      "jp": "誠実",
+      "reading": "seijitsu",
+      "en": "sincere, honest, faithful​"
+    },
+    {
+      "jp": "成熟",
+      "reading": "seijuku",
+      "en": "maturity, ripeness​"
+    },
+    {
+      "jp": "成果",
+      "reading": "seika",
+      "en": "fruits (of one’s labors), accomplishment"
+    },
+    {
+      "jp": "政権",
+      "reading": "seiken",
+      "en": "(political) administration, political power​"
+    },
+    {
+      "jp": "政策",
+      "reading": "seisaku",
+      "en": "political measures, policy​"
+    },
+    {
+      "jp": "正当",
+      "reading": "seitou",
+      "en": "just, justifiable, right"
+    },
+    {
+      "jp": "選挙",
+      "reading": "senkyo",
+      "en": "election"
+    },
+    {
+      "jp": "戦略",
+      "reading": "senryaku",
+      "en": "strategy, tactics​"
+    },
+    {
+      "jp": "占領",
+      "reading": "senryou",
+      "en": "occupying, possession, capture"
+    },
+    {
+      "jp": "戦闘",
+      "reading": "sentou",
+      "en": "battle, fight, combat​"
+    },
+    {
+      "jp": "専用",
+      "reading": "senyou",
+      "en": "exclusive use, personal use"
+    },
+    {
+      "jp": "接触",
+      "reading": "sesshoku",
+      "en": "touch, contact​"
+    },
+    {
+      "jp": "設定",
+      "reading": "settei",
+      "en": "establishment, creation, setting"
+    },
+    {
+      "jp": "説得",
+      "reading": "settoku",
+      "en": "persuasion"
+    },
+    {
+      "jp": "設立",
+      "reading": "setsuritsu",
+      "en": "establishment, founding"
+    },
+    {
+      "jp": "死",
+      "reading": "shi",
+      "en": "death, decease​"
+    },
+    {
+      "jp": "強いる",
+      "reading": "shiiru",
+      "en": "to force, to compel, to coerce​"
+    },
+    {
+      "jp": "支持",
+      "reading": "shiji",
+      "en": "support, holding up, backing"
+    },
+    {
+      "jp": "指示",
+      "reading": "shiji",
+      "en": "instructions, directions, ​indication"
+    },
+    {
+      "jp": "資格",
+      "reading": "shikaku",
+      "en": "qualifications, requirements"
+    },
+    {
+      "jp": "指揮",
+      "reading": "shiki",
+      "en": "command, direction​"
+    },
+    {
+      "jp": "資金",
+      "reading": "shikin",
+      "en": "funds, capital​"
+    },
+    {
+      "jp": "仕組み",
+      "reading": "shikumi",
+      "en": "structure, construction"
+    },
+    {
+      "jp": "使命",
+      "reading": "shimei",
+      "en": "mission, errand​, task"
+    },
+    {
+      "jp": "辛抱",
+      "reading": "shinbou",
+      "en": "patience, endurance​"
+    },
+    {
+      "jp": "進化",
+      "reading": "shinka",
+      "en": "evolution, progress​"
+    },
+    {
+      "jp": "侵略",
+      "reading": "shinryaku",
+      "en": "aggression, invasion"
+    },
+    {
+      "jp": "思考",
+      "reading": "shikou",
+      "en": "thought, consideration, thinking​"
+    },
+    {
+      "jp": "真実",
+      "reading": "shinjitsu",
+      "en": "truth, reality​"
+    },
+    {
+      "jp": "真理",
+      "reading": "shinri",
+      "en": "truth"
+    },
+    {
+      "jp": "真相",
+      "reading": "shinsou",
+      "en": "truth, real situation​"
+    },
+    {
+      "jp": "進展",
+      "reading": "shinten",
+      "en": "progress, development​"
+    },
+    {
+      "jp": "資産",
+      "reading": "shisan",
+      "en": "property, fortune, assets"
+    },
+    {
+      "jp": "視線",
+      "reading": "shisen",
+      "en": "one’s line of sight, one’s gaze"
+    },
+    {
+      "jp": "指摘",
+      "reading": "shiteki",
+      "en": "pointing out, identification​"
+    },
+    {
+      "jp": "嫉妬",
+      "reading": "shitto",
+      "en": "jealousy, envy​"
+    },
+    {
+      "jp": "視野",
+      "reading": "shiya",
+      "en": "field of vision, outlook​"
+    },
+    {
+      "jp": "処分",
+      "reading": "shobun",
+      "en": "disposal, dealing (with a problem)"
+    },
+    {
+      "jp": "職務",
+      "reading": "shokumu",
+      "en": "professional duties​"
+    },
+    {
+      "jp": "所得",
+      "reading": "shotoku",
+      "en": "income, earnings​"
+    },
+    {
+      "jp": "象徴",
+      "reading": "shouchou",
+      "en": "symbol"
+    },
+    {
+      "jp": "衝動",
+      "reading": "shoudou",
+      "en": "impulse, impetus, urge​"
+    },
+    {
+      "jp": "生涯",
+      "reading": "shougai",
+      "en": "one’s lifetime"
+    },
+    {
+      "jp": "証言",
+      "reading": "shougen",
+      "en": "testimony, (verbal) evidence​"
+    },
+    {
+      "jp": "証拠",
+      "reading": "shouko",
+      "en": "evidence, proof​"
+    },
+    {
+      "jp": "照明",
+      "reading": "shoumei",
+      "en": "illumination, lighting​"
+    },
+    {
+      "jp": "消滅",
+      "reading": "shoumetsu",
+      "en": "extinction, extinguishment"
+    },
+    {
+      "jp": "奨励",
+      "reading": "shourei",
+      "en": "encouragement, promotion"
+    },
+    {
+      "jp": "詳細",
+      "reading": "shousai",
+      "en": "detail, particulars​"
+    },
+    {
+      "jp": "昇進",
+      "reading": "shoushin",
+      "en": "promotion, advancement"
+    },
+    {
+      "jp": "少数",
+      "reading": "shousuu",
+      "en": "minority, few​"
+    },
+    {
+      "jp": "正体",
+      "reading": "shoutai",
+      "en": "true character, true form"
+    },
+    {
+      "jp": "勝利",
+      "reading": "shouri",
+      "en": "victory, triumph, win"
+    },
+    {
+      "jp": "所有",
+      "reading": "shoyuu",
+      "en": "one’s possessions, ownership​"
+    },
+    {
+      "jp": "主導",
+      "reading": "shudou",
+      "en": "leadership, initiative, spearhead​"
+    },
+    {
+      "jp": "守衛",
+      "reading": "shuei",
+      "en": "security guard, doorkeeper​"
+    },
+    {
+      "jp": "手法",
+      "reading": "shuhou",
+      "en": "technique, method​"
+    },
+    {
+      "jp": "収集",
+      "reading": "shuushuu",
+      "en": "gathering up, collection"
+    },
+    {
+      "jp": "収益",
+      "reading": "shuueki",
+      "en": "earnings, proceeds, returns"
+    },
+    {
+      "jp": "措置",
+      "reading": "sochi",
+      "en": "measure, measures, step​"
+    },
+    {
+      "jp": "損なう",
+      "reading": "sokonau",
+      "en": "to harm, to hurt, to injure"
+    },
+    {
+      "jp": "促進",
+      "reading": "sokushin",
+      "en": "promotion, acceleration"
+    },
+    {
+      "jp": "染まる",
+      "reading": "somaru",
+      "en": "to be dyed​, to be tainted, to be infected"
+    },
+    {
+      "jp": "即座に",
+      "reading": "sokuza ni",
+      "en": "immediately, right away"
+    },
+    {
+      "jp": "阻止",
+      "reading": "soshi",
+      "en": "obstruction, check, hindrance"
+    },
+    {
+      "jp": "備わる",
+      "reading": "sonawaru",
+      "en": "to be furnished with, to be equipped with​"
+    },
+    {
+      "jp": "損失",
+      "reading": "sonshitsu",
+      "en": "loss (e.g. assets or profits)​"
+    },
+    {
+      "jp": "訴訟",
+      "reading": "soshou",
+      "en": "liftigation, lawsuit​"
+    },
+    {
+      "jp": "装備",
+      "reading": "soubi",
+      "en": "equipment"
+    },
+    {
+      "jp": "捜査",
+      "reading": "sousa",
+      "en": "search, investigation"
+    },
+    {
+      "jp": "創造",
+      "reading": "souzou",
+      "en": "creation"
+    },
+    {
+      "jp": "遂行",
+      "reading": "suikou",
+      "en": "accomplishment, execution​"
+    },
+    {
+      "jp": "衰退",
+      "reading": "suitai",
+      "en": "decline, degeneration, decay"
+    },
+    {
+      "jp": "推進",
+      "reading": "suishin",
+      "en": "propulsion, drive​, promotion"
+    },
+    {
+      "jp": "好く",
+      "reading": "suku",
+      "en": "to like, to love"
+    },
+    {
+      "jp": "体験",
+      "reading": "taiken",
+      "en": "personal experience, physical experience"
+    },
+    {
+      "jp": "対応",
+      "reading": "taiou",
+      "en": "correspondence, coping with"
+    },
+    {
+      "jp": "態勢",
+      "reading": "taisei",
+      "en": "attitude, posture, preparedness"
+    },
+    {
+      "jp": "対処",
+      "reading": "taisho",
+      "en": "dealing with, coping with"
+    },
+    {
+      "jp": "退職",
+      "reading": "taishoku",
+      "en": "retirement, resignation​"
+    },
+    {
+      "jp": "大衆",
+      "reading": "taishuu",
+      "en": "general public, the masses​"
+    },
+    {
+      "jp": "高まる",
+      "reading": "takamaru",
+      "en": "to rise, to swell"
+    },
+    {
+      "jp": "企む",
+      "reading": "takuramu",
+      "en": "to scheme, to plan, to conspire"
+    },
+    {
+      "jp": "保つ",
+      "reading": "tamotsu",
+      "en": "to keep, to preserve, to maintain"
+    },
+    {
+      "jp": "達成",
+      "reading": "tassei",
+      "en": "achievement"
+    },
+    {
+      "jp": "提供",
+      "reading": "teikyou",
+      "en": "offer, provisioning, supply​"
+    },
+    {
+      "jp": "停滞",
+      "reading": "teitai",
+      "en": "stagnation, tie-up, congestion"
+    },
+    {
+      "jp": "手順",
+      "reading": "tejun",
+      "en": "process, procedure, sequence"
+    },
+    {
+      "jp": "適応",
+      "reading": "tekiou",
+      "en": "adaptation, accommodation"
+    },
+    {
+      "jp": "展示",
+      "reading": "tenji",
+      "en": "exhibition, display​"
+    },
+    {
+      "jp": "天井",
+      "reading": "tenjou",
+      "en": "ceiling, ceiling price​"
+    },
+    {
+      "jp": "転換",
+      "reading": "tenkan",
+      "en": "conversion, changeover"
+    },
+    {
+      "jp": "点検",
+      "reading": "tenken",
+      "en": "inspection, examination, checking​"
+    },
+    {
+      "jp": "天才",
+      "reading": "tensai",
+      "en": "genius, prodigy"
+    },
+    {
+      "jp": "手遅れ",
+      "reading": "teokure",
+      "en": "being (too) late​"
+    },
+    {
+      "jp": "扉",
+      "reading": "tobira",
+      "en": "door, gate, opening​"
+    },
+    {
+      "jp": "乏しい",
+      "reading": "toboshii",
+      "en": "meagre, scarce, lacking"
+    },
+    {
+      "jp": "特権",
+      "reading": "tokken",
+      "en": "privilege, special right​"
+    },
+    {
+      "jp": "富",
+      "reading": "tomi",
+      "en": "riches, wealth, fortune​"
+    },
+    {
+      "jp": "富む",
+      "reading": "tomu",
+      "en": "to be rich in, to abound in"
+    },
+    {
+      "jp": "突破",
+      "reading": "toppa",
+      "en": "breaking through, penetration​"
+    },
+    {
+      "jp": "取引",
+      "reading": "torihiki",
+      "en": "transactions, dealings"
+    },
+    {
+      "jp": "整える",
+      "reading": "totonoeru",
+      "en": "to put in order, to adjust​"
+    },
+    {
+      "jp": "統合",
+      "reading": "tougou",
+      "en": "integration, unification, synthesis​"
+    },
+    {
+      "jp": "投入",
+      "reading": "tounyuu",
+      "en": "throwing into, inserting"
+    },
+    {
+      "jp": "討論",
+      "reading": "touron",
+      "en": "debate, discussion​"
+    },
+    {
+      "jp": "統制",
+      "reading": "tousei",
+      "en": "regulation, control​"
+    },
+    {
+      "jp": "投資",
+      "reading": "toushi",
+      "en": "investment"
+    },
+    {
+      "jp": "到達",
+      "reading": "toutatsu",
+      "en": "reaching, attaining, arrival​"
+    },
+    {
+      "jp": "告げる",
+      "reading": "tsugeru",
+      "en": "to tell, to inform"
+    },
+    {
+      "jp": "追求",
+      "reading": "tsuikyuu",
+      "en": "pursuit (of a goal, ideal, etc.)"
+    },
+    {
+      "jp": "追跡",
+      "reading": "tsuiseki",
+      "en": "chase, pursuit, tracing"
+    },
+    {
+      "jp": "費やす",
+      "reading": "tsuiyasu",
+      "en": "to spend, to consume"
+    },
+    {
+      "jp": "募る",
+      "reading": "tsunoru",
+      "en": "to grow violent, to become stronger"
+    },
+    {
+      "jp": "通常",
+      "reading": "tsuujou",
+      "en": "common, general, normal, usual​"
+    },
+    {
+      "jp": "強まる",
+      "reading": "tsuyomaru",
+      "en": "to get strong, to gain strength​"
+    },
+    {
+      "jp": "打ち明ける",
+      "reading": "uchiakeru",
+      "en": "to confide, to reveal"
+    },
+    {
+      "jp": "動き",
+      "reading": "ugoki",
+      "en": "movement, move, motion​"
+    },
+    {
+      "jp": "促す",
+      "reading": "unagasu",
+      "en": "to urge, to press, to prompt"
+    },
+    {
+      "jp": "運営",
+      "reading": "un’ei",
+      "en": "management, administration"
+    },
+    {
+      "jp": "運命",
+      "reading": "unmei",
+      "en": "fate, destiny"
+    },
+    {
+      "jp": "運用",
+      "reading": "unyou",
+      "en": "making use of, application"
+    },
+    {
+      "jp": "薄れる",
+      "reading": "usureru",
+      "en": "to fade, to become dim​"
+    },
+    {
+      "jp": "罠",
+      "reading": "wana",
+      "en": "snare, trap"
+    },
+    {
+      "jp": "闇",
+      "reading": "yami",
+      "en": "darkness, the dark"
+    },
+    {
+      "jp": "野心",
+      "reading": "yashin",
+      "en": "ambition, aspiration​"
+    },
+    {
+      "jp": "養う",
+      "reading": "yashinau",
+      "en": "to support, to provide for"
+    },
+    {
+      "jp": "余地",
+      "reading": "yochi",
+      "en": "place, room, margin"
+    },
+    {
+      "jp": "予感",
+      "reading": "yokan",
+      "en": "presentiment, premonition, hunch​"
+    },
+    {
+      "jp": "欲望",
+      "reading": "yokubou",
+      "en": "desire, appetite, lust​"
+    },
+    {
+      "jp": "抑制",
+      "reading": "yokusei",
+      "en": "control, restraint, suppression"
+    },
+    {
+      "jp": "要因",
+      "reading": "youin",
+      "en": "main cause, primary factor​"
+    },
+    {
+      "jp": "用件",
+      "reading": "youken",
+      "en": "business, thing to be done"
+    },
+    {
+      "jp": "要請",
+      "reading": "yousei",
+      "en": "appeal, request, demand"
+    },
+    {
+      "jp": "要する",
+      "reading": "you suru",
+      "en": "to need, to demand, to require"
+    },
+    {
+      "jp": "弱める",
+      "reading": "yowameru",
+      "en": "to weaken​"
+    },
+    {
+      "jp": "勇敢",
+      "reading": "yuukan",
+      "en": "brave, heroic, gallant​"
+    },
+    {
+      "jp": "優先",
+      "reading": "yuusen",
+      "en": "preference, priority"
+    },
+    {
+      "jp": "融資",
+      "reading": "yuushi",
+      "en": "financing, loan​"
+    },
+    {
+      "jp": "有する",
+      "reading": "yuusuru",
+      "en": "to own, to be endowed with​"
+    },
+    {
+      "jp": "誘惑",
+      "reading": "yuuwaku",
+      "en": "temptation, allurement"
+    },
+    {
+      "jp": "財政",
+      "reading": "zaisei",
+      "en": "public finance, financial affairs"
+    },
+    {
+      "jp": "残酷",
+      "reading": "zankoku",
+      "en": "cruelty, harshness​"
+    },
+    {
+      "jp": "前提",
+      "reading": "zentei",
+      "en": "preamble, premise, reason"
+    },
+    {
+      "jp": "絶望",
+      "reading": "zetsubou",
+      "en": "despair, hopelessness​"
+    },
+    {
+      "jp": "増強",
+      "reading": "zoukyou",
+      "en": "augment, reinforce, increase​"
+    }
+  ]
+}
