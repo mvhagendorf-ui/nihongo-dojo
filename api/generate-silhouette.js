@@ -7,7 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 export const config = { maxDuration: 60 };
 const client = new Anthropic();
 
-const SYSTEM = `You generate single-color silhouette SVG illustrations for Japanese kanji learning aids.
+const SYSTEM_SILHOUETTE = `You generate single-color silhouette SVG illustrations for Japanese kanji learning aids.
 
 Each input has: kanji (the character) + meaning (its English meaning) + optional concept (a more concrete visual hint).
 
@@ -43,6 +43,36 @@ Examples to REFUSE:
 - 必 (must/certainly) → too abstract
 - 経 (sutra/passage) → too abstract`;
 
+const SYSTEM_SCENE = `You generate illustrated MNEMONIC SCENE SVGs for Japanese kanji — like the famous JLPT Kanji Mnemonics images that show, for example, "a hand grabbing an ear" for 取 (to take).
+
+Each input has: kanji (the character) + meaning (its English meaning) + optional concept (a hint).
+You'll be told the radicals making up the kanji.
+
+Goal: draw a SHORT VISUAL STORY combining the radicals into a scene that explains why the kanji means what it means.
+
+Examples of the bar to hit:
+- 取 (take) = 耳 (ear) + 又 (hand) → a hand reaching out and grabbing an ear
+- 休 (rest) = 亻 (person) + 木 (tree) → a person leaning/resting against a tree
+- 鳴 (sing/cry) = 口 (mouth) + 鳥 (bird) → a bird with a mouth open singing
+- 林 (woods) = 木 + 木 → two trees side by side
+- 明 (bright) = 日 (sun) + 月 (moon) → sun next to moon
+- 信 (faith/trust) = 亻 (person) + 言 (words) → a person with speech bubble showing words
+
+Strict requirements:
+- viewBox="0 0 240 200" (wider than tall for scenes)
+- Mostly solid black ("#1a1a1a"); white ("#ffffff") permitted for inner detail
+- Multi-element scene — show INTERACTION between the radicals, not just objects placed next to each other
+- Recognizable: a learner should immediately think "ah, ear + hand = grabbing → take"
+- No text, no decoration, no kanji or hiragana glyphs in the SVG
+- Use multiple <path>/<circle>/<ellipse>/<polygon> elements as needed
+- Refuse if the kanji isn't a phonosemantic compound with concrete radicals: return { "svg": null, "reason": "..." }
+
+Output JSON: { "svg": "<svg ...>...</svg>", "reason": "one-line description of what the scene shows" }
+or
+{ "svg": null, "reason": "no concrete radical-based scene possible" }`;
+
+const SYSTEMS = { silhouette: SYSTEM_SILHOUETTE, scene: SYSTEM_SCENE };
+
 const SCHEMA = {
   type: "object",
   additionalProperties: false,
@@ -63,17 +93,28 @@ export default async function handler(req, res) {
   }
   try {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-    const { kanji, meaning, concept } = body || {};
+    const { kanji, meaning, concept, style = "silhouette", radicals } = body || {};
     if (!kanji || !meaning) {
-      return res.status(400).json({ error: "invalid_input", message: "Provide { kanji, meaning, concept? }" });
+      return res.status(400).json({ error: "invalid_input", message: "Provide { kanji, meaning, concept?, style?, radicals? }" });
+    }
+    const system = SYSTEMS[style];
+    if (!system) {
+      return res.status(400).json({ error: "invalid_style", message: "style must be 'silhouette' or 'scene'" });
     }
 
-    const userText = `kanji: ${kanji}\nmeaning: ${meaning}${concept ? `\nconcept hint: ${concept}` : ""}\n\nDraw a clean black silhouette that depicts this concept. If too abstract, return svg: null with a reason.`;
+    const radicalsLine = (style === "scene" && Array.isArray(radicals) && radicals.length > 0)
+      ? `\nradicals: ${radicals.map(r => `${r.char} (${r.meaning})`).join(" + ")}`
+      : "";
+    const userText =
+      `kanji: ${kanji}\nmeaning: ${meaning}${concept ? `\nconcept hint: ${concept}` : ""}${radicalsLine}\n\n` +
+      (style === "scene"
+        ? "Draw a mnemonic scene combining the radicals. Refuse if no concrete scene is possible."
+        : "Draw a clean black silhouette that depicts this concept. If too abstract, return svg: null with a reason.");
 
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4000,
-      system: [{ type: "text", text: SYSTEM, cache_control: { type: "ephemeral" } }],
+      system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
       messages: [{ role: "user", content: userText }],
       output_config: { format: { type: "json_schema", schema: SCHEMA } },
     });
