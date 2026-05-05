@@ -301,7 +301,14 @@ function KanjiRadicals({ word }) {
                       ))}
                     </div>
                     {entry.mnemonic && (
-                      <div style={{ fontSize: 11, color: C.muted, marginTop: 5, fontStyle: "italic", lineHeight: 1.4 }}>
+                      <div style={{
+                        fontSize: 13, color: "#5B21B6", marginTop: 8,
+                        fontWeight: 600, lineHeight: 1.5,
+                        background: "rgba(124,58,237,0.06)",
+                        border: "1px solid rgba(124,58,237,0.18)",
+                        borderRadius: 6, padding: "6px 10px",
+                        display: "inline-block",
+                      }}>
                         → {entry.mnemonic}
                       </div>
                     )}
@@ -428,7 +435,109 @@ const CONN_COLORS = [
   { pattern: /助数詞/g,                                                                              color: "#B45309", bg: "rgba(180,83,9,0.10)" },    // counter → amber
   { pattern: /疑問詞/g,                                                                              color: "#0891B2", bg: "rgba(8,145,178,0.10)" },   // question word → teal
 ];
-function ColoredConn({ conn }) {
+
+// Glossary used for hover popovers and (for N5/N4) inline English labels.
+const CONN_GLOSSARY = {
+  "V":        { short: "Verb",          desc: "A verb — an action or state word.",                                example: "食べる, 行く, する" },
+  "N":        { short: "Noun",          desc: "A noun — a person, thing, place, or idea.",                        example: "学生, 本, 東京" },
+  "い形":     { short: "i-Adjective",   read: "けい", desc: "A regular adjective ending in い.",                  example: "高い, 寒い, 美味しい" },
+  "な形":     { short: "na-Adjective",  read: "けい", desc: "An adjective that takes な before a noun.",          example: "静か(な), 元気(な)" },
+  "Vる":      { short: "Verb·plain",    desc: "Verb in plain dictionary form (ru-ending shown).",                  example: "食べる, 行く" },
+  "Vない":    { short: "Verb·negative", desc: "Verb negative-stem form.",                                          example: "食べない, 行かない" },
+  "Vた":      { short: "Verb·past",     desc: "Verb in plain past form (-ta).",                                    example: "食べた, 行った" },
+  "Vて":      { short: "Verb·te-form",  desc: "Verb in te-form — used to connect verbs/clauses.",                  example: "食べて, 行って" },
+  "Vた形":    { short: "Past form",     read: "けい", desc: "Plain past form of a verb.",                         example: "食べた, 行った, 飲んだ" },
+  "Vて形":    { short: "te-Form",       read: "けい", desc: "Connecting form using て / で.",                     example: "食べて, 飲んで, 行って" },
+  "Vます形":  { short: "Polite stem",   read: "けい", desc: "Verb stem before ます (the verb minus -masu).",      example: "食べ(ます), 行き(ます)" },
+  "V辞書形":  { short: "Dictionary form", read: "じしょけい", desc: "Verb in plain dictionary form.",             example: "食べる, 行く, 来る, する" },
+  "V普通形":  { short: "Plain form",    read: "ふつうけい", desc: "Verb in any plain (non-polite) conjugation.",  example: "食べる, 食べた, 食べない" },
+  "V可能":    { short: "Potential",     desc: "Potential / 'can do' form.",                                        example: "食べられる, 行ける" },
+  "V意向":    { short: "Volitional",    desc: "'Let's …' / volitional form.",                                      example: "食べよう, 行こう" },
+  "V条件":    { short: "Conditional",   desc: "If / conditional form.",                                            example: "食べれば, 行けば" },
+  "普通形":   { short: "Plain form",    read: "ふつうけい", desc: "Plain (non-polite) conjugation — used for verbs, adjectives, and copula.", example: "食べる, 食べた, 食べない, 高い, 静かだ" },
+  "尊敬語":   { short: "Respectful",    read: "そんけいご", desc: "Honorific speech — elevates the listener / subject.", example: "いらっしゃる, ご覧になる" },
+  "謙譲語":   { short: "Humble",        read: "けんじょうご", desc: "Humble speech — lowers oneself relative to the listener.", example: "申す, 拝見する, いたす" },
+  "助数詞":   { short: "Counter",       read: "じょすうし", desc: "Counter word for nouns.",                       example: "三本, 二個, 五人" },
+  "疑問詞":   { short: "Question word", read: "ぎもんし", desc: "Interrogative word.",                             example: "何, 誰, どこ, いつ" },
+};
+const INLINE_LABEL_TOKENS = new Set(["V", "N", "い形", "な形"]);
+function isBeginnerCat(cat) { return typeof cat === "string" && (cat.startsWith("N5") || cat.startsWith("N4")); }
+
+function lookupConn(token) {
+  if (CONN_GLOSSARY[token]) return CONN_GLOSSARY[token];
+  const base = token.replace(/[（(].*$/, "");
+  return CONN_GLOSSARY[base] || null;
+}
+
+function ConnToken({ token, color, bg, beginner }) {
+  const info = lookupConn(token);
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onEsc = (e) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onEsc);
+    return () => { document.removeEventListener("mousedown", onDocClick); document.removeEventListener("keydown", onEsc); };
+  }, [open]);
+
+  const tokenContent = info?.read
+    ? <ruby>{token}<rt style={{ fontSize: "0.55em", fontWeight: 500 }}>{info.read}</rt></ruby>
+    : token;
+
+  const showInline = beginner && info && INLINE_LABEL_TOKENS.has(token);
+
+  return (
+    <span
+      ref={ref}
+      onMouseEnter={() => info && setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      onClick={(e) => { if (!info) return; e.stopPropagation(); setOpen(o => !o); }}
+      style={{
+        position: "relative", display: "inline-block",
+        color, background: bg, padding: "1px 6px", borderRadius: 4, fontWeight: 700,
+        cursor: info ? "help" : "default",
+        textDecoration: info ? "underline dotted rgba(0,0,0,0.22)" : "none",
+        textUnderlineOffset: 3,
+      }}
+    >
+      {tokenContent}
+      {showInline && (
+        <span style={{ fontSize: "0.72em", opacity: 0.78, marginLeft: 5, fontWeight: 600, letterSpacing: "0.02em" }}>
+          · {info.short}
+        </span>
+      )}
+      {open && info && (
+        <span role="tooltip" style={{
+          position: "absolute", top: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)",
+          background: "#FFFFFF", border: `2px solid ${color}`,
+          borderRadius: 10, padding: "10px 14px",
+          minWidth: 200, maxWidth: 280,
+          boxShadow: "0 8px 24px -4px rgba(0,0,0,0.18)",
+          zIndex: 100, whiteSpace: "normal", textAlign: "left",
+          color: C.ink, fontWeight: 400,
+          pointerEvents: "none",
+        }}>
+          <span style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%) rotate(45deg)", width: 12, height: 12, background: "#FFFFFF", borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}`, display: "block" }} />
+          <span style={{ display: "block", fontWeight: 800, fontSize: 13, color, marginBottom: 4 }}>
+            {token}{info.read ? ` · ${info.read}` : ""} <span style={{ color: C.muted, fontWeight: 600 }}>· {info.short}</span>
+          </span>
+          <span style={{ display: "block", fontSize: 12, color: C.inkDim, lineHeight: 1.5, marginBottom: info.example ? 6 : 0, fontFamily: "var(--font-latin)" }}>
+            {info.desc}
+          </span>
+          {info.example && (
+            <span className="jp" style={{ display: "block", fontSize: 12.5, color: C.muted, lineHeight: 1.4 }}>
+              <span style={{ ...KICKER, fontSize: 9, marginRight: 6, color: C.faint }}>例</span>{info.example}
+            </span>
+          )}
+        </span>
+      )}
+    </span>
+  );
+}
+
+function ColoredConn({ conn, beginner }) {
   if (!conn) return null;
   const tokens = [];
   let remaining = conn;
@@ -443,9 +552,7 @@ function ColoredConn({ conn }) {
     if (!earliest) { tokens.push(<span key={key++} style={{ color: C.inkDim }}>{remaining}</span>); break; }
     if (earliestIdx > 0) tokens.push(<span key={key++} style={{ color: C.inkDim }}>{remaining.slice(0, earliestIdx)}</span>);
     tokens.push(
-      <span key={key++} style={{ color: matchedRule.color, background: matchedRule.bg, padding: "1px 6px", borderRadius: 4, fontWeight: 700 }}>
-        {earliest[0]}
-      </span>
+      <ConnToken key={key++} token={earliest[0]} color={matchedRule.color} bg={matchedRule.bg} beginner={beginner} />
     );
     remaining = remaining.slice(earliestIdx + earliest[0].length);
   }
@@ -681,7 +788,7 @@ function WrongItem({ w, isLast }) {
           &ldquo;{w.oneLiner}&rdquo;
         </div>
       )}
-      {w.conn && <div style={{ fontSize: 13, marginTop: 10, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={JP_LABEL}>接続</span><span className="jp" style={{ fontSize: 14 }}><ColoredConn conn={w.conn} /></span></div>}
+      {w.conn && <div style={{ fontSize: 13, marginTop: 10, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={JP_LABEL}>接続</span><span className="jp" style={{ fontSize: 14 }}><ColoredConn conn={w.conn} beginner={isBeginnerCat(w.cat)} /></span></div>}
       {w.n5syn && <div style={{ fontSize: 13, marginTop: 6, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={{ ...KICKER, fontSize: 10, color: C.faint }}>≈ N5</span><span className="jp" style={{ fontSize: 13, color: C.inkDim, fontWeight: 600 }}>{w.n5syn}</span></div>}
       {w.ex && (
         <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
@@ -742,7 +849,7 @@ function GlossaryItem({ item, mistakes, bookmarked, onToggle, onToggleBookmark, 
           {item.conn && (
             <div style={{ fontSize: 13, marginTop: 10, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
               <span style={JP_LABEL}>接続</span>
-              <span className="jp" style={{ fontSize: 14, fontWeight: 600 }}><ColoredConn conn={item.conn} /></span>
+              <span className="jp" style={{ fontSize: 14, fontWeight: 600 }}><ColoredConn conn={item.conn} beginner={isBeginnerCat(item.cat)} /></span>
             </div>
           )}
           {item.n5syn && (
@@ -2148,7 +2255,7 @@ export default function App() {
                   {q.conn && (
                     <div style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 10, padding: "8px 16px", background: C.mutedBg, border: `1px solid ${C.border}`, borderRadius: 8 }}>
                       <span style={JP_LABEL}>接続</span>
-                      <span className="jp" style={{ fontSize: 15, fontWeight: 600 }}><ColoredConn conn={q.conn} /></span>
+                      <span className="jp" style={{ fontSize: 15, fontWeight: 600 }}><ColoredConn conn={q.conn} beginner={isBeginnerCat(q.cat)} /></span>
                     </div>
                   )}
                 </>
@@ -2246,7 +2353,7 @@ export default function App() {
                 {q.conn && (
                   <div style={{ marginTop: 12, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
                     <span style={{ ...JP_LABEL, flexShrink: 0 }}>接続</span>
-                    <span className="jp" style={{ fontSize: 15, fontWeight: 600 }}><ColoredConn conn={q.conn} /></span>
+                    <span className="jp" style={{ fontSize: 15, fontWeight: 600 }}><ColoredConn conn={q.conn} beginner={isBeginnerCat(q.cat)} /></span>
                   </div>
                 )}
 
