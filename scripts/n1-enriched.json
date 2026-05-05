@@ -795,11 +795,11 @@
     {
       "jp": "～ないではおかない／～ずにはおかない",
       "reading": "ないではおかない／ずにはおかない",
-      "en": "will definitely / cannot help but (inevitable result or strong compulsion)",
-      "heb": "בהכרח יגרום ל / לא יוכל שלא",
-      "conn": "Vない形＋",
-      "ex": "この映画は感動させずにはおかない。",
-      "exHeb": "הסרט הזה בהכרח יגע ללב."
+      "en": "will definitely / cannot help but (do); compelled to",
+      "heb": "לא יכול שלא, בהכרח",
+      "conn": "Vない形＋ではおかない／ずにはおかない",
+      "ex": "彼の演技は感動させないではおかない。",
+      "exHeb": "המשחק שלו לא יכול שלא לרגש."
     },
     {
       "jp": "～なり",
@@ -1008,22 +1008,21 @@
     {
       "jp": "～にたえる／～にたえない",
       "reading": "にたえる／にたえない",
-      "en": "worth doing / not worth doing; can/can't bear to",
-      "heb": "ראוי / לא ראוי; שווה / לא שווה",
-      "conn": "V辞書形/N＋",
+      "en": "can/cannot bear to; worthy/unworthy of",
+      "heb": "ראוי / לא נסבל",
+      "conn": "N／V辞書形＋に",
       "ex": "この映画は鑑賞にたえる作品だ。",
-      "exHeb": "סרט זה ראוי לצפייה.",
-      "kanjiStory": "耐(endure/bear) = can you endure it? → worth experiencing or not"
+      "exHeb": "הסרט הזה ראוי לצפייה."
     },
     {
       "jp": "～に足る／～に足りる",
       "reading": "にたる／にたりる",
-      "en": "worthy of / sufficient for",
-      "heb": "ראוי ל / מספיק ל",
-      "conn": "V辞書形/N＋",
-      "ex": "彼は信頼するに足る人物だ。",
+      "en": "to be worthy of / sufficient for",
+      "heb": "ראוי ל, מספיק ל",
+      "conn": "N／V辞書形＋に",
+      "ex": "彼は信頼に足る人物だ。",
       "exHeb": "הוא אדם הראוי לאמון.",
-      "kanjiStory": "足(足りる=sufficient) = enough to stand on → measuring up to the standard"
+      "kanjiStory": "足(foot/suffice) = stepping up to meet a standard → worthy of"
     },
     {
       "jp": "～に足りない",
@@ -1530,11 +1529,11 @@
     {
       "jp": "～というところだ／～といったところだ",
       "reading": "というところだ／といったところだ",
-      "en": "approximately / about / that's about it",
-      "heb": "בערך, זה בערך המצב",
-      "conn": "N/数量＋",
-      "ex": "今の貯金は10万円といったところだ。",
-      "exHeb": "החסכונות שלי עכשיו הם בערך 100,000 ין."
+      "en": "approximately / about / that's about the extent of it",
+      "heb": "בערך, לכל היותר",
+      "conn": "普通形／N＋",
+      "ex": "合格率は五割といったところだ。",
+      "exHeb": "שיעור ההצלחה הוא בערך חמישים אחוז."
     },
     {
       "jp": "～というもの",
@@ -3753,11 +3752,11 @@
     {
       "jp": "誇張",
       "reading": "こちょう",
-      "en": "exaggeration / overstatement",
+      "en": "exaggeration",
       "heb": "הגזמה",
       "ex": "彼の話はいつも誇張が多い。",
-      "exHeb": "הסיפורים שלו תמיד מלאי הגזמות.",
-      "kanjiStory": "誇(pride/boast) + 張(stretch) = stretching one's boasting → blowing things out of proportion"
+      "exHeb": "הסיפורים שלו תמיד מלאים הגזמות.",
+      "kanjiStory": "誇(pride/boast) + 張(stretch/expand) = stretching your boasts → exaggeration"
     },
     {
       "jp": "孤独",
