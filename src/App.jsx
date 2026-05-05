@@ -907,6 +907,7 @@ function Glossary({ srs, bookmarks, onToggleBookmark, onBack }) {
     if (!search) return true;
     const q = search.toLowerCase();
     return (item.jp || "").toLowerCase().includes(q)
+      || (item.reading || "").toLowerCase().includes(q)
       || (item.en || "").toLowerCase().includes(q)
       || (item.heb || "").includes(search)
       || (item.kanjiStory || "").toLowerCase().includes(q)
