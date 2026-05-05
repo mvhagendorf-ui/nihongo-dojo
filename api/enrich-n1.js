@@ -45,43 +45,53 @@ OUTPUT: { jp: "赤字", reading: "あかじ", en: "deficit / red ink (financial 
 
 NEVER include the reading inside jp parentheses. NEVER include English in jp. ALWAYS Hebrew, never transliterate.`;
 
-const SYSTEM_JLPT = `You enrich Japanese vocabulary/grammar items for a public JLPT study app (no Hebrew).
+const SYSTEM_JLPT = `You enrich Japanese vocabulary/grammar items for a public JLPT study app (no Hebrew). Output is shown to learners — examples MUST be translatable in their head, etymology MUST be vivid enough to draw a mental picture.
 
 Each input has: jp (CANONICAL Japanese form, may be missing for PDF-extracted grammar entries), reading (hiragana or romaji from source), en (English meaning), level (N5/N4/N3/N2). Optionally exRomaji + exEn (extracted example sentence — use as a hint to write the JP example).
 
 For each item, return:
 - jp: the canonical Japanese form. RULES:
    • If input has jp, USE IT (just normalize: prefix grammar with "～" if it attaches to a word, keep nouns/verbs as-is).
-   • If jp is MISSING (PDF source), RECONSTRUCT it from reading + en + level context:
-       — Grammar particles/conjunctions are usually PURE HIRAGANA. "dake" → "～だけ", "made" → "～まで", "kara" → "～から", "node" → "～ので", "kedo" → "～けど".
+   • If jp is MISSING (PDF source), RECONSTRUCT from reading + en + level context:
+       — Grammar particles/conjunctions are usually PURE HIRAGANA. "dake" → "～だけ", "made" → "～まで", "kara" → "～から", "node" → "～ので".
        — Some N4/N3 grammar uses kanji. "de aru" → "である", "ni totte" → "～にとって" (kana).
-       — Vocabulary items use STANDARD kanji forms when applicable. "taberu" → "食べる", "kaisha" → "会社".
-       — Cross-check by ensuring your jp would naturally read as the given romaji.
-- reading: hiragana only (convert any romaji — "dake" → "だけ", "akaji" → "あかじ").
-- en: clean English meaning ≤ 80 chars (preserve original meaning, just polish phrasing).
+       — Vocab items use standard kanji forms. "taberu" → "食べる", "kaisha" → "会社".
+       — Cross-check: your jp must naturally READ as the given romaji.
+- reading: hiragana only (convert any romaji).
+- en: clean English meaning ≤ 80 chars.
 - conn: grammar connection rule — colored-pill notation: V辞書形, Vます形, Vて形, Vない形, Vた形, N, い形, な形, 普通形, combinations like "N/Vた+の＋". For pure vocab nouns/verbs: OMIT conn entirely.
-- ex: ONE natural Japanese example sentence using the term, ≤ 35 chars. If the input had exRomaji/exEn, base your example on those (convert exRomaji to natural JP).
-- kanjiStory: ONLY if the term contains kanji. A memorable 1-sentence mnemonic breaking down the kanji or explaining etymology. ≤ 120 chars. Format: "赤(red) + 字(letters) = red letters in ledger → losses". Skip for pure-kana items.
+- ex: ONE natural Japanese example sentence using the term, ≤ 35 chars. If input had exRomaji, base your example on it (convert romaji to JP).
+- exEn: REQUIRED — clear, simple English translation of the example sentence (≤ 60 chars). Don't be too literal; phrase it naturally. This is shown to non-Japanese readers so they understand the example.
+- kanjiStory: REQUIRED for EVERY item. Vivid 1-sentence mnemonic, ≤ 120 chars, beginner-friendly ("etymology for dummies"):
+   • Items WITH kanji → break down each kanji as a literal picture/meaning, then show how they combine. Format: "X(picture/meaning) + Y(picture/meaning) = visual story → final meaning". Examples:
+       - 赤字: "赤(red) + 字(letters/characters) = red letters in a ledger → financial loss"
+       - 弁明: "弁(speak/argue) + 明(clarify) = speak to make clear → explanation/excuse"
+       - 取: "耳(ear) + 又(hand) = a hand grabbing an ear (battlefield trophy) → to take"
+   • Pure-kana items (e.g. ～だけ, ～から, がてら) → explain the GRAMMATICAL ORIGIN or a memorable hook. Examples:
+       - "～だけ": "From classical 'tadake' (just only) → narrows down to one thing → 'only X'"
+       - "～から": "Originally meant 'from' (point of departure) → reason 'from which something follows'"
+       - "がてら": "Old form of 'while doing' (途中で) → doing one thing on the way to another"
+   • Even simple items (e.g. もう, よく) — give a one-line hook that helps it stick.
 - oneLiner: skip unless the term has notably memorable nuance (proverb, idiom). Most items: omit.
-- level: ECHO BACK the input level field as-is (so the orchestrator can route the item).
+- level: ECHO BACK the input level field as-is.
 
-Style: terse, learner-focused, no filler.
+Style: terse, learner-focused, vivid imagery.
 
 EXAMPLES:
 
 INPUT (HTML): { jp: "暴れる", reading: "abareru", en: "to act violently; to rage; to struggle", level: "N2" }
-OUTPUT: { jp: "暴れる", reading: "あばれる", en: "to act violently / rage / struggle", level: "N2", ex: "酔っ払いが店で暴れた。", kanjiStory: "暴(violent) + れる = to act out violently → rage" }
+OUTPUT: { jp: "暴れる", reading: "あばれる", en: "to act violently / rage / struggle", level: "N2", ex: "酔っ払いが店で暴れた。", exEn: "The drunk guy went on a rampage in the shop.", kanjiStory: "暴(violent/storm) + れる(do/become) = becoming a storm → going wild" }
 
 INPUT (PDF, no jp): { reading: "dake", en: "only, just", level: "N5" }
-OUTPUT: { jp: "～だけ", reading: "だけ", en: "only / just", level: "N5", conn: "N/V普通形＋", ex: "水だけください。" }
+OUTPUT: { jp: "～だけ", reading: "だけ", en: "only / just", level: "N5", conn: "N/V普通形＋", ex: "水だけください。", exEn: "Just water, please.", kanjiStory: "From classical 'tadake' meaning 'just only' → narrows down to a single thing" }
 
-INPUT (PDF, with example): { reading: "ato de", en: "after, later", level: "N4", exRomaji: "shukudai o shita ato de tabemasu", exEn: "I'll eat after I do my homework." }
-OUTPUT: { jp: "～あとで", reading: "あとで", en: "after / later", level: "N4", conn: "Vた形/N＋の＋", ex: "宿題をしたあとで食べます。" }
+INPUT (PDF with example): { reading: "ato de", en: "after, later", level: "N4", exRomaji: "shukudai o shita ato de tabemasu", exEn: "I'll eat after I do my homework." }
+OUTPUT: { jp: "～あとで", reading: "あとで", en: "after / later", level: "N4", conn: "Vた形/N＋の＋", ex: "宿題をしたあとで食べます。", exEn: "I'll eat after doing my homework.", kanjiStory: "後(behind/after) + で(at/in) = at the point behind/after something happens" }
 
-INPUT (PDF vocab-style): { reading: "taberu", en: "to eat", level: "N5" }
-OUTPUT: { jp: "食べる", reading: "たべる", en: "to eat", level: "N5", ex: "朝ごはんを食べる。", kanjiStory: "食(food/eat) + 偏 → action of eating" }
+INPUT (vocab kanji): { reading: "taberu", en: "to eat", level: "N5" }
+OUTPUT: { jp: "食べる", reading: "たべる", en: "to eat", level: "N5", ex: "朝ごはんを食べる。", exEn: "I eat breakfast.", kanjiStory: "食(food/meal — picture of food in a vessel) → the action of eating food" }
 
-NEVER include the reading inside jp parentheses. NEVER include English in jp. NO Hebrew in this mode.`;
+NEVER include the reading inside jp parentheses. NEVER include English in jp. NO Hebrew in this mode. EVERY item MUST have exEn + kanjiStory.`;
 
 const SCHEMA_N1 = {
   type: "object",
@@ -120,7 +130,7 @@ const SCHEMA_JLPT = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["jp", "reading", "en", "ex", "level"],
+        required: ["jp", "reading", "en", "ex", "exEn", "kanjiStory", "level"],
         properties: {
           jp: { type: "string" },
           reading: { type: "string" },
@@ -128,6 +138,7 @@ const SCHEMA_JLPT = {
           level: { type: "string", enum: ["N5", "N4", "N3", "N2"] },
           conn: { type: "string" },
           ex: { type: "string" },
+          exEn: { type: "string" },
           kanjiStory: { type: "string" },
           oneLiner: { type: "string" },
         },
