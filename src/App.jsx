@@ -588,6 +588,259 @@ function KickerLabel({ children, style }) {
 }
 
 // ─────────── AGGREGATIONS ───────────
+function getDailyStreak(history) {
+  if (!history || history.length === 0) return 0;
+  const days = new Set(history.map(h => new Date(h.date).toDateString()));
+  const today = new Date();
+  const yest = new Date(); yest.setDate(yest.getDate() - 1);
+  const start = days.has(today.toDateString()) ? today : days.has(yest.toDateString()) ? yest : null;
+  if (!start) return 0;
+  let streak = 0;
+  let d = new Date(start);
+  while (days.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+  return streak;
+}
+
+// ─────────── MASTERY RING (animated SVG) ───────────
+function MasteryRing({ pct, size = 68, stroke = 5 }) {
+  const [animatedPct, setAnimatedPct] = useState(0);
+  useEffect(() => {
+    const id = setTimeout(() => setAnimatedPct(Math.max(0, Math.min(100, pct))), 100);
+    return () => clearTimeout(id);
+  }, [pct]);
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const dashOffset = c - (animatedPct / 100) * c;
+  const gradId = `ring-grad-${size}`;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display: "block", overflow: "visible" }}>
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor={C.accent} />
+          <stop offset="100%" stopColor="#7C3AED" />
+        </linearGradient>
+      </defs>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={C.border} strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={`url(#${gradId})`} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={dashOffset} transform={`rotate(-90 ${size / 2} ${size / 2})`} style={{ transition: "stroke-dashoffset 1.1s cubic-bezier(0.2,0.8,0.2,1)" }} />
+    </svg>
+  );
+}
+
+// ─────────── HERO STATS BAR (streak / mastery ring / sessions) ───────────
+function HeroStatsBar({ streak, masteredCount, totalItems, sessions, avg, wide }) {
+  const masteredPct = totalItems > 0 ? Math.round((masteredCount / totalItems) * 100) : 0;
+  const ringSize = wide ? 80 : 72;
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", gap: wide ? 22 : 14, padding: "8px 4px 18px", maxWidth: 480, margin: "0 auto" }}>
+      <div style={{ textAlign: "right", paddingRight: 4 }}>
+        <div style={{ ...KICKER, fontSize: 9, color: C.faint, marginBottom: 6 }}>Streak</div>
+        <div style={{ display: "inline-flex", alignItems: "baseline", gap: 5 }}>
+          <span className={streak > 0 ? "streak-pulse" : ""} style={{ display: "inline-flex", color: streak > 0 ? "#EA580C" : C.faint, alignSelf: "center" }}><IconFlame size={18} /></span>
+          <span className="num counter-tick" style={{ fontSize: wide ? 30 : 26, fontWeight: 300, lineHeight: 1, letterSpacing: "-0.02em", color: streak > 0 ? C.ink : C.faint }}>{streak}</span>
+          <span style={{ ...KICKER, fontSize: 9, color: C.faint }}>d</span>
+        </div>
+      </div>
+      <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div style={{ position: "relative", width: ringSize, height: ringSize }}>
+          <MasteryRing pct={masteredPct} size={ringSize} stroke={5} />
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>
+            <span className="num counter-tick" style={{ fontSize: wide ? 19 : 17, fontWeight: 500, color: C.ink, letterSpacing: "-0.01em" }}>{masteredPct}<span style={{ fontSize: 10, color: C.faint }}>%</span></span>
+            <span style={{ ...KICKER, fontSize: 8, color: C.faint, marginTop: 2 }}>習得</span>
+          </div>
+        </div>
+        <div style={{ ...KICKER, fontSize: 9, color: C.faint, marginTop: 7 }}>
+          <span className="num" style={{ color: C.muted, fontWeight: 600, fontSize: 10 }}>{masteredCount}</span>
+          <span style={{ margin: "0 4px" }}>/</span>
+          <span className="num" style={{ fontSize: 10 }}>{totalItems}</span>
+        </div>
+      </div>
+      <div style={{ paddingLeft: 4 }}>
+        <div style={{ ...KICKER, fontSize: 9, color: C.faint, marginBottom: 6 }}>Sessions</div>
+        <div style={{ display: "inline-flex", alignItems: "baseline", gap: 6 }}>
+          <span className="num counter-tick" style={{ fontSize: wide ? 30 : 26, fontWeight: 300, lineHeight: 1, letterSpacing: "-0.02em", color: C.ink }}>{sessions}</span>
+          {sessions > 0 && <span className="num" style={{ fontSize: 10, color: C.muted, fontWeight: 500, ...KICKER }}>avg {avg}%</span>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────── TODAY'S DRILL BRIEF (combined Configure + Start) ───────────
+function TodayBrief({ filteredCount, numQuestions, setNumQuestions, timerMin, setTimerMin, timerSec, setTimerSec, onStart, selectedCount, totalCats }) {
+  const canStart = filteredCount >= 4;
+  const sliderMin = Math.min(10, filteredCount);
+  const sliderMax = filteredCount;
+  const sliderVal = Math.min(numQuestions, filteredCount);
+  const sliderPct = sliderMax > sliderMin ? ((sliderVal - sliderMin) / (sliderMax - sliderMin)) * 100 : 0;
+  const fmtTime = `${timerMin}:${timerSec.toString().padStart(2, "0")}`;
+  return (
+    <div className="premium-card" style={{
+      background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16,
+      boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 8px 28px -10px rgba(80,60,30,0.10)",
+      overflow: "hidden",
+    }}>
+      <div style={{ padding: "16px 18px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, borderBottom: `1px solid ${C.border}`, background: "linear-gradient(180deg, rgba(188,0,45,0.025) 0%, transparent 100%)" }}>
+        <div>
+          <div style={{ ...KICKER, fontSize: 10, color: C.accent, marginBottom: 5 }}>Today's Drill · 今日の稽古</div>
+          <div className="jp-display" style={{ fontFamily: FONT_JP_DISPLAY, fontSize: 24, fontWeight: 700, color: C.ink, letterSpacing: "0.02em", lineHeight: 1.1 }}>
+            復<span style={{ color: C.accent }}>習</span>テスト
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+          <div style={{ display: "inline-flex", alignItems: "baseline", gap: 4 }}>
+            <span className="num counter-tick" style={{ fontSize: 28, fontWeight: 300, color: C.accent, lineHeight: 1, letterSpacing: "-0.02em" }}>{sliderVal}</span>
+            <span style={{ ...KICKER, fontSize: 9, color: C.faint }}>Q</span>
+          </div>
+          <div className="num" style={{ ...KICKER, fontSize: 10, color: C.muted, display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <IconClock size={11} /> {fmtTime}
+          </div>
+        </div>
+      </div>
+      <div style={{ padding: "14px 18px 6px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
+          <span style={{ ...KICKER, fontSize: 10, color: C.muted }}>Questions</span>
+          <span className="num" style={{ fontSize: 12, fontWeight: 500, color: C.faint }}>
+            <span style={{ color: C.accent, fontWeight: 600 }}>{selectedCount}</span><span style={{ margin: "0 5px" }}>/</span>{totalCats} cats
+          </span>
+        </div>
+        <input
+          type="range" min={sliderMin} max={sliderMax} value={sliderVal}
+          onChange={e => setNumQuestions(Number(e.target.value))}
+          aria-label="Number of questions"
+          style={{
+            width: "100%", cursor: "pointer", height: 4, marginBottom: 2,
+            background: `linear-gradient(to right, ${C.accent} 0%, ${C.accent} ${sliderPct}%, ${C.border} ${sliderPct}%, ${C.border} 100%)`,
+          }}
+        />
+        <div className="num" style={{ display: "flex", justifyContent: "space-between", marginTop: 4, color: C.faint, fontSize: 10 }}>
+          <span>{sliderMin}</span>
+          <span>{sliderMax}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, padding: "10px 12px", background: C.elevated, borderRadius: 8, border: `1px solid ${C.border}` }}>
+          <span style={{ ...KICKER, fontSize: 10, color: C.muted, display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <IconClock size={12} /> Timer
+          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <input type="number" min={0} max={99} value={timerMin} onChange={e => setTimerMin(Math.max(0, Math.min(99, Number(e.target.value) || 0)))} style={numInputStyle} className="num" aria-label="Timer minutes" />
+            <span className="num" style={{ color: C.faint }}>:</span>
+            <input type="number" min={0} max={59} value={timerSec.toString().padStart(2, "0")} onChange={e => setTimerSec(Math.max(0, Math.min(59, Number(e.target.value) || 0)))} style={numInputStyle} className="num" aria-label="Timer seconds" />
+            <span style={{ ...KICKER, fontSize: 9, color: C.faint, marginLeft: 4 }}>· Pass <span className="num" style={{ color: C.ink }}>{PASS_SCORE}%</span></span>
+          </div>
+        </div>
+      </div>
+      <div style={{ padding: "12px 14px 14px" }}>
+        <button onClick={onStart} disabled={!canStart} className={canStart ? "start-mega" : ""} aria-label="Start test" style={{
+          width: "100%", padding: "18px 24px",
+          fontSize: 13, fontWeight: 700, letterSpacing: "0.28em", textTransform: "uppercase",
+          background: canStart ? undefined : C.mutedBg,
+          color: canStart ? "#fff" : C.faint,
+          border: canStart ? "none" : `1px solid ${C.border}`,
+          borderRadius: 12, cursor: canStart ? "pointer" : "not-allowed", fontFamily: FONT_LATIN,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+        }}>
+          <span>Start Test</span>
+          <span className="start-arrow" style={{ fontSize: 18, lineHeight: 1, fontWeight: 400 }}>→</span>
+        </button>
+        {!canStart && <div style={{ padding: "8px 4px 0", textAlign: "center", color: C.muted, fontSize: 11 }}>Select at least 4 items to start</div>}
+      </div>
+    </div>
+  );
+}
+
+// ─────────── HISTORY AREA CHART (smooth sparkline replaces bars) ───────────
+function HistoryArea({ history, onPointClick }) {
+  if (history.length === 0) return null;
+  const recent = history.slice(-12);
+  const offset = history.length - recent.length;
+  const avg = Math.round(history.reduce((s, h) => s + (h.score / h.total) * 100, 0) / history.length);
+  const latest = recent[recent.length - 1];
+  const latestPct = Math.round((latest.score / latest.total) * 100);
+  const prev = recent.length > 1 ? recent[recent.length - 2] : null;
+  const delta = prev ? latestPct - Math.round((prev.score / prev.total) * 100) : 0;
+
+  const W = 340, H = 100, PAD_X = 10, PAD_Y = 12;
+  const xs = recent.map((_, i) => recent.length === 1 ? W / 2 : PAD_X + (i * (W - 2 * PAD_X)) / (recent.length - 1));
+  const ys = recent.map(s => {
+    const p = (s.score / s.total) * 100;
+    return H - PAD_Y - (p / 100) * (H - 2 * PAD_Y);
+  });
+  // Smooth path via cubic bezier midpoints
+  let smoothPath = `M ${xs[0]} ${ys[0]}`;
+  for (let i = 1; i < xs.length; i++) {
+    const cx = (xs[i - 1] + xs[i]) / 2;
+    smoothPath += ` C ${cx} ${ys[i - 1]}, ${cx} ${ys[i]}, ${xs[i]} ${ys[i]}`;
+  }
+  const areaPath = recent.length > 0 ? `${smoothPath} L ${xs[xs.length - 1]} ${H} L ${xs[0]} ${H} Z` : "";
+  const passLineY = H - PAD_Y - (PASS_SCORE / 100) * (H - 2 * PAD_Y);
+
+  const passed = latestPct >= PASS_SCORE;
+  const deltaColor = delta > 0 ? C.pass : delta < 0 ? C.accent : C.muted;
+  const deltaBg = delta > 0 ? C.passSoft : delta < 0 ? C.accentSoft : C.mutedBg;
+  const deltaBorder = delta > 0 ? C.passLine : delta < 0 ? C.accentLine : C.border;
+
+  return (
+    <Card flush>
+      <div style={{ padding: "14px 18px 12px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, borderBottom: `1px solid ${C.border}` }}>
+        <div>
+          <KickerLabel>Score Trend</KickerLabel>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 6 }}>
+            <span className="num counter-tick" style={{ fontSize: 30, fontWeight: 300, color: passed ? C.pass : C.accent, lineHeight: 1, letterSpacing: "-0.02em" }}>
+              {latestPct}<span style={{ fontSize: 14, color: C.faint, marginLeft: 1, fontWeight: 400 }}>%</span>
+            </span>
+            {prev && (
+              <span className="num" style={{ fontSize: 10, color: deltaColor, fontWeight: 700, padding: "3px 8px", background: deltaBg, border: `1px solid ${deltaBorder}`, borderRadius: 5, letterSpacing: "0.04em", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                <span style={{ fontSize: 9 }}>{delta > 0 ? "▲" : delta < 0 ? "▼" : "•"}</span>{Math.abs(delta)}
+              </span>
+            )}
+          </div>
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ ...KICKER, color: C.faint, fontSize: 9 }}>Last {recent.length}</div>
+          <div className="num" style={{ ...KICKER, fontSize: 10, color: C.muted, marginTop: 4 }}>avg {avg}%</div>
+        </div>
+      </div>
+      <div style={{ position: "relative", padding: "8px 0 4px" }}>
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: 100, display: "block" }}>
+          <defs>
+            <linearGradient id="area-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={C.accent} stopOpacity="0.30" />
+              <stop offset="60%" stopColor={C.accent} stopOpacity="0.10" />
+              <stop offset="100%" stopColor={C.accent} stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="line-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#7C3AED" />
+              <stop offset="55%" stopColor={C.accentHi} />
+              <stop offset="100%" stopColor={C.accent} />
+            </linearGradient>
+          </defs>
+          <line x1={PAD_X} x2={W - PAD_X} y1={passLineY} y2={passLineY} stroke={C.passLine} strokeWidth="1" strokeDasharray="3 4" />
+          <text x={W - PAD_X - 2} y={passLineY - 4} textAnchor="end" fontSize="9" fill={C.pass} fontFamily="JetBrains Mono, monospace" opacity="0.7">{PASS_SCORE}%</text>
+          {recent.length > 1 && (
+            <>
+              <path d={areaPath} fill="url(#area-grad)" style={{ animation: "fadeIn 0.7s ease 0.4s both" }} />
+              <path d={smoothPath} stroke="url(#line-grad)" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ strokeDasharray: 800, strokeDashoffset: 800, animation: "drawPath 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s forwards", "--len": 800 }} />
+            </>
+          )}
+          {recent.map((s, i) => {
+            const pct = Math.round((s.score / s.total) * 100);
+            const isPassed = pct >= PASS_SCORE;
+            const hasDetail = s.wrongList && s.wrongList.length > 0;
+            const isLatest = i === xs.length - 1;
+            return (
+              <g key={i} onClick={() => hasDetail && onPointClick(offset + i)} style={{ cursor: hasDetail ? "pointer" : "default" }}>
+                {isLatest && <circle cx={xs[i]} cy={ys[i]} r="7" fill={isPassed ? C.pass : C.accent} opacity="0.18" style={{ animation: "pulse 2s ease-in-out infinite" }} />}
+                <circle cx={xs[i]} cy={ys[i]} r={isLatest ? 4 : 2.6} fill={isPassed ? C.pass : C.accent} stroke="#fff" strokeWidth={isLatest ? 2 : 1.5} style={{ animation: `popIn 0.45s cubic-bezier(0.2,0.8,0.2,1) ${0.55 + i * 0.04}s both` }}>
+                  <title>{`${pct}%${hasDetail ? " · click for detail" : ""}`}</title>
+                </circle>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    </Card>
+  );
+}
+
 function getMostMistaken(history) {
   const counts = {};
   history.forEach(s => {
@@ -1695,20 +1948,21 @@ export default function App() {
         </div>
       </button>
     );
+    const dailyStreak = getDailyStreak(history);
     return (
-      <div style={PAGE}>
+      <div style={{ ...PAGE, overflow: "hidden" }}>
+        <div className="page-watermark" aria-hidden="true">道</div>
+        <div style={{ position: "relative", zIndex: 1 }}>
         {/* HEADER */}
-        <div style={{ position: "absolute", top: wide ? 32 : 18, right: wide ? 40 : 18, zIndex: 5 }}>
+        <div style={{ position: "absolute", top: wide ? 0 : 0, right: 0, zIndex: 5 }}>
           <AccountChip session={session} onClick={() => setAuthOpen(true)} />
         </div>
-        <header style={{ textAlign: "center", marginBottom: wide ? 32 : 24, paddingTop: 4 }}>
-          <div className="logo-wrap logo-wrap--light" role="button" tabIndex={0} aria-label="日本語道場" style={{ width: wide ? 300 : 240, height: wide ? 300 : 240, margin: "0 auto 10px" }}>
+        <header style={{ textAlign: "center", marginBottom: wide ? 18 : 14, paddingTop: 4 }}>
+          <div className="logo-wrap logo-wrap--light" role="button" tabIndex={0} aria-label="日本語道場" style={{ width: wide ? 220 : 180, height: wide ? 220 : 180, margin: "0 auto 4px" }}>
             <img className="logo-img" src="/logo.png" alt="日本語道場" style={{ width: "100%", height: "100%", clipPath: "circle(40% at 50% 50%)" }} />
             <svg className="logo-ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="58" /></svg>
           </div>
-          <div style={{ ...KICKER, color: C.faint, marginTop: 6 }}>
-            N2 / N1 · {totalItems} items{history.length > 0 ? ` · ${history.length} tests · avg ${avg}%` : ""}
-          </div>
+          <HeroStatsBar streak={dailyStreak} masteredCount={masteredCount} totalItems={totalItems} sessions={history.length} avg={avg} wide={wide} />
         </header>
 
         {bookmarks.size > 0 && (() => {
@@ -1852,9 +2106,9 @@ export default function App() {
                 const isSingle = group.cats.length <= 1;
                 return (
                   <div key={gi} style={{ gridColumn: expanded ? "1 / -1" : "auto", minWidth: 0 }}>
-                    <button onClick={toggleGroup} className="btn-hover" style={{
+                    <button onClick={toggleGroup} className="cat-tile" style={{
                       width: "100%", display: "flex", alignItems: "center", gap: 6, cursor: "pointer",
-                      padding: "10px 10px", borderRadius: 8, textAlign: "left",
+                      padding: "11px 11px 11px 13px", borderRadius: 10, textAlign: "left",
                       background: allOn ? C.accentSoft : someOn ? "rgba(188,0,45,0.04)" : C.mutedBg,
                       border: `1px solid ${allOn ? C.accentLine : someOn ? "rgba(188,0,45,0.15)" : C.border}`,
                       color: allOn ? C.ink : someOn ? C.inkDim : C.inkDim
@@ -1895,73 +2149,27 @@ export default function App() {
           {wide && indexCard}
           </div>
 
-          {/* CONFIGURE + START */}
+          {/* TODAY'S BRIEF (combined Configure + Start) */}
           <div>
-            <Card flush>
-              <div style={{ padding: "14px 18px", borderBottom: `1px solid ${C.border}` }}>
-                <KickerLabel>Configure</KickerLabel>
-              </div>
-              <div style={{ padding: "16px 18px" }}>
-                <Row label="Questions">
-                  <input type="number" min={Math.min(10, filteredCount)} max={filteredCount} value={Math.min(numQuestions, filteredCount)} onChange={e => { const v = Number(e.target.value); if (v >= 1 && v <= filteredCount) setNumQuestions(v); }} style={numInputStyle} className="num" />
-                </Row>
-                {(() => {
-                  const sMin = Math.min(10, filteredCount);
-                  const sMax = filteredCount;
-                  const sVal = Math.min(numQuestions, filteredCount);
-                  const pct = sMax > sMin ? ((sVal - sMin) / (sMax - sMin)) * 100 : 0;
-                  return (
-                    <input
-                      type="range" min={sMin} max={sMax} value={sVal}
-                      onChange={e => setNumQuestions(Number(e.target.value))}
-                      style={{
-                        width: "100%", cursor: "pointer", marginTop: 4, height: 4,
-                        background: `linear-gradient(to right, ${C.accent} 0%, ${C.accent} ${pct}%, ${C.border} ${pct}%, ${C.border} 100%)`,
-                      }}
-                    />
-                  );
-                })()}
-                <div className="num" style={{ display: "flex", justifyContent: "space-between", marginTop: 4, color: C.faint, fontSize: 10 }}>
-                  <span>{Math.min(10, filteredCount)}</span>
-                  <span>{filteredCount}</span>
-                </div>
-
-                <div style={{ height: 1, background: C.border, margin: "16px 0" }} />
-
-                <Row label="Timer">
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <input type="number" min={0} max={99} value={timerMin} onChange={e => setTimerMin(Math.max(0, Math.min(99, Number(e.target.value) || 0)))} style={numInputStyle} className="num" />
-                    <span className="num" style={{ color: C.faint }}>:</span>
-                    <input type="number" min={0} max={59} value={timerSec.toString().padStart(2, "0")} onChange={e => setTimerSec(Math.max(0, Math.min(59, Number(e.target.value) || 0)))} style={numInputStyle} className="num" />
-                  </div>
-                </Row>
-
-                <div style={{ height: 1, background: C.border, margin: "16px 0" }} />
-
-                <Row label="Pass">
-                  <span className="num" style={{ color: C.ink, fontSize: 15 }}>{PASS_SCORE}%</span>
-                </Row>
-              </div>
-            </Card>
-
-            <button onClick={startQuiz} disabled={filteredCount < 4} className={filteredCount >= 4 ? "btn-hover" : ""} style={{
-              width: "100%", marginTop: 12, padding: "16px 20px",
-              fontSize: 14, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase",
-              background: filteredCount >= 4 ? C.accent : C.mutedBg,
-              color: filteredCount >= 4 ? "#fff" : C.faint,
-              border: `1px solid ${filteredCount >= 4 ? C.accent : C.border}`,
-              borderRadius: 10, cursor: filteredCount >= 4 ? "pointer" : "not-allowed",
-              fontFamily: FONT_LATIN,
-            }} onMouseEnter={e => { if (filteredCount >= 4) e.currentTarget.style.background = C.accentHi; }} onMouseLeave={e => { if (filteredCount >= 4) e.currentTarget.style.background = C.accent; }}>
-              Start Test
-            </button>
-            {!wide && indexCard}
+            <TodayBrief
+              filteredCount={filteredCount}
+              numQuestions={numQuestions}
+              setNumQuestions={setNumQuestions}
+              timerMin={timerMin}
+              setTimerMin={setTimerMin}
+              timerSec={timerSec}
+              setTimerSec={setTimerSec}
+              onStart={startQuiz}
+              selectedCount={selectedCats.length}
+              totalCats={Object.keys(CATEGORIES).length}
+            />
+            {!wide && <div style={{ marginTop: 14 }}>{indexCard}</div>}
           </div>
         </div>
 
         {/* HISTORY + LEADERBOARD */}
         <div style={{ ...(wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, alignItems: "start" } : {}), marginTop: 18, display: wide ? "grid" : "flex", flexDirection: wide ? undefined : "column", gap: wide ? 18 : 14 }}>
-          <HistoryChart history={history} onBarClick={(idx) => setHistoryModal(history[idx])} />
+          <HistoryArea history={history} onPointClick={(idx) => setHistoryModal(history[idx])} />
           <Leaderboard history={history} />
         </div>
 
@@ -1975,6 +2183,7 @@ export default function App() {
             setCustomCreateOpen(false); setCustomOpen(true);
           }}
         />}
+        </div>
       </div>
     );
   }
