@@ -2200,8 +2200,8 @@ export default function App() {
         {/* HEADER — theme toggle + account chip */}
         <div style={{ position: "absolute", top: 0, right: 0, zIndex: 5, display: "inline-flex", alignItems: "center", gap: 8 }}>
           <button onClick={() => setLight(l => !l)} className="theme-toggle" aria-label={light ? "Switch to dark mode" : "Switch to light mode"} title={light ? "Switch to dark mode" : "Switch to light mode"}>
-            <span style={{ fontSize: 13 }}>{light ? "☾" : "☀"}</span>
-            <span>{light ? "Dark" : "Light"}</span>
+            <span style={{ fontSize: 14 }}>{light ? "☾" : "☀"}</span>
+            <span className="toggle-label">{light ? "Dark" : "Light"}</span>
           </button>
           <AccountChip session={session} onClick={() => setAuthOpen(true)} />
         </div>
@@ -2328,7 +2328,7 @@ export default function App() {
           <div>
           <div className="glass" style={{ borderRadius: 16, overflow: "hidden" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 18px", borderBottom: "1px solid var(--hairline)" }}>
-              <span style={{ ...KICKER, color: "var(--kanji-tint)", letterSpacing: "0.22em" }}>\u5206\u91ce \u00b7 CATEGORIES</span>
+              <span style={{ ...KICKER, color: "var(--kanji-tint)", letterSpacing: "0.22em" }}>{"\u5206\u91ce \u00b7 CATEGORIES"}</span>
               <div style={{ display: "flex", gap: 6 }}>
                 <button onClick={() => setSelectedCats(Object.keys(CATEGORIES))} className="btn-hover" style={{ background: "rgba(244,58,92,0.18)", color: "#F87171", border: "1px solid rgba(244,58,92,0.40)", borderRadius: 6, padding: "5px 10px", fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", fontFamily: FONT_LATIN }}>All</button>
                 <button onClick={() => setSelectedCats([])} className="btn-hover" style={{ background: "transparent", color: "var(--muted)", border: "1px solid var(--hairline-strong)", borderRadius: 6, padding: "5px 10px", fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", fontFamily: FONT_LATIN }}>None</button>
@@ -2495,34 +2495,36 @@ export default function App() {
   const timerTotal = timerMin * 60 + timerSec;
   const timerWarn = timerTotal > 0 && timeLeft < Math.min(120, timerTotal * 0.15);
   return (
-    <div style={PAGE}>
+    <div className="aurora-root" style={{ ...PAGE, color: "var(--ink)", overflow: "hidden", minHeight: "100dvh" }}>
+      {!light && <AuroraBackdrop />}
+      <div style={{ position: "relative", zIndex: 1 }}>
       {/* TOP BAR */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-        <button onClick={() => { setTimerActive(false); setScreen("results"); }} className="btn-hover" style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", padding: "7px 12px", borderRadius: 8, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }}>
+        <button onClick={() => { setTimerActive(false); setScreen("results"); }} className="btn-hover" style={{ background: "transparent", border: "1px solid var(--hairline-strong)", color: "var(--muted)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", padding: "7px 12px", borderRadius: 8, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }}>
           <IconArrowL size={12} /> End
         </button>
-        <div className="num" style={{ color: timerWarn ? C.accent : C.ink, fontSize: 18, fontWeight: 400, display: "inline-flex", alignItems: "center", gap: 8, animation: timerWarn ? "pulse 1s infinite" : "none" }}>
-          <IconClock size={14} style={{ color: timerWarn ? C.accent : C.muted }} /> {formatTime(timeLeft)}
+        <div className="num" style={{ color: timerWarn ? "var(--accent-strong)" : "var(--ink)", fontSize: 18, fontWeight: 400, display: "inline-flex", alignItems: "center", gap: 8, animation: timerWarn ? "pulse 1s infinite" : "none" }}>
+          <IconClock size={14} style={{ color: timerWarn ? "var(--accent-strong)" : "var(--muted)" }} /> {formatTime(timeLeft)}
         </div>
-        <div className="num" style={{ color: C.inkDim, fontSize: 13, fontWeight: 400 }}>
-          {(current + 1).toString().padStart(2, "0")} <span style={{ color: C.faint }}>/</span> {questions.length.toString().padStart(2, "0")}
+        <div className="num" style={{ color: "var(--ink-dim)", fontSize: 13, fontWeight: 400 }}>
+          {(current + 1).toString().padStart(2, "0")} <span style={{ color: "var(--faint)" }}>/</span> {questions.length.toString().padStart(2, "0")}
         </div>
       </div>
 
       {/* PROGRESS BAR */}
-      <div style={{ height: 2, background: C.border, borderRadius: 1, marginBottom: 14, overflow: "hidden" }}>
-        <div className="progress-shine" style={{ height: "100%", width: `${progress}%`, background: C.accent, transition: "width 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)" }} />
+      <div style={{ height: 2, background: "var(--hairline-strong)", borderRadius: 1, marginBottom: 14, overflow: "hidden" }}>
+        <div className="progress-shine" style={{ height: "100%", width: `${progress}%`, background: "var(--accent-strong)", transition: "width 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)" }} />
       </div>
 
       {/* SCORE LINE */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <div className="num" style={{ color: C.muted, fontSize: 12 }}>
-          <span style={{ color: C.ink }}>{score}</span>
-          <span style={{ color: C.faint }}>/{total}</span>
-          {total > 0 && <span style={{ marginLeft: 10, color: C.faint }}>{Math.round((score / total) * 100)}%</span>}
+        <div className="num" style={{ color: "var(--muted)", fontSize: 12 }}>
+          <span style={{ color: "var(--ink)" }}>{score}</span>
+          <span style={{ color: "var(--faint)" }}>/{total}</span>
+          {total > 0 && <span style={{ marginLeft: 10, color: "var(--faint)" }}>{Math.round((score / total) * 100)}%</span>}
         </div>
         {streak > 2 && (
-          <div className="pop-in" key={`streak-${streak}`} style={{ color: C.accent, fontSize: 12, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <div className="pop-in" key={`streak-${streak}`} style={{ color: "var(--accent-strong)", fontSize: 12, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 5 }}>
             <span className="flame-flicker" style={{ lineHeight: 1 }}><IconFlame size={13} /></span> <span className="num">{streak}</span>
           </div>
         )}
@@ -2862,13 +2864,14 @@ export default function App() {
             )}
 
             {wide && (
-              <div style={{ textAlign: "center", marginTop: 18, ...KICKER, color: C.faint, fontSize: 10 }}>
+              <div style={{ textAlign: "center", marginTop: 18, ...KICKER, color: "var(--faint)", fontSize: 10 }}>
                 <kbd>1&ndash;4</kbd> answer · <kbd>Space</kbd> hear · <kbd>Enter</kbd> continue
               </div>
             )}
           </>
         );
       })()}
+      </div>
     </div>
   );
 }
