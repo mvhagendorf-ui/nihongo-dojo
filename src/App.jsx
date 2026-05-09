@@ -587,6 +587,150 @@ function KickerLabel({ children, style }) {
   return <div style={{ ...KICKER, ...style }}>{children}</div>;
 }
 
+// ─────────── AURORA BACKDROP — full-bleed gradient mesh that drifts behind menu ───────────
+function AuroraBackdrop() {
+  return (
+    <>
+      <div className="aurora-bg" aria-hidden="true">
+        <div className="aurora-blob a" />
+        <div className="aurora-blob b" />
+        <div className="aurora-blob c" />
+      </div>
+      <div className="aurora-grain" aria-hidden="true" />
+    </>
+  );
+}
+
+// ─────────── JST CLOCK — live Tokyo time with weekday in JP ───────────
+function JSTClock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Tokyo", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+  const parts = fmt.formatToParts(now);
+  const get = (t) => parts.find(p => p.type === t)?.value || "";
+  const hh = get("hour"), mm = get("minute"), ss = get("second");
+  const wdJp = ["日","月","火","水","木","金","土"];
+  const tokyoDay = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+  const wd = wdJp[tokyoDay.getDay()];
+  return (
+    <span className="jst-clock">
+      <span style={{ color: "rgba(255,255,255,0.55)", fontSize: 10 }}>東京 · {wd}</span>
+      <span>{hh}:{mm}<span className="sec">:{ss}</span></span>
+      <span style={{ color: "rgba(255,255,255,0.55)", fontSize: 10 }}>JST</span>
+    </span>
+  );
+}
+
+// ─────────── HERO DISPLAY — massive 道場 kanji + ribbon + JST clock ───────────
+function HeroDisplay({ wide }) {
+  return (
+    <div style={{ textAlign: "center", padding: wide ? "24px 0 18px" : "16px 0 12px", position: "relative" }}>
+      <div className="hero-ribbon" style={{ marginBottom: 16 }}>
+        <span className="live-dot" />
+        <span>道場</span>
+        <span style={{ opacity: 0.5 }}>·</span>
+        <span>DOJO</span>
+        <span style={{ opacity: 0.5 }}>·</span>
+        <JSTClock />
+      </div>
+      <div style={{ position: "relative", display: "inline-block" }}>
+        <div className="hero-kanji" style={{ position: "relative" }}>道場</div>
+      </div>
+      <div className="jp-display" style={{ marginTop: 8, fontFamily: FONT_JP_DISPLAY, fontSize: wide ? 18 : 15, color: "rgba(255,255,255,0.65)", letterSpacing: "0.32em", fontWeight: 500, textTransform: "uppercase" }}>
+        日本語 <span style={{ color: "#F43A5C" }}>·</span> NIHONGO TRAINING HALL
+      </div>
+    </div>
+  );
+}
+
+// ─────────── ACTIVITY RINGS — Apple-fitness triple ring (streak / mastery / accuracy) ───────────
+function ActivityRings({ streak, masteredPct, accuracyPct, size = 200 }) {
+  const [animated, setAnimated] = useState({ streak: 0, mastery: 0, accuracy: 0 });
+  useEffect(() => {
+    const id = setTimeout(() => setAnimated({
+      streak: Math.min(100, (streak / 7) * 100),
+      mastery: Math.max(0, Math.min(100, masteredPct)),
+      accuracy: Math.max(0, Math.min(100, accuracyPct)),
+    }), 120);
+    return () => clearTimeout(id);
+  }, [streak, masteredPct, accuracyPct]);
+  const stroke = 12;
+  const cx = size / 2, cy = size / 2;
+  const ring = (r, pct, color, glow) => {
+    const c = 2 * Math.PI * r;
+    const offset = c - (pct / 100) * c;
+    return (
+      <>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={stroke} />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={offset} transform={`rotate(-90 ${cx} ${cy})`} style={{ transition: "stroke-dashoffset 1.4s cubic-bezier(0.2,0.8,0.2,1)", filter: glow }} />
+      </>
+    );
+  };
+  const r1 = (size - stroke) / 2;
+  const r2 = r1 - stroke - 6;
+  const r3 = r2 - stroke - 6;
+  return (
+    <div className="ring-stack" style={{ width: size, height: size }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ overflow: "visible" }}>
+        <defs>
+          <linearGradient id="ring-streak" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#FB923C" />
+            <stop offset="100%" stopColor="#F43A5C" />
+          </linearGradient>
+          <linearGradient id="ring-mastery" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#7C3AED" />
+            <stop offset="100%" stopColor="#D91840" />
+          </linearGradient>
+          <linearGradient id="ring-accuracy" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#34D399" />
+            <stop offset="100%" stopColor="#06B6D4" />
+          </linearGradient>
+        </defs>
+        {ring(r1, animated.streak,   "url(#ring-streak)",   "drop-shadow(0 0 8px rgba(244,58,92,0.55))")}
+        {ring(r2, animated.mastery,  "url(#ring-mastery)",  "drop-shadow(0 0 8px rgba(124,58,237,0.55))")}
+        {ring(r3, animated.accuracy, "url(#ring-accuracy)", "drop-shadow(0 0 8px rgba(52,211,153,0.55))")}
+      </svg>
+      <div className="label-center">
+        <div style={{ fontFamily: FONT_JP_DISPLAY, fontSize: size * 0.18, fontWeight: 800, color: "#fff", letterSpacing: "0.04em", lineHeight: 1 }}>{masteredPct}<span style={{ fontSize: size * 0.08, color: "rgba(255,255,255,0.55)", marginLeft: 2 }}>%</span></div>
+        <div style={{ ...KICKER, fontSize: 9, color: "rgba(255,255,255,0.55)", marginTop: 4 }}>習得 · MASTERY</div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────── ACTIVITY LEGEND — labels + values for the three rings ───────────
+function ActivityLegend({ streak, masteredCount, totalItems, accuracyPct, sessions }) {
+  const items = [
+    { kicker: "Streak", val: streak, suffix: "d", color: "#FB923C", icon: <IconFlame size={12} /> },
+    { kicker: "Mastery", val: masteredCount, suffix: `/ ${totalItems}`, color: "#A78BFA", icon: null },
+    { kicker: "Accuracy", val: accuracyPct, suffix: "%", color: "#34D399", icon: null },
+    { kicker: "Sessions", val: sessions, suffix: "", color: "rgba(255,255,255,0.92)", icon: null },
+  ];
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, marginTop: 14 }}>
+      {items.map((it, i) => (
+        <div key={i} style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "10px 12px", borderRadius: 10,
+          background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
+        }}>
+          <span style={{ ...KICKER, fontSize: 9, color: "rgba(255,255,255,0.55)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+            {it.icon && <span style={{ color: it.color }}>{it.icon}</span>}
+            {it.kicker}
+          </span>
+          <span className="num" style={{ display: "inline-flex", alignItems: "baseline", gap: 4, color: it.color, fontWeight: 600 }}>
+            <span style={{ fontSize: 18, lineHeight: 1, letterSpacing: "-0.02em" }}>{it.val}</span>
+            {it.suffix && <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 400 }}>{it.suffix}</span>}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ─────────── AGGREGATIONS ───────────
 function getDailyStreak(history) {
   if (!history || history.length === 0) return 0;
@@ -665,7 +809,7 @@ function HeroStatsBar({ streak, masteredCount, totalItems, sessions, avg, wide }
   );
 }
 
-// ─────────── TODAY'S DRILL BRIEF (combined Configure + Start) ───────────
+// ─────────── TODAY'S DRILL BRIEF (glass-dark, bigger CTA) ───────────
 function TodayBrief({ filteredCount, numQuestions, setNumQuestions, timerMin, setTimerMin, timerSec, setTimerSec, onStart, selectedCount, totalCats }) {
   const canStart = filteredCount >= 4;
   const sliderMin = Math.min(10, filteredCount);
@@ -673,34 +817,33 @@ function TodayBrief({ filteredCount, numQuestions, setNumQuestions, timerMin, se
   const sliderVal = Math.min(numQuestions, filteredCount);
   const sliderPct = sliderMax > sliderMin ? ((sliderVal - sliderMin) / (sliderMax - sliderMin)) * 100 : 0;
   const fmtTime = `${timerMin}:${timerSec.toString().padStart(2, "0")}`;
+  const TXT = { primary: "#FBF7F1", secondary: "rgba(255,255,255,0.72)", muted: "rgba(255,255,255,0.55)", faint: "rgba(255,255,255,0.4)" };
+  const numStyle = { ...numInputStyle, background: "rgba(0,0,0,0.30)", border: "1px solid rgba(255,255,255,0.14)", color: TXT.primary };
   return (
-    <div className="premium-card" style={{
-      background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16,
-      boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 8px 28px -10px rgba(80,60,30,0.10)",
-      overflow: "hidden",
-    }}>
-      <div style={{ padding: "16px 18px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, borderBottom: `1px solid ${C.border}`, background: "linear-gradient(180deg, rgba(188,0,45,0.025) 0%, transparent 100%)" }}>
+    <div className="glass-strong" style={{ borderRadius: 20, overflow: "hidden" }}>
+      <div style={{ padding: "20px 22px 18px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, borderBottom: "1px solid rgba(255,255,255,0.08)", background: "linear-gradient(135deg, rgba(188,0,45,0.20) 0%, rgba(124,58,237,0.10) 100%)" }}>
         <div>
-          <div style={{ ...KICKER, fontSize: 10, color: C.accent, marginBottom: 5 }}>Today's Drill · 今日の稽古</div>
-          <div className="jp-display" style={{ fontFamily: FONT_JP_DISPLAY, fontSize: 24, fontWeight: 700, color: C.ink, letterSpacing: "0.02em", lineHeight: 1.1 }}>
-            復<span style={{ color: C.accent }}>習</span>テスト
+          <div style={{ ...KICKER, fontSize: 10, color: "#FCA5A5", marginBottom: 6, letterSpacing: "0.22em" }}>稽古 · TODAY'S DRILL</div>
+          <div className="jp-display" style={{ fontFamily: FONT_JP_DISPLAY, fontSize: 36, fontWeight: 800, color: TXT.primary, letterSpacing: "0.02em", lineHeight: 1.05 }}>
+            復<span style={{ background: "linear-gradient(135deg, #F43A5C, #BC002D)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>習</span>テスト
           </div>
+          <div style={{ marginTop: 6, fontSize: 12, color: TXT.muted, letterSpacing: "0.04em" }}>Pull-up review · weighted by errors + recency</div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
           <div style={{ display: "inline-flex", alignItems: "baseline", gap: 4 }}>
-            <span className="num counter-tick" style={{ fontSize: 28, fontWeight: 300, color: C.accent, lineHeight: 1, letterSpacing: "-0.02em" }}>{sliderVal}</span>
-            <span style={{ ...KICKER, fontSize: 9, color: C.faint }}>Q</span>
+            <span className="num counter-tick" style={{ fontSize: 44, fontWeight: 300, color: "#fff", lineHeight: 1, letterSpacing: "-0.03em", textShadow: "0 4px 18px rgba(244,58,92,0.55)" }}>{sliderVal}</span>
+            <span style={{ ...KICKER, fontSize: 10, color: TXT.faint }}>Q</span>
           </div>
-          <div className="num" style={{ ...KICKER, fontSize: 10, color: C.muted, display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <div className="num" style={{ ...KICKER, fontSize: 10, color: TXT.muted, display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 10px", background: "rgba(0,0,0,0.25)", borderRadius: 100, border: "1px solid rgba(255,255,255,0.10)" }}>
             <IconClock size={11} /> {fmtTime}
           </div>
         </div>
       </div>
-      <div style={{ padding: "14px 18px 6px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
-          <span style={{ ...KICKER, fontSize: 10, color: C.muted }}>Questions</span>
-          <span className="num" style={{ fontSize: 12, fontWeight: 500, color: C.faint }}>
-            <span style={{ color: C.accent, fontWeight: 600 }}>{selectedCount}</span><span style={{ margin: "0 5px" }}>/</span>{totalCats} cats
+      <div style={{ padding: "16px 22px 8px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 9 }}>
+          <span style={{ ...KICKER, fontSize: 10, color: TXT.muted }}>Question Count</span>
+          <span className="num" style={{ fontSize: 12, fontWeight: 500, color: TXT.faint }}>
+            <span style={{ color: "#F43A5C", fontWeight: 600 }}>{selectedCount}</span><span style={{ margin: "0 5px" }}>/</span>{totalCats} cats
           </span>
         </div>
         <input
@@ -709,39 +852,37 @@ function TodayBrief({ filteredCount, numQuestions, setNumQuestions, timerMin, se
           aria-label="Number of questions"
           style={{
             width: "100%", cursor: "pointer", height: 4, marginBottom: 2,
-            background: `linear-gradient(to right, ${C.accent} 0%, ${C.accent} ${sliderPct}%, ${C.border} ${sliderPct}%, ${C.border} 100%)`,
+            background: `linear-gradient(to right, #F43A5C 0%, #BC002D ${sliderPct}%, rgba(255,255,255,0.12) ${sliderPct}%, rgba(255,255,255,0.12) 100%)`,
           }}
         />
-        <div className="num" style={{ display: "flex", justifyContent: "space-between", marginTop: 4, color: C.faint, fontSize: 10 }}>
+        <div className="num" style={{ display: "flex", justifyContent: "space-between", marginTop: 4, color: TXT.faint, fontSize: 10 }}>
           <span>{sliderMin}</span>
           <span>{sliderMax}</span>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, padding: "10px 12px", background: C.elevated, borderRadius: 8, border: `1px solid ${C.border}` }}>
-          <span style={{ ...KICKER, fontSize: 10, color: C.muted, display: "inline-flex", alignItems: "center", gap: 6 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16, padding: "12px 14px", background: "rgba(0,0,0,0.25)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)" }}>
+          <span style={{ ...KICKER, fontSize: 10, color: TXT.muted, display: "inline-flex", alignItems: "center", gap: 6 }}>
             <IconClock size={12} /> Timer
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <input type="number" min={0} max={99} value={timerMin} onChange={e => setTimerMin(Math.max(0, Math.min(99, Number(e.target.value) || 0)))} style={numInputStyle} className="num" aria-label="Timer minutes" />
-            <span className="num" style={{ color: C.faint }}>:</span>
-            <input type="number" min={0} max={59} value={timerSec.toString().padStart(2, "0")} onChange={e => setTimerSec(Math.max(0, Math.min(59, Number(e.target.value) || 0)))} style={numInputStyle} className="num" aria-label="Timer seconds" />
-            <span style={{ ...KICKER, fontSize: 9, color: C.faint, marginLeft: 4 }}>· Pass <span className="num" style={{ color: C.ink }}>{PASS_SCORE}%</span></span>
+            <input type="number" min={0} max={99} value={timerMin} onChange={e => setTimerMin(Math.max(0, Math.min(99, Number(e.target.value) || 0)))} style={numStyle} className="num" aria-label="Timer minutes" />
+            <span className="num" style={{ color: TXT.faint }}>:</span>
+            <input type="number" min={0} max={59} value={timerSec.toString().padStart(2, "0")} onChange={e => setTimerSec(Math.max(0, Math.min(59, Number(e.target.value) || 0)))} style={numStyle} className="num" aria-label="Timer seconds" />
+            <span style={{ ...KICKER, fontSize: 9, color: TXT.faint, marginLeft: 4 }}>· Pass <span className="num" style={{ color: TXT.primary }}>{PASS_SCORE}%</span></span>
           </div>
         </div>
       </div>
-      <div style={{ padding: "12px 14px 14px" }}>
-        <button onClick={onStart} disabled={!canStart} className={canStart ? "start-mega" : ""} aria-label="Start test" style={{
-          width: "100%", padding: "18px 24px",
-          fontSize: 13, fontWeight: 700, letterSpacing: "0.28em", textTransform: "uppercase",
-          background: canStart ? undefined : C.mutedBg,
-          color: canStart ? "#fff" : C.faint,
-          border: canStart ? "none" : `1px solid ${C.border}`,
-          borderRadius: 12, cursor: canStart ? "pointer" : "not-allowed", fontFamily: FONT_LATIN,
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+      <div style={{ padding: "14px 16px 18px" }}>
+        <button onClick={onStart} disabled={!canStart} className="mega-cta" aria-label="Start test" style={{
+          width: "100%", padding: "22px 26px",
+          fontSize: 15, fontWeight: 800, letterSpacing: "0.32em", textTransform: "uppercase",
+          borderRadius: 14, cursor: canStart ? "pointer" : "not-allowed", fontFamily: FONT_LATIN,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 14,
         }}>
-          <span>Start Test</span>
-          <span className="start-arrow" style={{ fontSize: 18, lineHeight: 1, fontWeight: 400 }}>→</span>
+          <span style={{ ...KICKER, fontSize: 9, color: "rgba(255,255,255,0.65)", letterSpacing: "0.32em" }}>始</span>
+          <span style={{ position: "relative", zIndex: 1 }}>Begin Drill</span>
+          <span className="start-arrow" style={{ fontSize: 22, lineHeight: 1, fontWeight: 400, position: "relative", zIndex: 1 }}>→</span>
         </button>
-        {!canStart && <div style={{ padding: "8px 4px 0", textAlign: "center", color: C.muted, fontSize: 11 }}>Select at least 4 items to start</div>}
+        {!canStart && <div style={{ padding: "8px 4px 0", textAlign: "center", color: TXT.muted, fontSize: 11 }}>Select at least 4 items to start</div>}
       </div>
     </div>
   );
@@ -778,47 +919,48 @@ function HistoryArea({ history, onPointClick }) {
   const deltaBg = delta > 0 ? C.passSoft : delta < 0 ? C.accentSoft : C.mutedBg;
   const deltaBorder = delta > 0 ? C.passLine : delta < 0 ? C.accentLine : C.border;
 
+  const TXT = { primary: "#FBF7F1", secondary: "rgba(255,255,255,0.72)", muted: "rgba(255,255,255,0.55)", faint: "rgba(255,255,255,0.4)" };
   return (
-    <Card flush>
-      <div style={{ padding: "14px 18px 12px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, borderBottom: `1px solid ${C.border}` }}>
+    <div className="glass" style={{ borderRadius: 18, overflow: "hidden" }}>
+      <div style={{ padding: "16px 20px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <div>
-          <KickerLabel>Score Trend</KickerLabel>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 6 }}>
-            <span className="num counter-tick" style={{ fontSize: 30, fontWeight: 300, color: passed ? C.pass : C.accent, lineHeight: 1, letterSpacing: "-0.02em" }}>
-              {latestPct}<span style={{ fontSize: 14, color: C.faint, marginLeft: 1, fontWeight: 400 }}>%</span>
+          <div style={{ ...KICKER, fontSize: 9, color: "#A78BFA", letterSpacing: "0.22em" }}>軌跡 · SCORE TREND</div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 8 }}>
+            <span className="num counter-tick" style={{ fontSize: 38, fontWeight: 300, color: passed ? "#34D399" : "#F43A5C", lineHeight: 1, letterSpacing: "-0.03em", textShadow: passed ? "0 4px 16px rgba(52,211,153,0.4)" : "0 4px 16px rgba(244,58,92,0.4)" }}>
+              {latestPct}<span style={{ fontSize: 16, color: TXT.faint, marginLeft: 1, fontWeight: 400 }}>%</span>
             </span>
             {prev && (
-              <span className="num" style={{ fontSize: 10, color: deltaColor, fontWeight: 700, padding: "3px 8px", background: deltaBg, border: `1px solid ${deltaBorder}`, borderRadius: 5, letterSpacing: "0.04em", display: "inline-flex", alignItems: "center", gap: 3 }}>
+              <span className="num" style={{ fontSize: 10, color: delta > 0 ? "#34D399" : delta < 0 ? "#F43A5C" : TXT.muted, fontWeight: 700, padding: "4px 10px", background: delta > 0 ? "rgba(52,211,153,0.15)" : delta < 0 ? "rgba(244,58,92,0.15)" : "rgba(255,255,255,0.08)", border: `1px solid ${delta > 0 ? "rgba(52,211,153,0.35)" : delta < 0 ? "rgba(244,58,92,0.35)" : "rgba(255,255,255,0.12)"}`, borderRadius: 100, letterSpacing: "0.04em", display: "inline-flex", alignItems: "center", gap: 4 }}>
                 <span style={{ fontSize: 9 }}>{delta > 0 ? "▲" : delta < 0 ? "▼" : "•"}</span>{Math.abs(delta)}
               </span>
             )}
           </div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ ...KICKER, color: C.faint, fontSize: 9 }}>Last {recent.length}</div>
-          <div className="num" style={{ ...KICKER, fontSize: 10, color: C.muted, marginTop: 4 }}>avg {avg}%</div>
+          <div style={{ ...KICKER, color: TXT.faint, fontSize: 9 }}>Last {recent.length}</div>
+          <div className="num" style={{ ...KICKER, fontSize: 10, color: TXT.muted, marginTop: 4 }}>avg {avg}%</div>
         </div>
       </div>
-      <div style={{ position: "relative", padding: "8px 0 4px" }}>
-        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: 100, display: "block" }}>
+      <div style={{ position: "relative", padding: "10px 0 6px" }}>
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: 110, display: "block" }}>
           <defs>
-            <linearGradient id="area-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={C.accent} stopOpacity="0.30" />
-              <stop offset="60%" stopColor={C.accent} stopOpacity="0.10" />
-              <stop offset="100%" stopColor={C.accent} stopOpacity="0" />
+            <linearGradient id="area-grad-dark" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F43A5C" stopOpacity="0.45" />
+              <stop offset="55%" stopColor="#7C3AED" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#7C3AED" stopOpacity="0" />
             </linearGradient>
-            <linearGradient id="line-grad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#7C3AED" />
-              <stop offset="55%" stopColor={C.accentHi} />
-              <stop offset="100%" stopColor={C.accent} />
+            <linearGradient id="line-grad-dark" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#34D399" />
+              <stop offset="40%" stopColor="#A78BFA" />
+              <stop offset="100%" stopColor="#F43A5C" />
             </linearGradient>
           </defs>
-          <line x1={PAD_X} x2={W - PAD_X} y1={passLineY} y2={passLineY} stroke={C.passLine} strokeWidth="1" strokeDasharray="3 4" />
-          <text x={W - PAD_X - 2} y={passLineY - 4} textAnchor="end" fontSize="9" fill={C.pass} fontFamily="JetBrains Mono, monospace" opacity="0.7">{PASS_SCORE}%</text>
+          <line x1={PAD_X} x2={W - PAD_X} y1={passLineY} y2={passLineY} stroke="rgba(52,211,153,0.4)" strokeWidth="1" strokeDasharray="3 4" />
+          <text x={W - PAD_X - 2} y={passLineY - 4} textAnchor="end" fontSize="9" fill="#34D399" fontFamily="JetBrains Mono, monospace" opacity="0.85">{PASS_SCORE}%</text>
           {recent.length > 1 && (
             <>
-              <path d={areaPath} fill="url(#area-grad)" style={{ animation: "fadeIn 0.7s ease 0.4s both" }} />
-              <path d={smoothPath} stroke="url(#line-grad)" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ strokeDasharray: 800, strokeDashoffset: 800, animation: "drawPath 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s forwards", "--len": 800 }} />
+              <path d={areaPath} fill="url(#area-grad-dark)" style={{ animation: "fadeIn 0.7s ease 0.4s both" }} />
+              <path d={smoothPath} stroke="url(#line-grad-dark)" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ strokeDasharray: 800, strokeDashoffset: 800, animation: "drawPath 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s forwards", filter: "drop-shadow(0 0 6px rgba(244,58,92,0.6))", "--len": 800 }} />
             </>
           )}
           {recent.map((s, i) => {
@@ -826,10 +968,11 @@ function HistoryArea({ history, onPointClick }) {
             const isPassed = pct >= PASS_SCORE;
             const hasDetail = s.wrongList && s.wrongList.length > 0;
             const isLatest = i === xs.length - 1;
+            const dotColor = isPassed ? "#34D399" : "#F43A5C";
             return (
               <g key={i} onClick={() => hasDetail && onPointClick(offset + i)} style={{ cursor: hasDetail ? "pointer" : "default" }}>
-                {isLatest && <circle cx={xs[i]} cy={ys[i]} r="7" fill={isPassed ? C.pass : C.accent} opacity="0.18" style={{ animation: "pulse 2s ease-in-out infinite" }} />}
-                <circle cx={xs[i]} cy={ys[i]} r={isLatest ? 4 : 2.6} fill={isPassed ? C.pass : C.accent} stroke="#fff" strokeWidth={isLatest ? 2 : 1.5} style={{ animation: `popIn 0.45s cubic-bezier(0.2,0.8,0.2,1) ${0.55 + i * 0.04}s both` }}>
+                {isLatest && <circle cx={xs[i]} cy={ys[i]} r="9" fill={dotColor} opacity="0.20" style={{ animation: "pulse 2s ease-in-out infinite" }} />}
+                <circle cx={xs[i]} cy={ys[i]} r={isLatest ? 4.5 : 2.8} fill={dotColor} stroke="rgba(255,255,255,0.95)" strokeWidth={isLatest ? 2 : 1.5} style={{ animation: `popIn 0.45s cubic-bezier(0.2,0.8,0.2,1) ${0.55 + i * 0.04}s both`, filter: isLatest ? `drop-shadow(0 0 8px ${dotColor})` : "none" }}>
                   <title>{`${pct}%${hasDetail ? " · click for detail" : ""}`}</title>
                 </circle>
               </g>
@@ -837,7 +980,7 @@ function HistoryArea({ history, onPointClick }) {
           })}
         </svg>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -856,10 +999,13 @@ function getMostMistaken(history) {
   return Object.values(counts).sort((a, b) => b.count - a.count);
 }
 
-function Leaderboard({ history }) {
+function Leaderboard({ history, dark = false }) {
   const top = getMostMistaken(history).slice(0, 10);
   if (top.length === 0) return null;
   const maxCount = top[0].count;
+  const T = dark
+    ? { ink: "#FBF7F1", inkDim: "rgba(255,255,255,0.78)", muted: "rgba(255,255,255,0.55)", faint: "rgba(255,255,255,0.4)", border: "rgba(255,255,255,0.08)", accent: "#F43A5C", kanjiBg: "rgba(124,58,237,0.18)", kanjiBorder: "rgba(167,139,250,0.40)", kanjiInk: "#E9D5FF", barTrack: "rgba(255,255,255,0.10)" }
+    : { ink: C.ink, inkDim: C.inkDim, muted: C.muted, faint: C.faint, border: C.border, accent: C.accent, kanjiBg: "rgba(124,58,237,0.06)", kanjiBorder: "rgba(124,58,237,0.22)", kanjiInk: "#5B21B6", barTrack: C.border };
 
   // Tier sizing: rank 0 = hero, 1-2 = full, 3-5 = compact, 6+ = tight
   const tierFor = (i) => {
@@ -869,11 +1015,14 @@ function Leaderboard({ history }) {
     return            { jp: 15, en: 12, meta: 11, pad: "10px 18px", showAll: false, bar: false, emphasized: false };
   };
 
+  const Wrapper = dark
+    ? ({ children }) => <div className="glass" style={{ borderRadius: 18, overflow: "hidden" }}>{children}</div>
+    : ({ children }) => <Card style={{ padding: 0 }} flush>{children}</Card>;
   return (
-    <Card style={{ padding: 0 }} flush>
-      <div style={{ padding: "14px 18px 12px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <KickerLabel>Most Mistaken</KickerLabel>
-        <span style={{ ...KICKER, color: C.faint }}>{top.length} items</span>
+    <Wrapper>
+      <div style={{ padding: "14px 18px 12px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ ...KICKER, color: dark ? "#A78BFA" : C.muted, letterSpacing: dark ? "0.22em" : "0.14em" }}>{dark ? "弱点 · MOST MISTAKEN" : "Most Mistaken"}</span>
+        <span style={{ ...KICKER, color: T.faint }}>{top.length} items</span>
       </div>
       <div className="stagger">
         {top.map((w, i) => {
@@ -884,42 +1033,42 @@ function Leaderboard({ history }) {
               key={i}
               style={{
                 display: "flex", gap: 12, padding: t.pad,
-                borderBottom: i < top.length - 1 ? `1px solid ${C.border}` : "none",
-                borderLeft: t.emphasized ? `2px solid ${C.accent}` : "2px solid transparent",
-                background: t.emphasized ? "linear-gradient(90deg, rgba(188,0,45,0.06), transparent 70%)" : "transparent",
+                borderBottom: i < top.length - 1 ? `1px solid ${T.border}` : "none",
+                borderLeft: t.emphasized ? `2px solid ${T.accent}` : "2px solid transparent",
+                background: t.emphasized ? `linear-gradient(90deg, ${dark ? "rgba(244,58,92,0.14)" : "rgba(188,0,45,0.06)"}, transparent 70%)` : "transparent",
                 position: "relative",
               }}
             >
-              <div className="num" style={{ fontSize: t.jp >= 22 ? 14 : 12, color: t.emphasized ? C.accent : C.faint, minWidth: 24, paddingTop: 3, fontWeight: t.emphasized ? 600 : 400 }}>
+              <div className="num" style={{ fontSize: t.jp >= 22 ? 14 : 12, color: t.emphasized ? T.accent : T.faint, minWidth: 24, paddingTop: 3, fontWeight: t.emphasized ? 600 : 400 }}>
                 {(i + 1).toString().padStart(2, "0")}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between" }}>
-                  <span className="jp" style={{ fontSize: t.jp, fontWeight: t.emphasized ? 800 : 700, color: C.ink, letterSpacing: "0.01em", lineHeight: 1.2 }}>{w.jp}</span>
-                  <span className="num" style={{ fontSize: t.emphasized ? 14 : 11, color: C.accent, fontWeight: t.emphasized ? 600 : 400, whiteSpace: "nowrap" }}>×{w.count}</span>
+                  <span className="jp" style={{ fontSize: t.jp, fontWeight: t.emphasized ? 800 : 700, color: T.ink, letterSpacing: "0.01em", lineHeight: 1.2 }}>{w.jp}</span>
+                  <span className="num" style={{ fontSize: t.emphasized ? 14 : 11, color: T.accent, fontWeight: t.emphasized ? 600 : 400, whiteSpace: "nowrap" }}>×{w.count}</span>
                 </div>
-                <div style={{ fontSize: t.en, color: C.inkDim, marginTop: 3, fontWeight: t.emphasized ? 500 : 400, lineHeight: 1.4 }}>{w.en}</div>
-                {t.showAll && w.heb && <HebText style={{ color: C.muted, fontSize: t.meta, marginTop: 3 }}>{w.heb}</HebText>}
+                <div style={{ fontSize: t.en, color: T.inkDim, marginTop: 3, fontWeight: t.emphasized ? 500 : 400, lineHeight: 1.4 }}>{w.en}</div>
+                {t.showAll && w.heb && <HebText style={{ color: T.muted, fontSize: t.meta, marginTop: 3 }}>{w.heb}</HebText>}
                 {t.showAll && w.ex && (
                   <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, lineHeight: 1.55, flexWrap: "wrap" }}>
-                    <span style={{ ...JP_LABEL, flexShrink: 0 }}>例</span>
-                    <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: t.meta + 2, color: C.ink, fontWeight: 600 }}><FuriganaSentence text={w.ex} /></span>
+                    <span style={{ ...JP_LABEL, flexShrink: 0, color: dark ? "rgba(255,255,255,0.45)" : undefined }}>例</span>
+                    <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: t.meta + 2, color: T.ink, fontWeight: 600 }}><FuriganaSentence text={w.ex} /></span>
                     <SpeakBtn text={stripFurigana(w.ex)} size={12} />
                   </div>
                 )}
-                {t.showAll && w.exHeb && <HebText style={{ color: C.muted, fontSize: t.meta - 1, marginTop: 3 }}>{w.exHeb}</HebText>}
+                {t.showAll && w.exHeb && <HebText style={{ color: T.muted, fontSize: t.meta - 1, marginTop: 3 }}>{w.exHeb}</HebText>}
                 {t.showAll && w.kanjiStory && (
-                  <div style={{ marginTop: 8, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "2px solid #7C3AED", padding: "7px 10px", borderRadius: 6, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <div style={{ marginTop: 8, background: T.kanjiBg, border: `1px solid ${T.kanjiBorder}`, borderLeft: "2px solid #A78BFA", padding: "7px 10px", borderRadius: 6, display: "flex", gap: 8, alignItems: "flex-start" }}>
                     <span style={{ fontSize: 13, lineHeight: 1.2 }}>🧠</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ ...KICKER, color: C.kanji, fontSize: 9, marginBottom: 2 }}>{storyLabel(w.jp)}</div>
-                      <div style={{ fontSize: t.meta, color: "#5B21B6", fontWeight: 500, lineHeight: 1.5 }}>{w.kanjiStory}</div>
+                      <div style={{ ...KICKER, color: dark ? "#C4B5FD" : C.kanji, fontSize: 9, marginBottom: 2 }}>{storyLabel(w.jp)}</div>
+                      <div style={{ fontSize: t.meta, color: T.kanjiInk, fontWeight: 500, lineHeight: 1.5 }}>{w.kanjiStory}</div>
                     </div>
                   </div>
                 )}
                 {t.bar && (
-                  <div style={{ marginTop: 10, height: 3, background: C.border, borderRadius: 2, overflow: "hidden" }}>
-                    <div style={{ height: "100%", width: `${barPct}%`, background: `linear-gradient(90deg, ${C.accent}, ${C.accentHi})`, transition: "width 0.5s ease" }} />
+                  <div style={{ marginTop: 10, height: 3, background: T.barTrack, borderRadius: 2, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${barPct}%`, background: dark ? "linear-gradient(90deg, #F43A5C, #A78BFA)" : `linear-gradient(90deg, ${C.accent}, ${C.accentHi})`, transition: "width 0.5s ease" }} />
                   </div>
                 )}
               </div>
@@ -928,7 +1077,7 @@ function Leaderboard({ history }) {
           );
         })}
       </div>
-    </Card>
+    </Wrapper>
   );
 }
 
@@ -1911,94 +2060,98 @@ export default function App() {
     const masteredCount = ALL_DATA.filter(i => srs[i.jp]?.right > 0 && (srs[i.jp]?.wrong || 0) === 0).length;
     const mistakenCount = ALL_DATA.filter(i => (srs[i.jp]?.wrong || 0) > 0).length;
     const indexCard = (
-      <button onClick={() => setScreen("glossary")} className="btn-hover" style={{
-        width: "100%", padding: 0, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14,
+      <button onClick={() => setScreen("glossary")} className="glass btn-hover" style={{
+        width: "100%", padding: 0, borderRadius: 16,
         cursor: "pointer", textAlign: "left", display: "block", fontFamily: FONT_LATIN, overflow: "hidden",
         marginTop: wide ? 12 : 12,
       }}>
-        <div style={{ padding: "14px 18px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ padding: "14px 18px", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-            <IconBook size={16} style={{ color: C.accent }} />
-            <span style={{ ...KICKER, color: C.ink, fontSize: 12 }}>Index · 索引</span>
+            <IconBook size={16} style={{ color: "#A78BFA" }} />
+            <span style={{ ...KICKER, color: "#FBF7F1", fontSize: 12, letterSpacing: "0.22em" }}>索引 · INDEX</span>
           </span>
-          <IconChevRt size={14} style={{ color: C.faint }} />
+          <IconChevRt size={14} style={{ color: "rgba(255,255,255,0.45)" }} />
         </div>
         <div style={{ padding: "16px 18px", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
           <div style={{ textAlign: "center" }}>
-            <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.ink, lineHeight: 1 }}>{totalItems}</div>
-            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: C.faint }}>Terms</div>
+            <div className="num" style={{ fontSize: 24, fontWeight: 300, color: "#FBF7F1", lineHeight: 1 }}>{totalItems}</div>
+            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: "rgba(255,255,255,0.45)" }}>Terms</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.accent, lineHeight: 1, display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <div className="num" style={{ fontSize: 24, fontWeight: 300, color: "#FB923C", lineHeight: 1, display: "inline-flex", alignItems: "center", gap: 4 }}>
               <IconStar size={14} filled style={{ verticalAlign: "middle" }} />{bookmarks.size}
             </div>
-            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: C.faint }}>Saved</div>
+            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: "rgba(255,255,255,0.45)" }}>Saved</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.pass, lineHeight: 1 }}>{masteredCount}</div>
-            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: C.faint }}>Mastered</div>
+            <div className="num" style={{ fontSize: 24, fontWeight: 300, color: "#34D399", lineHeight: 1 }}>{masteredCount}</div>
+            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: "rgba(255,255,255,0.45)" }}>Mastered</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.accent, lineHeight: 1 }}>{mistakenCount}</div>
-            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: C.faint }}>Mistaken</div>
+            <div className="num" style={{ fontSize: 24, fontWeight: 300, color: "#F43A5C", lineHeight: 1 }}>{mistakenCount}</div>
+            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: "rgba(255,255,255,0.45)" }}>Mistaken</div>
           </div>
         </div>
-        <div style={{ padding: "10px 18px 14px", color: C.muted, fontSize: 12, borderTop: `1px solid ${C.border}`, background: C.elevated }}>
+        <div style={{ padding: "10px 18px 14px", color: "rgba(255,255,255,0.55)", fontSize: 12, borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.18)" }}>
           Browse all terms · kanji stories · examples · bookmarks
         </div>
       </button>
     );
     const dailyStreak = getDailyStreak(history);
+    const totalRight = Object.values(srs).reduce((s, x) => s + (x.right || 0), 0);
+    const totalWrong = Object.values(srs).reduce((s, x) => s + (x.wrong || 0), 0);
+    const accuracyPct = (totalRight + totalWrong) > 0 ? Math.round((totalRight / (totalRight + totalWrong)) * 100) : 0;
+    const masteredPct = totalItems > 0 ? Math.round((masteredCount / totalItems) * 100) : 0;
     return (
-      <div style={{ ...PAGE, overflow: "hidden" }}>
-        <div className="page-watermark" aria-hidden="true">道</div>
+      <div className="aurora-root menu-bottom-pad" style={{ ...PAGE, color: "#FBF7F1", overflow: "hidden", minHeight: "100dvh" }}>
+        <AuroraBackdrop />
         <div style={{ position: "relative", zIndex: 1 }}>
         {/* HEADER */}
-        <div style={{ position: "absolute", top: wide ? 0 : 0, right: 0, zIndex: 5 }}>
+        <div style={{ position: "absolute", top: 0, right: 0, zIndex: 5 }}>
           <AccountChip session={session} onClick={() => setAuthOpen(true)} />
         </div>
-        <header style={{ textAlign: "center", marginBottom: wide ? 18 : 14, paddingTop: 4 }}>
-          <div className="logo-wrap logo-wrap--light" role="button" tabIndex={0} aria-label="日本語道場" style={{ width: wide ? 220 : 180, height: wide ? 220 : 180, margin: "0 auto 4px" }}>
-            <img className="logo-img" src="/logo.png" alt="日本語道場" style={{ width: "100%", height: "100%", clipPath: "circle(40% at 50% 50%)" }} />
-            <svg className="logo-ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="58" /></svg>
+
+        {/* HERO BLOCK — aurora glass with massive 道場 + activity rings */}
+        <div className="glass-strong" style={{ borderRadius: 24, padding: wide ? "32px 28px 26px" : "22px 20px 22px", marginBottom: wide ? 22 : 18, position: "relative", overflow: "hidden" }}>
+          <HeroDisplay wide={wide} />
+          <div style={{ display: wide ? "grid" : "flex", gridTemplateColumns: wide ? "auto 1fr" : undefined, flexDirection: "column", alignItems: "center", gap: wide ? 28 : 18, marginTop: wide ? 24 : 18 }}>
+            <ActivityRings streak={dailyStreak} masteredPct={masteredPct} accuracyPct={accuracyPct} size={wide ? 220 : 180} />
+            <div style={{ width: wide ? "auto" : "100%", maxWidth: 420 }}>
+              <ActivityLegend streak={dailyStreak} masteredCount={masteredCount} totalItems={totalItems} accuracyPct={accuracyPct} sessions={history.length} />
+            </div>
           </div>
-          <HeroStatsBar streak={dailyStreak} masteredCount={masteredCount} totalItems={totalItems} sessions={history.length} avg={avg} wide={wide} />
-        </header>
+        </div>
 
         {bookmarks.size > 0 && (() => {
           const bookmarkedItems = ALL_DATA.filter(d => bookmarks.has(d.jp));
           return (
-            <div style={{ marginBottom: wide ? 18 : 14 }}>
+            <div style={{ marginBottom: wide ? 14 : 12 }}>
               <button
                 onClick={() => setBookmarksOpen(o => !o)}
-                className="btn-hover"
+                className="glass btn-hover"
                 style={{
-                  width: "100%", background: C.surface, border: `1px solid ${C.border}`,
-                  borderRadius: 14, padding: "12px 18px",
+                  width: "100%", borderRadius: 14, padding: "12px 18px",
                   display: "flex", alignItems: "center", justifyContent: "space-between",
                   cursor: "pointer", fontFamily: FONT_LATIN,
-                  boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 8px 28px -10px rgba(80,60,30,0.10)",
                   borderBottomLeftRadius: bookmarksOpen ? 0 : 14,
                   borderBottomRightRadius: bookmarksOpen ? 0 : 14,
-                  borderBottom: bookmarksOpen ? "none" : `1px solid ${C.border}`,
                 }}
               >
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-                  <IconStar size={16} filled style={{ color: C.accent }} />
-                  <span style={{ ...KICKER, color: C.ink, fontSize: 12 }}>Bookmarks · 保存</span>
-                  <span className="num" style={{ color: C.accent, fontSize: 14, fontWeight: 500, marginLeft: 4 }}>{bookmarks.size}</span>
+                  <IconStar size={16} filled style={{ color: "#F43A5C" }} />
+                  <span style={{ ...KICKER, color: "#FBF7F1", fontSize: 12 }}>Bookmarks · 保存</span>
+                  <span className="num" style={{ color: "#F43A5C", fontSize: 14, fontWeight: 500, marginLeft: 4 }}>{bookmarks.size}</span>
                 </span>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-                  {!bookmarksOpen && <span style={{ ...KICKER, color: C.faint, fontSize: 10 }}>Tap to view</span>}
-                  <IconChevDn size={14} style={{ color: C.faint, transform: bookmarksOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+                  {!bookmarksOpen && <span style={{ ...KICKER, color: "rgba(255,255,255,0.45)", fontSize: 10 }}>Tap to view</span>}
+                  <IconChevDn size={14} style={{ color: "rgba(255,255,255,0.55)", transform: bookmarksOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
                 </span>
               </button>
               {bookmarksOpen && (
-                <div style={{
-                  background: C.surface, border: `1px solid ${C.border}`, borderTop: "none",
+                <div className="glass" style={{
+                  borderTop: "none",
                   borderBottomLeftRadius: 14, borderBottomRightRadius: 14,
                   maxHeight: 520, overflowY: "auto",
-                  boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 8px 28px -10px rgba(80,60,30,0.10)",
                 }}>
                   {bookmarkedItems.map(item => (
                     <GlossaryItem
@@ -2018,51 +2171,47 @@ export default function App() {
         })()}
 
         <div style={{ marginBottom: wide ? 18 : 14 }}>
-          <div style={{
-            background: C.surface, border: `1px solid ${C.border}`,
+          <div className="glass" style={{
             borderRadius: 14, padding: "12px 18px",
             display: "flex", alignItems: "center", justifyContent: "space-between",
-            boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 8px 28px -10px rgba(80,60,30,0.10)",
             borderBottomLeftRadius: customOpen ? 0 : 14,
             borderBottomRightRadius: customOpen ? 0 : 14,
-            borderBottom: customOpen ? "none" : `1px solid ${C.border}`,
           }}>
             <button onClick={() => setCustomOpen(o => !o)} className="btn-hover" style={{
               flex: 1, background: "transparent", border: "none", cursor: "pointer",
-              padding: 0, display: "flex", alignItems: "center", gap: 10, fontFamily: FONT_LATIN, textAlign: "left",
+              padding: 0, display: "flex", alignItems: "center", gap: 10, fontFamily: FONT_LATIN, textAlign: "left", color: "inherit",
             }}>
               <span style={{ fontSize: 14 }}>🎯</span>
-              <span style={{ ...KICKER, color: C.ink, fontSize: 12 }}>My Quizzes · 自作</span>
-              <span className="num" style={{ color: C.accent, fontSize: 14, fontWeight: 500, marginLeft: 4 }}>{customQuizzes.length}</span>
-              {!customOpen && customQuizzes.length > 0 && <span style={{ ...KICKER, color: C.faint, fontSize: 10, marginLeft: "auto" }}>Tap to view</span>}
-              <IconChevDn size={14} style={{ color: C.faint, transform: customOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", marginLeft: customOpen || customQuizzes.length === 0 ? "auto" : 0 }} />
+              <span style={{ ...KICKER, color: "#FBF7F1", fontSize: 12 }}>My Quizzes · 自作</span>
+              <span className="num" style={{ color: "#F43A5C", fontSize: 14, fontWeight: 500, marginLeft: 4 }}>{customQuizzes.length}</span>
+              {!customOpen && customQuizzes.length > 0 && <span style={{ ...KICKER, color: "rgba(255,255,255,0.45)", fontSize: 10, marginLeft: "auto" }}>Tap to view</span>}
+              <IconChevDn size={14} style={{ color: "rgba(255,255,255,0.55)", transform: customOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", marginLeft: customOpen || customQuizzes.length === 0 ? "auto" : 0 }} />
             </button>
             <button onClick={() => setCustomCreateOpen(true)} className="btn-hover" style={{
               marginLeft: 12, padding: "6px 12px", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase",
-              background: C.accentSoft, color: C.accent, border: `1px solid ${C.accentLine}`, borderRadius: 8,
+              background: "rgba(244,58,92,0.18)", color: "#F87171", border: "1px solid rgba(244,58,92,0.40)", borderRadius: 8,
               cursor: "pointer", fontFamily: FONT_LATIN, display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap",
             }}>+ New</button>
           </div>
           {customOpen && (
-            <div style={{
-              background: C.surface, border: `1px solid ${C.border}`, borderTop: "none",
+            <div className="glass" style={{
+              borderTop: "none",
               borderBottomLeftRadius: 14, borderBottomRightRadius: 14,
               maxHeight: 520, overflowY: "auto",
-              boxShadow: "0 1px 2px rgba(80,60,30,0.04), 0 8px 28px -10px rgba(80,60,30,0.10)",
             }}>
               {customQuizzes.length === 0 ? (
-                <div style={{ padding: "24px 18px", textAlign: "center", color: C.muted, fontSize: 13 }}>
-                  No custom quizzes yet. Tap <span style={{ color: C.accent, fontWeight: 600 }}>+ New</span> to paste vocab and let AI build one.
+                <div style={{ padding: "24px 18px", textAlign: "center", color: "rgba(255,255,255,0.65)", fontSize: 13 }}>
+                  No custom quizzes yet. Tap <span style={{ color: "#F43A5C", fontWeight: 600 }}>+ New</span> to paste vocab and let AI build one.
                 </div>
               ) : customQuizzes.map((quiz, qi) => (
-                <div key={quiz.id} style={{ padding: "14px 18px", borderBottom: qi === customQuizzes.length - 1 ? "none" : `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                <div key={quiz.id} style={{ padding: "14px 18px", borderBottom: qi === customQuizzes.length - 1 ? "none" : "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{quiz.name}</div>
-                    <div style={{ ...KICKER, fontSize: 10, color: C.faint, marginTop: 3 }}>{quiz.items.length} items · {new Date(quiz.createdAt).toLocaleDateString()}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#FBF7F1", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{quiz.name}</div>
+                    <div style={{ ...KICKER, fontSize: 10, color: "rgba(255,255,255,0.45)", marginTop: 3 }}>{quiz.items.length} items · {new Date(quiz.createdAt).toLocaleDateString()}</div>
                   </div>
                   <button onClick={() => startCustomQuiz(quiz)} className="btn-hover" style={{
                     padding: "7px 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase",
-                    background: C.accent, color: "#fff", border: `1px solid ${C.accent}`, borderRadius: 8,
+                    background: "linear-gradient(135deg, #F43A5C, #BC002D)", color: "#fff", border: "1px solid rgba(244,58,92,0.55)", borderRadius: 8,
                     cursor: "pointer", fontFamily: FONT_LATIN,
                   }}>Run</button>
                   <button onClick={() => {
@@ -2070,7 +2219,7 @@ export default function App() {
                     const next = customQuizzes.filter(q => q.id !== quiz.id);
                     setCustomQuizzes(next); saveCustomQuizzes(next);
                   }} aria-label="Delete quiz" className="btn-hover" style={{
-                    background: "transparent", border: "none", padding: 4, cursor: "pointer", color: C.faint,
+                    background: "transparent", border: "none", padding: 4, cursor: "pointer", color: "rgba(255,255,255,0.45)",
                     display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 6,
                   }}>
                     <IconX size={14} />
@@ -2084,15 +2233,15 @@ export default function App() {
         <div style={wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, alignItems: "start" } : {}}>
           {/* LEFT COLUMN: CATEGORIES + (wide) INDEX */}
           <div>
-          <Card flush>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 18px", borderBottom: `1px solid ${C.border}` }}>
-              <KickerLabel>Categories</KickerLabel>
+          <div className="glass" style={{ borderRadius: 16, overflow: "hidden" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 18px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+              <span style={{ ...KICKER, color: "#A78BFA", letterSpacing: "0.22em" }}>\u5206\u91ce \u00b7 CATEGORIES</span>
               <div style={{ display: "flex", gap: 6 }}>
-                <MiniBtn onClick={() => setSelectedCats(Object.keys(CATEGORIES))}>All</MiniBtn>
-                <MiniBtn onClick={() => setSelectedCats([])} variant="ghost">None</MiniBtn>
+                <button onClick={() => setSelectedCats(Object.keys(CATEGORIES))} className="btn-hover" style={{ background: "rgba(244,58,92,0.18)", color: "#F87171", border: "1px solid rgba(244,58,92,0.40)", borderRadius: 6, padding: "5px 10px", fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", fontFamily: FONT_LATIN }}>All</button>
+                <button onClick={() => setSelectedCats([])} className="btn-hover" style={{ background: "transparent", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 6, padding: "5px 10px", fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", fontFamily: FONT_LATIN }}>None</button>
               </div>
             </div>
-            <div style={{ padding: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+            <div style={{ padding: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               {CATEGORY_GROUPS.map((group, gi) => {
                 const groupCount = group.cats.reduce((s, c) => s + ALL_DATA.filter(d => d.cat === c).length, 0);
                 const allOn = group.cats.every(c => selectedCats.includes(c));
@@ -2106,19 +2255,16 @@ export default function App() {
                 const isSingle = group.cats.length <= 1;
                 return (
                   <div key={gi} style={{ gridColumn: expanded ? "1 / -1" : "auto", minWidth: 0 }}>
-                    <button onClick={toggleGroup} className="cat-tile" style={{
+                    <button onClick={toggleGroup} className={`cat-tile dark-tile${allOn ? " on" : ""}`} style={{
                       width: "100%", display: "flex", alignItems: "center", gap: 6, cursor: "pointer",
                       padding: "11px 11px 11px 13px", borderRadius: 10, textAlign: "left",
-                      background: allOn ? C.accentSoft : someOn ? "rgba(188,0,45,0.04)" : C.mutedBg,
-                      border: `1px solid ${allOn ? C.accentLine : someOn ? "rgba(188,0,45,0.15)" : C.border}`,
-                      color: allOn ? C.ink : someOn ? C.inkDim : C.inkDim
                     }}>
                       <span className="jp" style={{ flex: 1, fontSize: 16, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "inherit", letterSpacing: "0.02em" }}>
                         {group.label.match(/^[\u3040-\u30ff\u4e00-\u9faf]+/)?.[0] || group.label}
                       </span>
-                      <span className="num" style={{ fontSize: 11, color: allOn ? C.accent : C.faint }}>{groupCount}</span>
+                      <span className="num" style={{ fontSize: 11, color: allOn ? "#FCA5A5" : "rgba(255,255,255,0.4)" }}>{groupCount}</span>
                       {!isSingle && (
-                        <span onClick={toggleExpand} style={{ color: C.faint, display: "inline-flex", padding: "2px 2px", borderRadius: 4 }}>
+                        <span onClick={toggleExpand} style={{ color: "rgba(255,255,255,0.5)", display: "inline-flex", padding: "2px 2px", borderRadius: 4 }}>
                           <IconChevDn size={12} style={{ transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
                         </span>
                       )}
@@ -2130,9 +2276,9 @@ export default function App() {
                           const on = selectedCats.includes(key);
                           return (
                             <button key={key} onClick={() => toggleCat(key)} className="btn-hover" style={{
-                              background: on ? C.accentSoft : "transparent",
-                              border: `1px solid ${on ? C.accentLine : C.border}`,
-                              color: on ? C.accent : C.muted,
+                              background: on ? "rgba(244,58,92,0.20)" : "rgba(255,255,255,0.04)",
+                              border: `1px solid ${on ? "rgba(244,58,92,0.45)" : "rgba(255,255,255,0.10)"}`,
+                              color: on ? "#FCA5A5" : "rgba(255,255,255,0.7)",
                               borderRadius: 6, padding: "4px 9px", fontSize: 11, cursor: "pointer", fontWeight: 500,
                             }}>
                               {CATEGORIES[key]} <span className="num" style={{ opacity: 0.7, marginLeft: 4 }}>{count}</span>
@@ -2145,7 +2291,7 @@ export default function App() {
                 );
               })}
             </div>
-          </Card>
+          </div>
           {wide && indexCard}
           </div>
 
@@ -2170,8 +2316,15 @@ export default function App() {
         {/* HISTORY + LEADERBOARD */}
         <div style={{ ...(wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, alignItems: "start" } : {}), marginTop: 18, display: wide ? "grid" : "flex", flexDirection: wide ? undefined : "column", gap: wide ? 18 : 14 }}>
           <HistoryArea history={history} onPointClick={(idx) => setHistoryModal(history[idx])} />
-          <Leaderboard history={history} />
+          <Leaderboard history={history} dark />
         </div>
+
+        {/* STICKY MOBILE CTA — floats above the bottom of the viewport on small screens */}
+        <button onClick={startQuiz} disabled={filteredCount < 4} className="sticky-cta-mobile mega-cta" aria-label="Start test (sticky)">
+          <span style={{ ...KICKER, fontSize: 9, color: "rgba(255,255,255,0.65)", letterSpacing: "0.32em" }}>始</span>
+          <span>Begin Drill</span>
+          <span className="start-arrow" style={{ fontSize: 22, lineHeight: 1, fontWeight: 400 }}>→</span>
+        </button>
 
         {historyModal && <HistoryModal session={historyModal} onClose={() => setHistoryModal(null)} />}
         {authOpen && <AuthModal session={session} onClose={() => setAuthOpen(false)} onSignedIn={() => setAuthOpen(false)} />}

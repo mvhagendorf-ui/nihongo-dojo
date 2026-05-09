@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@400;500;600;700;900&family=Noto+Sans+JP:wght@400;500;600;700;800;900&family=Noto+Sans+Hebrew:wght@400;500;600&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@400;500;600;700;900&family=Noto+Sans+JP:wght@400;500;600;700;800;900&family=Noto+Sans+Hebrew:wght@400;500;600&family=JetBrains+Mono:wght@300;400;500;600&family=Shippori+Mincho:wght@500;700;800&display=swap" rel="stylesheet" />
     <title>日本語道場</title>
     <style>
       * { box-sizing: border-box; }
@@ -45,6 +45,15 @@
       @keyframes briefShine { 0% { transform: translateX(-110%); } 60% { transform: translateX(120%); } 100% { transform: translateX(120%); } }
       @keyframes counterTick { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
       @keyframes wmDrift { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-6px, -8px) rotate(-1deg); } }
+      @keyframes auroraDriftA { 0%, 100% { transform: translate(0,0) scale(1); }     33% { transform: translate(8%, -4%) scale(1.1); }   66% { transform: translate(-6%, 6%) scale(0.95); } }
+      @keyframes auroraDriftB { 0%, 100% { transform: translate(0,0) scale(1); }     33% { transform: translate(-10%, 5%) scale(1.05); } 66% { transform: translate(6%, -8%) scale(0.92); } }
+      @keyframes auroraDriftC { 0%, 100% { transform: translate(0,0) scale(1); }     50% { transform: translate(4%, 8%) scale(1.15); } }
+      @keyframes hueShift     { 0%, 100% { filter: hue-rotate(0deg); } 50% { filter: hue-rotate(12deg); } }
+      @keyframes kanjiPaint   { 0% { stroke-dashoffset: 1200; opacity: 0; } 30% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 1; } }
+      @keyframes kanjiGlow    { 0%, 100% { filter: drop-shadow(0 0 18px rgba(188,0,45,0.45)) drop-shadow(0 0 50px rgba(124,58,237,0.25)); } 50% { filter: drop-shadow(0 0 28px rgba(217,24,64,0.6)) drop-shadow(0 0 70px rgba(124,58,237,0.4)); } }
+      @keyframes ringSpinSlow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      @keyframes liveDot      { 0%, 100% { opacity: 0.45; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1.1); } }
+      @keyframes meshHueRoll  { 0% { background-position: 0% 0%, 100% 0%, 50% 100%, 0% 0%; } 100% { background-position: 100% 100%, 0% 100%, 50% 0%, 0% 0%; } }
       .fade-in { animation: fadeIn 0.3s ease-out both; }
       .slide-up { animation: slideUp 0.35s ease-out both; }
       .pop-in { animation: popIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
@@ -143,6 +152,142 @@
       @media (max-width: 600px) {
         .page-watermark { font-size: 380px; right: -18%; opacity: 0.7; }
       }
+      /* AURORA MESH BACKDROP — full-bleed dark gradient mesh that drifts behind the menu */
+      .aurora-root { position: relative; isolation: isolate; }
+      .aurora-root::before {
+        /* override body background while aurora-root is mounted */
+        content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+        background: radial-gradient(ellipse at 50% 50%, #2a0e1c 0%, #160812 65%, #070309 100%);
+      }
+      .aurora-bg {
+        position: fixed; inset: -10%; z-index: -1; pointer-events: none; overflow: hidden;
+      }
+      .aurora-blob {
+        position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.55; mix-blend-mode: screen;
+        will-change: transform;
+      }
+      .aurora-blob.a { top: -10%; left: -8%;  width: 60vw; height: 55vw; background: radial-gradient(circle, #BC002D 0%, transparent 65%); animation: auroraDriftA 22s ease-in-out infinite; }
+      .aurora-blob.b { top: 10%; right: -12%; width: 55vw; height: 50vw; background: radial-gradient(circle, #7C3AED 0%, transparent 65%); animation: auroraDriftB 26s ease-in-out infinite; }
+      .aurora-blob.c { bottom: -15%; left: 20%; width: 70vw; height: 50vw; background: radial-gradient(circle, #D91840 0%, transparent 60%); animation: auroraDriftC 30s ease-in-out infinite; opacity: 0.4; }
+      .aurora-grain::before {
+        content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+        background-image:
+          radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+          radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+        background-size: 3px 3px, 7px 7px;
+        background-position: 0 0, 1px 1px;
+        mix-blend-mode: overlay; opacity: 0.5;
+      }
+      /* Body + html become transparent while aurora-root is mounted (so the fixed aurora shows through) */
+      html:has(.aurora-root), body:has(.aurora-root) { background: transparent !important; }
+      /* GLASS CARD — frosted translucent surface for dark menu */
+      .glass {
+        background: linear-gradient(160deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 100%);
+        backdrop-filter: blur(28px) saturate(1.4);
+        -webkit-backdrop-filter: blur(28px) saturate(1.4);
+        border: 1px solid rgba(255,255,255,0.10);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.10) inset, 0 28px 80px -28px rgba(0,0,0,0.65);
+        color: #F5EFE8;
+      }
+      .glass-strong {
+        background: linear-gradient(160deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.06) 100%);
+        backdrop-filter: blur(32px) saturate(1.5);
+        -webkit-backdrop-filter: blur(32px) saturate(1.5);
+        border: 1px solid rgba(255,255,255,0.14);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 32px 90px -28px rgba(0,0,0,0.75), 0 0 0 1px rgba(188,0,45,0.20);
+        color: #FBF7F1;
+      }
+      /* MASSIVE HERO KANJI — gradient-filled display type */
+      .hero-kanji {
+        font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+        font-weight: 800;
+        font-size: clamp(96px, 22vw, 220px);
+        line-height: 0.86;
+        letter-spacing: 0.04em;
+        background: linear-gradient(180deg, #FFFAF0 0%, #FFD580 38%, #D91840 70%, #BC002D 100%);
+        -webkit-background-clip: text; background-clip: text;
+        color: transparent;
+        animation: kanjiGlow 5s ease-in-out infinite;
+        filter: drop-shadow(0 4px 24px rgba(188,0,45,0.45));
+      }
+      .hero-kanji-stroke {
+        position: absolute; inset: 0; pointer-events: none;
+        font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+        font-weight: 800;
+        font-size: clamp(96px, 22vw, 220px);
+        line-height: 0.86;
+        letter-spacing: 0.04em;
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(255,255,255,0.15);
+        opacity: 0.6;
+      }
+      /* HERO RIBBON — magazine-style kicker above the hero kanji */
+      .hero-ribbon {
+        display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px;
+        background: linear-gradient(90deg, rgba(188,0,45,0.18), rgba(124,58,237,0.18));
+        border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 100px;
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 11px; letter-spacing: 0.18em;
+        text-transform: uppercase; color: rgba(255,255,255,0.92);
+      }
+      .hero-ribbon .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #34D399; box-shadow: 0 0 10px rgba(52,211,153,0.8); animation: liveDot 1.6s ease-in-out infinite; }
+      /* ACTIVITY RING TRIPLET — Apple-fitness style three-ring */
+      .ring-stack { position: relative; display: inline-block; }
+      .ring-stack svg { display: block; }
+      .ring-stack .label-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+      /* MEGA CTA — taller, deeper, more 3D */
+      .mega-cta {
+        position: relative; isolation: isolate; overflow: hidden;
+        background: linear-gradient(135deg, #F43A5C 0%, #BC002D 50%, #8E0021 100%);
+        background-size: 220% 220%; background-position: 0% 50%;
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.22);
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,0.35),
+          inset 0 -2px 0 rgba(0,0,0,0.25),
+          0 4px 0 #5C0016,
+          0 12px 30px -8px rgba(188,0,45,0.65),
+          0 24px 60px -20px rgba(188,0,45,0.55);
+        transition: background-position 0.5s ease, transform 0.18s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.25s ease;
+      }
+      .mega-cta:hover:not(:disabled) {
+        background-position: 100% 50%; transform: translateY(-2px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -2px 0 rgba(0,0,0,0.25),
+          0 6px 0 #5C0016, 0 18px 38px -8px rgba(188,0,45,0.75), 0 32px 72px -20px rgba(188,0,45,0.65);
+      }
+      .mega-cta:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 1px 0 #5C0016, 0 6px 14px -4px rgba(188,0,45,0.55); }
+      .mega-cta::after {
+        content: ""; position: absolute; top: 0; left: -30%; bottom: 0; width: 30%;
+        background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+        animation: briefShine 3.4s ease-in-out infinite;
+        pointer-events: none;
+      }
+      .mega-cta:disabled { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); box-shadow: none; cursor: not-allowed; }
+      .mega-cta:disabled::after { display: none; }
+      /* STICKY MOBILE CTA — floats above bottom on small screens */
+      .sticky-cta-mobile { display: none; }
+      @media (max-width: 600px) {
+        .sticky-cta-mobile {
+          display: flex; position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 50;
+          padding: 16px 22px; align-items: center; justify-content: center; gap: 12px;
+          font-size: 13px; font-weight: 700; letter-spacing: 0.28em; text-transform: uppercase;
+          font-family: 'Inter', system-ui, sans-serif;
+          border-radius: 14px;
+        }
+        .menu-bottom-pad { padding-bottom: 96px; }
+      }
+      /* GLASS HOVER LIFT for cat tiles in dark menu */
+      .cat-tile.dark-tile { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.92); }
+      .cat-tile.dark-tile:hover:not(:disabled) { background: rgba(255,255,255,0.09); border-color: rgba(188,0,45,0.45); }
+      .cat-tile.dark-tile.on { background: rgba(188,0,45,0.20); border-color: rgba(217,24,64,0.55); color: #fff; }
+      /* JST CLOCK */
+      .jst-clock {
+        font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums;
+        font-size: 12px; letter-spacing: 0.06em; color: rgba(255,255,255,0.85);
+        display: inline-flex; align-items: center; gap: 8px;
+      }
+      .jst-clock .sec { color: rgba(255,255,255,0.55); font-size: 10px; }
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
       }
