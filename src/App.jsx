@@ -628,9 +628,9 @@ function JSTClock() {
 function HeroDisplay({ wide }) {
   return (
     <div style={{ textAlign: "center", padding: wide ? "24px 0 18px" : "16px 0 12px", position: "relative" }}>
-      <div className="hero-ribbon" style={{ marginBottom: 16 }}>
+      <div className="hero-ribbon" style={{ marginBottom: 18, fontSize: wide ? 13 : 12 }}>
         <span className="live-dot" />
-        <span>道場</span>
+        <span style={{ fontSize: wide ? 14 : 13, fontWeight: 600 }}>道場</span>
         <span style={{ opacity: 0.5 }}>·</span>
         <span>DOJO</span>
         <span style={{ opacity: 0.5 }}>·</span>
@@ -639,7 +639,7 @@ function HeroDisplay({ wide }) {
       <div style={{ position: "relative", display: "inline-block" }}>
         <div className="hero-kanji" style={{ position: "relative" }}>道場</div>
       </div>
-      <div className="jp-display" style={{ marginTop: 8, fontFamily: FONT_JP_DISPLAY, fontSize: wide ? 18 : 15, color: "rgba(255,255,255,0.65)", letterSpacing: "0.32em", fontWeight: 500, textTransform: "uppercase" }}>
+      <div className="jp-display" style={{ marginTop: 14, fontFamily: FONT_JP_DISPLAY, fontSize: wide ? 22 : 18, color: "rgba(255,255,255,0.85)", letterSpacing: "0.32em", fontWeight: 600, textTransform: "uppercase" }}>
         日本語 <span style={{ color: "#F43A5C" }}>·</span> NIHONGO TRAINING HALL
       </div>
     </div>
@@ -704,26 +704,26 @@ function ActivityRings({ streak, masteredPct, accuracyPct, size = 200 }) {
 // ─────────── ACTIVITY LEGEND — labels + values for the three rings ───────────
 function ActivityLegend({ streak, masteredCount, totalItems, accuracyPct, sessions }) {
   const items = [
-    { kicker: "Streak", val: streak, suffix: "d", color: "#FB923C", icon: <IconFlame size={12} /> },
-    { kicker: "Mastery", val: masteredCount, suffix: `/ ${totalItems}`, color: "#A78BFA", icon: null },
-    { kicker: "Accuracy", val: accuracyPct, suffix: "%", color: "#34D399", icon: null },
-    { kicker: "Sessions", val: sessions, suffix: "", color: "rgba(255,255,255,0.92)", icon: null },
+    { kicker: "Streak",   val: streak,         suffix: "d",            color: "#FB923C", icon: <IconFlame size={14} /> },
+    { kicker: "Mastery",  val: masteredCount,  suffix: `/ ${totalItems}`, color: "#A78BFA", icon: null },
+    { kicker: "Accuracy", val: accuracyPct,    suffix: "%",            color: "#34D399", icon: null },
+    { kicker: "Sessions", val: sessions,       suffix: "",             color: "rgba(255,255,255,0.95)", icon: null },
   ];
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, marginTop: 14 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, marginTop: 16 }}>
       {items.map((it, i) => (
         <div key={i} style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "10px 12px", borderRadius: 10,
-          background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
+          padding: "12px 14px", borderRadius: 12,
+          background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
         }}>
-          <span style={{ ...KICKER, fontSize: 9, color: "rgba(255,255,255,0.55)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <span style={{ ...KICKER, fontSize: 11, color: "rgba(255,255,255,0.72)", display: "inline-flex", alignItems: "center", gap: 7, letterSpacing: "0.16em", fontWeight: 600 }}>
             {it.icon && <span style={{ color: it.color }}>{it.icon}</span>}
             {it.kicker}
           </span>
-          <span className="num" style={{ display: "inline-flex", alignItems: "baseline", gap: 4, color: it.color, fontWeight: 600 }}>
-            <span style={{ fontSize: 18, lineHeight: 1, letterSpacing: "-0.02em" }}>{it.val}</span>
-            {it.suffix && <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 400 }}>{it.suffix}</span>}
+          <span className="num" style={{ display: "inline-flex", alignItems: "baseline", gap: 5, color: it.color, fontWeight: 700 }}>
+            <span style={{ fontSize: 24, lineHeight: 1, letterSpacing: "-0.02em" }}>{it.val}</span>
+            {it.suffix && <span style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>{it.suffix}</span>}
           </span>
         </div>
       ))}
@@ -919,29 +919,38 @@ function HistoryArea({ history, onPointClick }) {
   const deltaBg = delta > 0 ? C.passSoft : delta < 0 ? C.accentSoft : C.mutedBg;
   const deltaBorder = delta > 0 ? C.passLine : delta < 0 ? C.accentLine : C.border;
 
-  const TXT = { primary: "#FBF7F1", secondary: "rgba(255,255,255,0.72)", muted: "rgba(255,255,255,0.55)", faint: "rgba(255,255,255,0.4)" };
+  const TXT = { primary: "#FBF7F1", secondary: "rgba(255,255,255,0.78)", muted: "rgba(255,255,255,0.65)", faint: "rgba(255,255,255,0.5)" };
+  // Per-test list: latest 8 tests, newest at top, with click-to-review-mistakes
+  const listItems = recent.slice().reverse().slice(0, 8).map((s) => {
+    const idx = history.indexOf(s);
+    const pct = Math.round((s.score / s.total) * 100);
+    const isPassed = pct >= PASS_SCORE;
+    const wrongs = s.wrongList?.length || 0;
+    return { s, idx, pct, isPassed, wrongs };
+  });
   return (
     <div className="glass" style={{ borderRadius: 18, overflow: "hidden" }}>
-      <div style={{ padding: "16px 20px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ padding: "18px 22px 16px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, borderBottom: "1px solid rgba(255,255,255,0.10)" }}>
         <div>
-          <div style={{ ...KICKER, fontSize: 9, color: "#A78BFA", letterSpacing: "0.22em" }}>軌跡 · SCORE TREND</div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 8 }}>
-            <span className="num counter-tick" style={{ fontSize: 38, fontWeight: 300, color: passed ? "#34D399" : "#F43A5C", lineHeight: 1, letterSpacing: "-0.03em", textShadow: passed ? "0 4px 16px rgba(52,211,153,0.4)" : "0 4px 16px rgba(244,58,92,0.4)" }}>
-              {latestPct}<span style={{ fontSize: 16, color: TXT.faint, marginLeft: 1, fontWeight: 400 }}>%</span>
+          <div style={{ ...KICKER, fontSize: 11, color: "#C4B5FD", letterSpacing: "0.22em", fontWeight: 600 }}>履歴 · SCORE HISTORY</div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginTop: 10 }}>
+            <span className="num counter-tick" style={{ fontSize: 44, fontWeight: 300, color: passed ? "#34D399" : "#F43A5C", lineHeight: 1, letterSpacing: "-0.03em", textShadow: passed ? "0 4px 16px rgba(52,211,153,0.4)" : "0 4px 16px rgba(244,58,92,0.4)" }}>
+              {latestPct}<span style={{ fontSize: 18, color: TXT.faint, marginLeft: 2, fontWeight: 400 }}>%</span>
             </span>
             {prev && (
-              <span className="num" style={{ fontSize: 10, color: delta > 0 ? "#34D399" : delta < 0 ? "#F43A5C" : TXT.muted, fontWeight: 700, padding: "4px 10px", background: delta > 0 ? "rgba(52,211,153,0.15)" : delta < 0 ? "rgba(244,58,92,0.15)" : "rgba(255,255,255,0.08)", border: `1px solid ${delta > 0 ? "rgba(52,211,153,0.35)" : delta < 0 ? "rgba(244,58,92,0.35)" : "rgba(255,255,255,0.12)"}`, borderRadius: 100, letterSpacing: "0.04em", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                <span style={{ fontSize: 9 }}>{delta > 0 ? "▲" : delta < 0 ? "▼" : "•"}</span>{Math.abs(delta)}
+              <span className="num" style={{ fontSize: 12, color: delta > 0 ? "#34D399" : delta < 0 ? "#F43A5C" : TXT.muted, fontWeight: 700, padding: "5px 12px", background: delta > 0 ? "rgba(52,211,153,0.18)" : delta < 0 ? "rgba(244,58,92,0.18)" : "rgba(255,255,255,0.08)", border: `1px solid ${delta > 0 ? "rgba(52,211,153,0.40)" : delta < 0 ? "rgba(244,58,92,0.40)" : "rgba(255,255,255,0.14)"}`, borderRadius: 100, letterSpacing: "0.04em", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <span style={{ fontSize: 10 }}>{delta > 0 ? "▲" : delta < 0 ? "▼" : "•"}</span>{Math.abs(delta)}
               </span>
             )}
           </div>
+          <div style={{ marginTop: 6, fontSize: 12, color: TXT.muted, letterSpacing: "0.04em" }}>Latest test · tap any session below to review wrong answers</div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ ...KICKER, color: TXT.faint, fontSize: 9 }}>Last {recent.length}</div>
-          <div className="num" style={{ ...KICKER, fontSize: 10, color: TXT.muted, marginTop: 4 }}>avg {avg}%</div>
+          <div style={{ ...KICKER, color: TXT.faint, fontSize: 10, letterSpacing: "0.18em" }}>Last {recent.length}</div>
+          <div className="num" style={{ fontSize: 14, color: TXT.secondary, marginTop: 5, fontWeight: 600 }}>avg {avg}%</div>
         </div>
       </div>
-      <div style={{ position: "relative", padding: "10px 0 6px" }}>
+      <div style={{ position: "relative", padding: "10px 0 4px" }}>
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: 110, display: "block" }}>
           <defs>
             <linearGradient id="area-grad-dark" x1="0" y1="0" x2="0" y2="1">
@@ -972,13 +981,60 @@ function HistoryArea({ history, onPointClick }) {
             return (
               <g key={i} onClick={() => hasDetail && onPointClick(offset + i)} style={{ cursor: hasDetail ? "pointer" : "default" }}>
                 {isLatest && <circle cx={xs[i]} cy={ys[i]} r="9" fill={dotColor} opacity="0.20" style={{ animation: "pulse 2s ease-in-out infinite" }} />}
-                <circle cx={xs[i]} cy={ys[i]} r={isLatest ? 4.5 : 2.8} fill={dotColor} stroke="rgba(255,255,255,0.95)" strokeWidth={isLatest ? 2 : 1.5} style={{ animation: `popIn 0.45s cubic-bezier(0.2,0.8,0.2,1) ${0.55 + i * 0.04}s both`, filter: isLatest ? `drop-shadow(0 0 8px ${dotColor})` : "none" }}>
+                <circle cx={xs[i]} cy={ys[i]} r={isLatest ? 5 : 3.2} fill={dotColor} stroke="rgba(255,255,255,0.95)" strokeWidth={isLatest ? 2 : 1.5} style={{ animation: `popIn 0.45s cubic-bezier(0.2,0.8,0.2,1) ${0.55 + i * 0.04}s both`, filter: isLatest ? `drop-shadow(0 0 8px ${dotColor})` : "none" }}>
                   <title>{`${pct}%${hasDetail ? " · click for detail" : ""}`}</title>
                 </circle>
               </g>
             );
           })}
         </svg>
+      </div>
+      {/* Per-test list — clickable rows to review mistakes */}
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.10)" }}>
+        <div style={{ padding: "12px 22px 10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ ...KICKER, fontSize: 10, color: TXT.muted, letterSpacing: "0.22em", fontWeight: 600 }}>Recent Sessions</span>
+          <span style={{ ...KICKER, fontSize: 10, color: TXT.faint }}>tap to review</span>
+        </div>
+        {listItems.map(({ s, idx, pct, isPassed, wrongs }, i) => {
+          const date = new Date(s.date);
+          const dateStr = date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+          const timeStr = date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false });
+          const isLatest = i === 0;
+          return (
+            <button
+              key={idx}
+              onClick={() => onPointClick(idx)}
+              disabled={wrongs === 0}
+              className="btn-hover"
+              style={{
+                width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 14,
+                padding: "12px 22px",
+                borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.06)",
+                background: isLatest ? "linear-gradient(90deg, rgba(244,58,92,0.10), transparent 70%)" : "transparent",
+                borderLeft: isLatest ? "2px solid #F43A5C" : "2px solid transparent",
+                cursor: wrongs > 0 ? "pointer" : "default", color: "inherit", fontFamily: FONT_LATIN,
+                opacity: wrongs > 0 ? 1 : 0.55,
+              }}
+            >
+              <span className="num" style={{ fontSize: 11, color: TXT.faint, fontWeight: 500, minWidth: 16 }}>{(listItems.length - i).toString().padStart(2, "0")}</span>
+              <span style={{ display: "inline-flex", alignItems: "baseline", gap: 6 }}>
+                <span className="num" style={{ fontSize: 22, fontWeight: 600, color: isPassed ? "#34D399" : "#F43A5C", lineHeight: 1, letterSpacing: "-0.02em" }}>{pct}<span style={{ fontSize: 12, color: TXT.faint, fontWeight: 400 }}>%</span></span>
+              </span>
+              <span style={{ flex: 1, display: "inline-flex", flexDirection: "column", lineHeight: 1.2 }}>
+                <span style={{ fontSize: 13, color: TXT.primary, fontWeight: 600 }}>{s.score}<span style={{ color: TXT.faint, fontWeight: 400 }}>/{s.total}</span> <span style={{ ...KICKER, fontSize: 9, color: TXT.faint, marginLeft: 6 }}>{isPassed ? "合格" : "不合格"}</span></span>
+                <span className="num" style={{ fontSize: 11, color: TXT.muted, marginTop: 3 }}>{dateStr} · {timeStr}</span>
+              </span>
+              {wrongs > 0 ? (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 11px", background: "rgba(244,58,92,0.18)", border: "1px solid rgba(244,58,92,0.40)", borderRadius: 100 }}>
+                  <span className="num" style={{ fontSize: 12, color: "#FCA5A5", fontWeight: 700 }}>×{wrongs}</span>
+                  <IconChevRt size={12} style={{ color: "#FCA5A5" }} />
+                </span>
+              ) : (
+                <span style={{ ...KICKER, fontSize: 9, color: "#34D399", padding: "5px 10px", background: "rgba(52,211,153,0.12)", border: "1px solid rgba(52,211,153,0.30)", borderRadius: 100 }}>Perfect</span>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -1214,71 +1270,74 @@ function WrongItem({ w, isLast }) {
 }
 
 // ─────────── GLOSSARY ───────────
-function GlossaryItem({ item, mistakes, bookmarked, onToggle, onToggleBookmark, expanded }) {
+function GlossaryItem({ item, mistakes, bookmarked, onToggle, onToggleBookmark, expanded, dark = false }) {
+  const T = dark
+    ? { ink: "#FBF7F1", inkDim: "rgba(255,255,255,0.78)", muted: "rgba(255,255,255,0.55)", faint: "rgba(255,255,255,0.45)", border: "rgba(255,255,255,0.10)", accent: "#FCA5A5", accentBg: "rgba(244,58,92,0.18)", accentBorder: "rgba(244,58,92,0.40)", kanjiBg: "rgba(124,58,237,0.18)", kanjiBorder: "rgba(167,139,250,0.45)", kanjiInk: "#E9D5FF" }
+    : { ink: C.ink, inkDim: C.inkDim, muted: C.muted, faint: C.faint, border: C.border, accent: C.accent, accentBg: C.accentSoft, accentBorder: C.accentLine, kanjiBg: "rgba(124,58,237,0.06)", kanjiBorder: "rgba(124,58,237,0.22)", kanjiInk: "#5B21B6" };
   return (
-    <div onClick={onToggle} style={{ borderBottom: `1px solid ${C.border}`, padding: "12px 18px", cursor: "pointer" }} className="btn-hover">
+    <div onClick={onToggle} style={{ borderBottom: `1px solid ${T.border}`, padding: "14px 20px", cursor: "pointer" }} className="btn-hover">
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="jp" style={{ fontSize: 17, fontWeight: 700, color: C.ink, letterSpacing: "0.02em" }}>
+          <div className="jp" style={{ fontSize: 19, fontWeight: 700, color: T.ink, letterSpacing: "0.02em", lineHeight: 1.3 }}>
             {item.jp}
-            {item.num && <span className="num" style={{ fontSize: 11, color: C.faint, marginLeft: 8, fontWeight: 400 }}>#{item.num}</span>}
+            {item.num && <span className="num" style={{ fontSize: 12, color: T.faint, marginLeft: 8, fontWeight: 400 }}>#{item.num}</span>}
           </div>
-          <div style={{ color: C.inkDim, fontSize: 14, marginTop: 2 }}>{item.en}</div>
+          <div style={{ color: T.inkDim, fontSize: 15, marginTop: 4, lineHeight: 1.4 }}>{item.en}</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
           {mistakes > 0 && (
-            <span className="num" style={{ fontSize: 11, color: C.accent, fontWeight: 600, background: C.accentSoft, border: `1px solid ${C.accentLine}`, padding: "2px 8px", borderRadius: 4 }}>×{mistakes}</span>
+            <span className="num" style={{ fontSize: 12, color: T.accent, fontWeight: 700, background: T.accentBg, border: `1px solid ${T.accentBorder}`, padding: "3px 9px", borderRadius: 5 }}>×{mistakes}</span>
           )}
           <button
             onClick={(e) => { e.stopPropagation(); onToggleBookmark(item.jp); }}
             aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
-            style={{ background: "transparent", border: "none", padding: 4, cursor: "pointer", color: bookmarked ? C.accent : C.faint, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 6 }}
+            style={{ background: "transparent", border: "none", padding: 4, cursor: "pointer", color: bookmarked ? T.accent : T.faint, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 6 }}
             className="btn-hover"
           >
             <IconStar size={16} filled={bookmarked} />
           </button>
-          <IconChevDn size={14} style={{ color: C.faint, transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+          <IconChevDn size={14} style={{ color: T.faint, transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
         </div>
       </div>
       {expanded && (
-        <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${C.border}` }} onClick={e => e.stopPropagation()}>
-          {item.heb && <HebText style={{ color: C.muted, fontSize: 14 }}>{item.heb}</HebText>}
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${T.border}` }} onClick={e => e.stopPropagation()}>
+          {item.heb && <HebText style={{ color: T.muted, fontSize: 14 }}>{item.heb}</HebText>}
           {item.oneLiner && (
-            <div style={{ marginTop: 10, padding: "8px 12px", background: C.accentSoft, borderLeft: `2px solid ${C.accent}`, borderRadius: 5, fontSize: 13, color: C.inkDim, fontStyle: "italic", lineHeight: 1.5 }}>
+            <div style={{ marginTop: 10, padding: "8px 12px", background: T.accentBg, borderLeft: `2px solid ${T.accent}`, borderRadius: 5, fontSize: 14, color: T.inkDim, fontStyle: "italic", lineHeight: 1.5 }}>
               &ldquo;{item.oneLiner}&rdquo;
             </div>
           )}
           {item.conn && (
-            <div style={{ fontSize: 13, marginTop: 10, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
-              <span style={JP_LABEL}>接続</span>
+            <div style={{ fontSize: 13, marginTop: 10, color: T.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ ...JP_LABEL, color: dark ? "rgba(255,255,255,0.45)" : undefined }}>接続</span>
               <span className="jp" style={{ fontSize: 14, fontWeight: 600 }}><ColoredConn conn={item.conn} beginner={isBeginnerCat(item.cat)} /></span>
             </div>
           )}
           {item.n5syn && (
-            <div style={{ fontSize: 13, marginTop: 6, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
-              <span style={{ ...KICKER, fontSize: 10, color: C.faint }}>≈ N5</span>
-              <span className="jp" style={{ fontSize: 13, color: C.inkDim, fontWeight: 600 }}>{item.n5syn}</span>
+            <div style={{ fontSize: 13, marginTop: 6, color: T.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ ...KICKER, fontSize: 10, color: T.faint }}>≈ N5</span>
+              <span className="jp" style={{ fontSize: 13, color: T.inkDim, fontWeight: 600 }}>{item.n5syn}</span>
             </div>
           )}
           {item.ex && (
             <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", lineHeight: 1.6 }}>
-              <span style={{ ...JP_LABEL, flexShrink: 0 }}>例</span>
-              <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 16, color: C.ink, fontWeight: 600 }}><FuriganaSentence text={item.ex} /></span>
+              <span style={{ ...JP_LABEL, flexShrink: 0, color: dark ? "rgba(255,255,255,0.45)" : undefined }}>例</span>
+              <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 16, color: T.ink, fontWeight: 600 }}><FuriganaSentence text={item.ex} /></span>
               <SpeakBtn text={stripFurigana(item.ex)} size={13} />
             </div>
           )}
-          {item.exHeb && <HebText style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>{item.exHeb}</HebText>}
+          {item.exHeb && <HebText style={{ fontSize: 13, color: T.muted, marginTop: 4 }}>{item.exHeb}</HebText>}
           {item.kanjiStory && (
-            <div style={{ marginTop: 12, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "3px solid #7C3AED", borderRadius: 8, padding: "10px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <div style={{ marginTop: 12, background: T.kanjiBg, border: `1px solid ${T.kanjiBorder}`, borderLeft: "3px solid #A78BFA", borderRadius: 8, padding: "10px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
               <span style={{ fontSize: 16, lineHeight: 1.1 }}>🧠</span>
               <div style={{ flex: 1 }}>
-                <div style={{ ...KICKER, color: C.kanji, marginBottom: 2, fontSize: 10 }}>{storyLabel(item.jp)}</div>
-                <div style={{ fontSize: 14, color: "#5B21B6", fontWeight: 500, lineHeight: 1.55 }}>{item.kanjiStory}</div>
+                <div style={{ ...KICKER, color: dark ? "#C4B5FD" : C.kanji, marginBottom: 2, fontSize: 10 }}>{storyLabel(item.jp)}</div>
+                <div style={{ fontSize: 14, color: T.kanjiInk, fontWeight: 500, lineHeight: 1.55 }}>{item.kanjiStory}</div>
               </div>
             </div>
           )}
           <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 8 }}>
-            <span style={{ ...KICKER, fontSize: 9, color: C.faint }}>Listen</span>
+            <span style={{ ...KICKER, fontSize: 9, color: T.faint }}>Listen</span>
             <SpeakBtn text={item.jp} size={14} />
           </div>
         </div>
@@ -1805,6 +1864,12 @@ export default function App() {
       return next;
     });
   }, []);
+  const [light, setLight] = useState(() => { try { return localStorage.getItem("dojo_theme") === "light"; } catch { return false; } });
+  useEffect(() => {
+    const html = document.documentElement;
+    if (light) html.classList.add("theme-light"); else html.classList.remove("theme-light");
+    try { localStorage.setItem("dojo_theme", light ? "light" : "dark"); } catch {}
+  }, [light]);
   const [historyModal, setHistoryModal] = useState(null);
   const [bookmarksOpen, setBookmarksOpen] = useState(false);
   const [bookmarksExpanded, setBookmarksExpanded] = useState(null);
@@ -2106,8 +2171,12 @@ export default function App() {
       <div className="aurora-root menu-bottom-pad" style={{ ...PAGE, color: "#FBF7F1", overflow: "hidden", minHeight: "100dvh" }}>
         <AuroraBackdrop />
         <div style={{ position: "relative", zIndex: 1 }}>
-        {/* HEADER */}
-        <div style={{ position: "absolute", top: 0, right: 0, zIndex: 5 }}>
+        {/* HEADER — theme toggle + account chip */}
+        <div style={{ position: "absolute", top: 0, right: 0, zIndex: 5, display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <button onClick={() => setLight(l => !l)} className="theme-toggle" aria-label={light ? "Switch to dark mode" : "Switch to light mode"} title={light ? "Switch to dark mode" : "Switch to light mode"}>
+            <span style={{ fontSize: 13 }}>{light ? "☾" : "☀"}</span>
+            <span>{light ? "Dark" : "Light"}</span>
+          </button>
           <AccountChip session={session} onClick={() => setAuthOpen(true)} />
         </div>
 
@@ -2162,6 +2231,7 @@ export default function App() {
                       onToggle={() => setBookmarksExpanded(p => p === item.jp ? null : item.jp)}
                       onToggleBookmark={toggleBookmark}
                       expanded={bookmarksExpanded === item.jp}
+                      dark={!light}
                     />
                   ))}
                 </div>
