@@ -1225,69 +1225,72 @@ function HistoryModal({ session, onClose }) {
   );
 }
 
-function WrongItem({ w, isLast }) {
+function WrongItem({ w, isLast, dark = false }) {
+  const T = dark
+    ? { ink: "var(--ink)", inkDim: "var(--ink-dim)", muted: "var(--muted)", faint: "var(--faint)", border: "var(--hairline)", accent: "var(--accent-strong)", pass: "var(--pass)", passSoft: "rgba(52,211,153,0.15)", passLine: "rgba(52,211,153,0.40)", mutedBg: "var(--soft-bg)", kanjiBg: "rgba(124,58,237,0.18)", kanjiBorder: "rgba(167,139,250,0.45)", kanjiInk: "#E9D5FF", kanjiKicker: "#C4B5FD" }
+    : { ink: C.ink, inkDim: C.inkDim, muted: C.muted, faint: C.faint, border: C.border, accent: C.accent, pass: C.pass, passSoft: C.passSoft, passLine: C.passLine, mutedBg: C.mutedBg, kanjiBg: "rgba(124,58,237,0.06)", kanjiBorder: "rgba(124,58,237,0.22)", kanjiInk: "#5B21B6", kanjiKicker: C.kanji };
   if (w._aiQuestion) {
     const correct = w.choices?.[w.correctIdx];
     return (
-      <div style={{ padding: "14px 0", borderBottom: isLast ? "none" : `1px solid ${C.border}` }}>
+      <div style={{ padding: "14px 0", borderBottom: isLast ? "none" : `1px solid ${T.border}` }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
           <Chip tone="accent">{CATEGORIES[w.cat] || "Quiz"} · {w.type}</Chip>
           {w.source?.jp && <SpeakBtn text={cleanJp(w.source.jp)} size={14} />}
         </div>
-        <div style={{ marginTop: 10, fontSize: 15, color: C.inkDim, lineHeight: 1.5, fontWeight: 500 }}>
+        <div style={{ marginTop: 10, fontSize: 15, color: T.inkDim, lineHeight: 1.5, fontWeight: 500 }}>
           <span className="jp">{w.prompt}</span>
         </div>
-        <div style={{ marginTop: 10, padding: "8px 12px", background: C.passSoft, borderLeft: `2px solid ${C.pass}`, borderRadius: 5 }}>
-          <div style={{ ...KICKER, fontSize: 9, color: C.pass, marginBottom: 4 }}>Correct</div>
-          <div className="jp" style={{ fontSize: 16, color: C.pass, fontWeight: 700 }}>{correct}</div>
+        <div style={{ marginTop: 10, padding: "8px 12px", background: T.passSoft, borderLeft: `2px solid ${T.pass}`, borderRadius: 5 }}>
+          <div style={{ ...KICKER, fontSize: 9, color: T.pass, marginBottom: 4 }}>Correct</div>
+          <div className="jp" style={{ fontSize: 16, color: T.pass, fontWeight: 700 }}>{correct}</div>
         </div>
         {w.explanation && (
-          <div style={{ marginTop: 8, fontSize: 13, color: C.muted, fontStyle: "italic", lineHeight: 1.5 }}>
+          <div style={{ marginTop: 8, fontSize: 13, color: T.muted, fontStyle: "italic", lineHeight: 1.5 }}>
             {w.explanation}
           </div>
         )}
         {w.source?.jp && (w.source.en || w.source.heb) && (
-          <div style={{ marginTop: 10, padding: "8px 12px", background: C.mutedBg, borderRadius: 6, fontSize: 13 }}>
-            <div style={{ ...KICKER, fontSize: 9, color: C.faint, marginBottom: 3 }}>From</div>
-            <div className="jp" style={{ fontSize: 15, color: C.ink, fontWeight: 700 }}>{w.source.jp}</div>
-            {w.source.reading && w.source.reading !== w.source.jp && <div className="jp" style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{w.source.reading}</div>}
-            {w.source.en && <div style={{ color: C.inkDim, marginTop: 3 }}>{w.source.en}</div>}
-            {w.source.heb && <HebText style={{ color: C.muted, marginTop: 2 }}>{w.source.heb}</HebText>}
+          <div style={{ marginTop: 10, padding: "8px 12px", background: T.mutedBg, borderRadius: 6, fontSize: 13 }}>
+            <div style={{ ...KICKER, fontSize: 9, color: T.faint, marginBottom: 3 }}>From</div>
+            <div className="jp" style={{ fontSize: 15, color: T.ink, fontWeight: 700 }}>{w.source.jp}</div>
+            {w.source.reading && w.source.reading !== w.source.jp && <div className="jp" style={{ fontSize: 11, color: T.muted, marginTop: 2 }}>{w.source.reading}</div>}
+            {w.source.en && <div style={{ color: T.inkDim, marginTop: 3 }}>{w.source.en}</div>}
+            {w.source.heb && <HebText style={{ color: T.muted, marginTop: 2 }}>{w.source.heb}</HebText>}
           </div>
         )}
       </div>
     );
   }
   return (
-    <div style={{ padding: "14px 0", borderBottom: isLast ? "none" : `1px solid ${C.border}` }}>
+    <div style={{ padding: "14px 0", borderBottom: isLast ? "none" : `1px solid ${T.border}` }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
         <Chip tone="accent">{CATEGORIES[w.cat]}{w.num ? ` · #${w.num}` : ""}</Chip>
         <SpeakBtn text={cleanJp(w.jp)} size={14} />
       </div>
-      <div className="jp" style={{ color: C.ink, fontWeight: 700, fontSize: 22, marginTop: 8, letterSpacing: "0.02em" }}><Furigana jp={w.jp} reading={w.reading} /></div>
-      <div style={{ color: C.inkDim, fontSize: 15, marginTop: 4 }}>{w.en}</div>
-      {w.heb && <HebText style={{ color: C.muted, fontSize: 14, marginTop: 3 }}>{w.heb}</HebText>}
+      <div className="jp" style={{ color: T.ink, fontWeight: 700, fontSize: 22, marginTop: 8, letterSpacing: "0.02em" }}><Furigana jp={w.jp} reading={w.reading} /></div>
+      <div style={{ color: T.inkDim, fontSize: 15, marginTop: 4 }}>{w.en}</div>
+      {w.heb && <HebText style={{ color: T.muted, fontSize: 14, marginTop: 3 }}>{w.heb}</HebText>}
       {w.oneLiner && (
-        <div style={{ marginTop: 8, padding: "8px 12px", background: "rgba(188,0,45,0.06)", borderLeft: `2px solid ${C.accent}`, borderRadius: 5, fontSize: 13, color: C.inkDim, fontStyle: "italic", lineHeight: 1.5 }}>
+        <div style={{ marginTop: 8, padding: "8px 12px", background: dark ? "rgba(244,58,92,0.14)" : "rgba(188,0,45,0.06)", borderLeft: `2px solid ${T.accent}`, borderRadius: 5, fontSize: 13, color: T.inkDim, fontStyle: "italic", lineHeight: 1.5 }}>
           &ldquo;{w.oneLiner}&rdquo;
         </div>
       )}
-      {w.conn && <div style={{ fontSize: 13, marginTop: 10, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={JP_LABEL}>接続</span><span className="jp" style={{ fontSize: 14 }}><ColoredConn conn={w.conn} beginner={isBeginnerCat(w.cat)} /></span></div>}
-      {w.n5syn && <div style={{ fontSize: 13, marginTop: 6, color: C.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={{ ...KICKER, fontSize: 10, color: C.faint }}>≈ N5</span><span className="jp" style={{ fontSize: 13, color: C.inkDim, fontWeight: 600 }}>{w.n5syn}</span></div>}
+      {w.conn && <div style={{ fontSize: 13, marginTop: 10, color: T.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={{ ...JP_LABEL, color: dark ? "var(--faint)" : undefined }}>接続</span><span className="jp" style={{ fontSize: 14 }}><ColoredConn conn={w.conn} beginner={isBeginnerCat(w.cat)} /></span></div>}
+      {w.n5syn && <div style={{ fontSize: 13, marginTop: 6, color: T.muted, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}><span style={{ ...KICKER, fontSize: 10, color: T.faint }}>≈ N5</span><span className="jp" style={{ fontSize: 13, color: T.inkDim, fontWeight: 600 }}>{w.n5syn}</span></div>}
       {w.ex && (
         <div style={{ marginTop: 10, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-          <span style={{ ...JP_LABEL, flexShrink: 0 }}>例</span>
-          <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 16, color: C.ink, fontWeight: 600, lineHeight: 1.55 }}><FuriganaSentence text={w.ex} /></span>
+          <span style={{ ...JP_LABEL, flexShrink: 0, color: dark ? "var(--faint)" : undefined }}>例</span>
+          <span className="jp" style={{ flex: 1, minWidth: 0, fontSize: 16, color: T.ink, fontWeight: 600, lineHeight: 1.55 }}><FuriganaSentence text={w.ex} /></span>
           <SpeakBtn text={stripFurigana(w.ex)} size={13} />
         </div>
       )}
-      {w.exHeb && <HebText style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>{w.exHeb}</HebText>}
+      {w.exHeb && <HebText style={{ color: T.muted, fontSize: 13, marginTop: 4 }}>{w.exHeb}</HebText>}
       {w.kanjiStory && (
-        <div style={{ marginTop: 12, background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.22)", borderLeft: "2px solid #7C3AED", padding: "10px 14px", borderRadius: 8, display: "flex", gap: 10, alignItems: "flex-start" }}>
+        <div style={{ marginTop: 12, background: T.kanjiBg, border: `1px solid ${T.kanjiBorder}`, borderLeft: "2px solid #A78BFA", padding: "10px 14px", borderRadius: 8, display: "flex", gap: 10, alignItems: "flex-start" }}>
           <span style={{ fontSize: 16, lineHeight: 1.2 }}>🧠</span>
           <div style={{ flex: 1 }}>
-            <div style={{ ...KICKER, color: C.kanji, fontSize: 10, marginBottom: 2 }}>{storyLabel(w.jp)}</div>
-            <div style={{ fontSize: 14, color: "#5B21B6", fontWeight: 500, lineHeight: 1.55 }}>{w.kanjiStory}</div>
+            <div style={{ ...KICKER, color: T.kanjiKicker, fontSize: 10, marginBottom: 2 }}>{storyLabel(w.jp)}</div>
+            <div style={{ fontSize: 14, color: T.kanjiInk, fontWeight: 500, lineHeight: 1.55 }}>{w.kanjiStory}</div>
           </div>
         </div>
       )}
@@ -2438,7 +2441,7 @@ export default function App() {
   if (screen === "results") {
     const pct = total > 0 ? Math.round((score / total) * 100) : 0;
     const passed = pct >= PASS_SCORE;
-    const verdictColor = passed ? C.pass : C.accent;
+    const verdictColor = passed ? "var(--pass)" : "var(--accent-strong)";
     const statsData = [
       { label: "Correct",     value: `${score}/${total}` },
       { label: "Best Streak", value: bestStreak },
@@ -2446,46 +2449,49 @@ export default function App() {
       { label: "Mistakes",    value: wrongList.length },
     ];
     return (
-      <div style={PAGE}>
+      <div className="aurora-root" style={{ ...PAGE, color: "var(--ink)", overflow: "hidden", minHeight: "100dvh" }}>
+        {!light && <AuroraBackdrop />}
+        <div style={{ position: "relative", zIndex: 1 }}>
         {/* VERDICT */}
         <div className="pop-in" style={{ textAlign: "center", marginTop: wide ? 32 : 20, marginBottom: 28 }}>
           <div className="num count-up" style={{ fontSize: wide ? 96 : 72, fontWeight: 300, color: verdictColor, lineHeight: 1, letterSpacing: "-0.02em" }}>
-            {pct}<span style={{ fontSize: "0.5em", color: C.muted, marginLeft: 4 }}>%</span>
+            {pct}<span style={{ fontSize: "0.5em", color: "var(--muted)", marginLeft: 4 }}>%</span>
           </div>
           <div className="jp-display" style={{ fontSize: wide ? 36 : 28, fontWeight: 600, color: verdictColor, marginTop: 10, letterSpacing: "0.25em" }}>
             {passed ? "合格" : "不合格"}
           </div>
-          <div style={{ ...KICKER, color: C.muted, marginTop: 6 }}>
+          <div style={{ ...KICKER, color: "var(--muted)", marginTop: 6 }}>
             {passed ? "Passed" : "Retry"}
           </div>
         </div>
 
         {/* STATS */}
-        <div className="slide-up" style={{ display: "grid", gridTemplateColumns: wide ? "repeat(4, 1fr)" : "repeat(2, 1fr)", gap: 1, background: C.border, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", marginBottom: 18 }}>
-          {statsData.map(s => (
-            <div key={s.label} style={{ background: C.surface, padding: "16px 14px", textAlign: "center" }}>
-              <div className="num" style={{ fontSize: 22, fontWeight: 300, color: C.ink, letterSpacing: "-0.01em" }}>{s.value}</div>
-              <div style={{ ...KICKER, marginTop: 6, fontSize: 10 }}>{s.label}</div>
+        <div className="slide-up glass" style={{ display: "grid", gridTemplateColumns: wide ? "repeat(4, 1fr)" : "repeat(2, 1fr)", borderRadius: 14, overflow: "hidden", marginBottom: 18 }}>
+          {statsData.map((s, i) => (
+            <div key={s.label} style={{ padding: "16px 14px", textAlign: "center", borderRight: wide && i < 3 ? "1px solid var(--hairline)" : "none", borderBottom: !wide && i < 2 ? "1px solid var(--hairline)" : "none", borderLeft: !wide && i % 2 === 1 ? "1px solid var(--hairline)" : "none" }}>
+              <div className="num" style={{ fontSize: 22, fontWeight: 300, color: "var(--ink)", letterSpacing: "-0.01em" }}>{s.value}</div>
+              <div style={{ ...KICKER, marginTop: 6, fontSize: 10, color: "var(--muted)" }}>{s.label}</div>
             </div>
           ))}
         </div>
 
         {/* REVIEW */}
         {wrongList.length > 0 && (
-          <Card className="slide-up" flush>
-            <div style={{ padding: "14px 18px", borderBottom: `1px solid ${C.border}` }}>
-              <KickerLabel><span style={{ color: C.accent }}>Review</span> · {wrongList.length}</KickerLabel>
+          <div className="slide-up glass" style={{ borderRadius: 14, overflow: "hidden" }}>
+            <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--hairline)" }}>
+              <span style={{ ...KICKER, color: "var(--muted)" }}><span style={{ color: "var(--accent-strong)" }}>Review</span> · {wrongList.length}</span>
             </div>
             <div style={{ padding: "0 18px" }}>
-              {wrongList.map((w, i) => <WrongItem key={i} w={w} isLast={i === wrongList.length - 1} />)}
+              {wrongList.map((w, i) => <WrongItem key={i} w={w} isLast={i === wrongList.length - 1} dark={!light} />)}
             </div>
-          </Card>
+          </div>
         )}
 
         {/* ACTIONS */}
         <div className="slide-up" style={{ display: "flex", gap: 10, marginTop: 16 }}>
-          <button onClick={() => setScreen("menu")} className="btn-hover" style={secondaryBtn(wide, 1)}>Menu</button>
-          <button onClick={startQuiz} className="btn-hover" style={primaryBtn(wide, 2)}>{passed ? "Next Test" : "Retry"} <IconChevRt size={14} /></button>
+          <button onClick={() => setScreen("menu")} className="btn-hover" style={{ flex: 1, padding: "15px 20px", fontSize: 13, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", background: "transparent", color: "var(--ink-dim)", border: "1px solid var(--hairline-strong)", borderRadius: 10, cursor: "pointer", fontFamily: FONT_LATIN }}>Menu</button>
+          <button onClick={startQuiz} className="btn-hover mega-cta" style={{ flex: 2, padding: "15px 20px", fontSize: 13, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", borderRadius: 10, cursor: "pointer", fontFamily: FONT_LATIN, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>{passed ? "Next Test" : "Retry"} <IconChevRt size={14} /></button>
+        </div>
         </div>
       </div>
     );
