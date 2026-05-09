@@ -743,7 +743,7 @@ function ActivityLegend({ streak, masteredCount, totalItems, accuracyPct, sessio
           padding: "12px 14px", borderRadius: 12,
           background: "var(--soft-bg)", border: "1px solid rgba(255,255,255,0.12)",
         }}>
-          <span style={{ ...KICKER, fontSize: 11, color: "rgba(255,255,255,0.72)", display: "inline-flex", alignItems: "center", gap: 7, letterSpacing: "0.16em", fontWeight: 600 }}>
+          <span style={{ ...KICKER, fontSize: 11, color: "var(--ink-dim)", display: "inline-flex", alignItems: "center", gap: 7, letterSpacing: "0.16em", fontWeight: 600 }}>
             {it.icon && <span style={{ color: it.color }}>{it.icon}</span>}
             {it.kicker}
           </span>
@@ -869,7 +869,7 @@ function TodayBrief({ filteredCount, numQuestions, setNumQuestions, timerMin, se
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 9 }}>
           <span style={{ ...KICKER, fontSize: 10, color: TXT.muted }}>Question Count</span>
           <span className="num" style={{ fontSize: 12, fontWeight: 500, color: TXT.faint }}>
-            <span style={{ color: "var(--accent-strong)", fontWeight: 600 }}>{selectedCount}</span><span style={{ margin: "0 5px" }}>/</span>{totalCats} cats
+            <span style={{ color: "var(--accent-strong)", fontWeight: 600 }}>{selectedCount}</span><span style={{ margin: "0 5px" }}>/</span>{totalCats} categories
           </span>
         </div>
         <input
@@ -1035,7 +1035,7 @@ function HistoryArea({ history, onPointClick }) {
               style={{
                 width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 14,
                 padding: "12px 22px",
-                borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.06)",
+                borderTop: i === 0 ? "none" : "1px solid var(--hairline)",
                 background: isLatest ? "linear-gradient(90deg, rgba(244,58,92,0.10), transparent 70%)" : "transparent",
                 borderLeft: isLatest ? "2px solid #F43A5C" : "2px solid transparent",
                 cursor: wrongs > 0 ? "pointer" : "default", color: "inherit", fontFamily: FONT_LATIN,
@@ -1086,7 +1086,7 @@ function Leaderboard({ history, dark = false }) {
   if (top.length === 0) return null;
   const maxCount = top[0].count;
   const T = dark
-    ? { ink: "#FBF7F1", inkDim: "rgba(255,255,255,0.78)", muted: "rgba(255,255,255,0.55)", faint: "rgba(255,255,255,0.4)", border: "rgba(255,255,255,0.08)", accent: "#F43A5C", kanjiBg: "rgba(124,58,237,0.18)", kanjiBorder: "rgba(167,139,250,0.40)", kanjiInk: "#E9D5FF", barTrack: "rgba(255,255,255,0.10)" }
+    ? { ink: "#FBF7F1", inkDim: "rgba(255,255,255,0.78)", muted: "rgba(255,255,255,0.55)", faint: "var(--faint)", border: "rgba(255,255,255,0.08)", accent: "#F43A5C", kanjiBg: "rgba(124,58,237,0.18)", kanjiBorder: "rgba(167,139,250,0.40)", kanjiInk: "#E9D5FF", barTrack: "rgba(255,255,255,0.10)" }
     : { ink: C.ink, inkDim: C.inkDim, muted: C.muted, faint: C.faint, border: C.border, accent: C.accent, kanjiBg: "rgba(124,58,237,0.06)", kanjiBorder: "rgba(124,58,237,0.22)", kanjiInk: "#5B21B6", barTrack: C.border };
 
   // Tier sizing: rank 0 = hero, 1-2 = full, 3-5 = compact, 6+ = tight
@@ -2331,7 +2331,7 @@ export default function App() {
               <span style={{ ...KICKER, color: "var(--kanji-tint)", letterSpacing: "0.22em" }}>\u5206\u91ce \u00b7 CATEGORIES</span>
               <div style={{ display: "flex", gap: 6 }}>
                 <button onClick={() => setSelectedCats(Object.keys(CATEGORIES))} className="btn-hover" style={{ background: "rgba(244,58,92,0.18)", color: "#F87171", border: "1px solid rgba(244,58,92,0.40)", borderRadius: 6, padding: "5px 10px", fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", fontFamily: FONT_LATIN }}>All</button>
-                <button onClick={() => setSelectedCats([])} className="btn-hover" style={{ background: "transparent", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 6, padding: "5px 10px", fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", fontFamily: FONT_LATIN }}>None</button>
+                <button onClick={() => setSelectedCats([])} className="btn-hover" style={{ background: "transparent", color: "var(--muted)", border: "1px solid var(--hairline-strong)", borderRadius: 6, padding: "5px 10px", fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", fontFamily: FONT_LATIN }}>None</button>
               </div>
             </div>
             <div style={{ padding: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -2355,7 +2355,7 @@ export default function App() {
                       <span className="jp" style={{ flex: 1, fontSize: 16, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "inherit", letterSpacing: "0.02em" }}>
                         {group.label.match(/^[\u3040-\u30ff\u4e00-\u9faf]+/)?.[0] || group.label}
                       </span>
-                      <span className="num" style={{ fontSize: 11, color: allOn ? "#FCA5A5" : "rgba(255,255,255,0.4)" }}>{groupCount}</span>
+                      <span className="num" style={{ fontSize: 11, color: allOn ? "#FCA5A5" : "var(--faint)" }}>{groupCount}</span>
                       {!isSingle && (
                         <span onClick={toggleExpand} style={{ color: "var(--faint)", display: "inline-flex", padding: "2px 2px", borderRadius: 4 }}>
                           <IconChevDn size={12} style={{ transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
@@ -2371,7 +2371,7 @@ export default function App() {
                             <button key={key} onClick={() => toggleCat(key)} className="btn-hover" style={{
                               background: on ? "rgba(244,58,92,0.20)" : "rgba(255,255,255,0.04)",
                               border: `1px solid ${on ? "rgba(244,58,92,0.45)" : "rgba(255,255,255,0.10)"}`,
-                              color: on ? "#FCA5A5" : "rgba(255,255,255,0.7)",
+                              color: on ? "#FCA5A5" : "var(--ink-dim)",
                               borderRadius: 6, padding: "4px 9px", fontSize: 11, cursor: "pointer", fontWeight: 500,
                             }}>
                               {CATEGORIES[key]} <span className="num" style={{ opacity: 0.7, marginLeft: 4 }}>{count}</span>
@@ -2409,7 +2409,7 @@ export default function App() {
         {/* HISTORY + LEADERBOARD */}
         <div style={{ ...(wide ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, alignItems: "start" } : {}), marginTop: 18, display: wide ? "grid" : "flex", flexDirection: wide ? undefined : "column", gap: wide ? 18 : 14 }}>
           <HistoryArea history={history} onPointClick={(idx) => setHistoryModal(history[idx])} />
-          <Leaderboard history={history} dark />
+          <Leaderboard history={history} dark={!light} />
         </div>
 
         {/* STICKY MOBILE CTA — floats above the bottom of the viewport on small screens */}
