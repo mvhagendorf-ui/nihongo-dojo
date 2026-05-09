@@ -153,7 +153,38 @@
         .page-watermark { font-size: 380px; right: -18%; opacity: 0.7; }
       }
       /* AURORA MESH BACKDROP — full-bleed dark gradient mesh that drifts behind the menu */
-      .aurora-root { position: relative; isolation: isolate; }
+      .aurora-root {
+        position: relative; isolation: isolate;
+        /* Theme tokens — used by inline styles via var(--name) so light/dark switch is automatic */
+        --ink: #FFFFFF;
+        --ink-dim: rgba(255,255,255,0.85);
+        --muted: rgba(255,255,255,0.68);
+        --faint: rgba(255,255,255,0.50);
+        --hairline: rgba(255,255,255,0.10);
+        --hairline-strong: rgba(255,255,255,0.16);
+        --accent: #FCA5A5;          /* salmon — readable on glass */
+        --accent-strong: #F43A5C;
+        --accent-bg: rgba(244,58,92,0.20);
+        --accent-border: rgba(244,58,92,0.45);
+        --pass: #34D399;
+        --kanji-tint: #C4B5FD;
+        --soft-bg: rgba(255,255,255,0.06);
+      }
+      html.theme-light .aurora-root {
+        --ink: #141414;
+        --ink-dim: #2F2F2F;
+        --muted: #5C564A;
+        --faint: #8B8474;
+        --hairline: rgba(80,60,30,0.10);
+        --hairline-strong: rgba(80,60,30,0.16);
+        --accent: #BC002D;
+        --accent-strong: #BC002D;
+        --accent-bg: rgba(188,0,45,0.10);
+        --accent-border: rgba(188,0,45,0.32);
+        --pass: #0F8F47;
+        --kanji-tint: #6D28D9;
+        --soft-bg: rgba(0,0,0,0.04);
+      }
       .aurora-root::before {
         /* override body background while aurora-root is mounted */
         content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
@@ -180,21 +211,21 @@
       }
       /* Body + html become transparent while aurora-root is mounted (so the fixed aurora shows through) */
       html:has(.aurora-root), body:has(.aurora-root) { background: transparent !important; }
-      /* GLASS CARD — frosted translucent surface for dark menu */
+      /* GLASS CARD — frosted translucent surface for dark menu (denser bg to stop red bleed) */
       .glass {
-        background: linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%);
-        backdrop-filter: blur(24px) saturate(1.6);
-        -webkit-backdrop-filter: blur(24px) saturate(1.6);
-        border: 1px solid rgba(255,255,255,0.14);
-        box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 28px 80px -28px rgba(0,0,0,0.55);
-        color: #FBF7F1;
+        background: linear-gradient(160deg, rgba(28,18,38,0.82) 0%, rgba(20,12,28,0.86) 100%);
+        backdrop-filter: blur(20px) saturate(1.4);
+        -webkit-backdrop-filter: blur(20px) saturate(1.4);
+        border: 1px solid rgba(255,255,255,0.16);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.10) inset, 0 24px 70px -28px rgba(0,0,0,0.65);
+        color: #FFFFFF;
       }
       .glass-strong {
-        background: linear-gradient(160deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 100%);
-        backdrop-filter: blur(32px) saturate(1.7);
-        -webkit-backdrop-filter: blur(32px) saturate(1.7);
-        border: 1px solid rgba(255,255,255,0.18);
-        box-shadow: 0 1px 0 rgba(255,255,255,0.18) inset, 0 32px 90px -28px rgba(0,0,0,0.65), 0 0 0 1px rgba(244,58,92,0.25);
+        background: linear-gradient(160deg, rgba(36,22,46,0.88) 0%, rgba(22,12,28,0.92) 100%);
+        backdrop-filter: blur(24px) saturate(1.5);
+        -webkit-backdrop-filter: blur(24px) saturate(1.5);
+        border: 1px solid rgba(255,255,255,0.20);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 32px 90px -28px rgba(0,0,0,0.70), 0 0 0 1px rgba(244,58,92,0.30);
         color: #FFFFFF;
       }
       /* LIGHT THEME OVERRIDES */

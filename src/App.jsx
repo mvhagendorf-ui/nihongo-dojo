@@ -617,9 +617,9 @@ function JSTClock() {
   const wd = wdJp[tokyoDay.getDay()];
   return (
     <span className="jst-clock">
-      <span style={{ color: "rgba(255,255,255,0.55)", fontSize: 10 }}>東京 · {wd}</span>
+      <span style={{ color: "var(--muted)", fontSize: 10 }}>東京 · {wd}</span>
       <span>{hh}:{mm}<span className="sec">:{ss}</span></span>
-      <span style={{ color: "rgba(255,255,255,0.55)", fontSize: 10 }}>JST</span>
+      <span style={{ color: "var(--muted)", fontSize: 10 }}>JST</span>
     </span>
   );
 }
@@ -627,21 +627,47 @@ function JSTClock() {
 // ─────────── HERO DISPLAY — massive 道場 kanji + ribbon + JST clock ───────────
 function HeroDisplay({ wide }) {
   return (
-    <div style={{ textAlign: "center", padding: wide ? "24px 0 18px" : "16px 0 12px", position: "relative" }}>
-      <div className="hero-ribbon" style={{ marginBottom: 18, fontSize: wide ? 13 : 12 }}>
+    <div style={{ textAlign: "center", padding: wide ? "20px 0 12px" : "12px 0 6px", position: "relative" }}>
+      <div className="hero-ribbon" style={{ marginBottom: 16, fontSize: wide ? 13 : 12 }}>
         <span className="live-dot" />
         <span style={{ fontSize: wide ? 14 : 13, fontWeight: 600 }}>道場</span>
-        <span style={{ opacity: 0.5 }}>·</span>
-        <span>DOJO</span>
         <span style={{ opacity: 0.5 }}>·</span>
         <JSTClock />
       </div>
       <div style={{ position: "relative", display: "inline-block" }}>
         <div className="hero-kanji" style={{ position: "relative" }}>道場</div>
       </div>
-      <div className="jp-display" style={{ marginTop: 14, fontFamily: FONT_JP_DISPLAY, fontSize: wide ? 22 : 18, color: "rgba(255,255,255,0.85)", letterSpacing: "0.32em", fontWeight: 600, textTransform: "uppercase" }}>
-        日本語 <span style={{ color: "#F43A5C" }}>·</span> NIHONGO TRAINING HALL
-      </div>
+    </div>
+  );
+}
+
+// ─────────── HERO STATS — 4 clean numbers, no decorative rings ───────────
+function HeroStats({ streak, masteredCount, totalItems, accuracyPct, sessions, wide }) {
+  const masteredPct = totalItems > 0 ? Math.round((masteredCount / totalItems) * 100) : 0;
+  const cells = [
+    { kicker: "Streak",   big: streak,       sub: "days",                            color: "var(--accent-strong)", icon: <IconFlame size={wide ? 16 : 14} /> },
+    { kicker: "Mastery",  big: masteredPct,  sub: `${masteredCount} / ${totalItems}`,sub2: "%", color: "var(--accent-strong)" },
+    { kicker: "Accuracy", big: accuracyPct,  sub: "all-time",                       sub2: "%", color: "var(--pass)" },
+    { kicker: "Sessions", big: sessions,     sub: "tests",                           color: "var(--ink)" },
+  ];
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: wide ? "repeat(4, 1fr)" : "repeat(2, 1fr)", gap: wide ? 0 : 14, marginTop: wide ? 8 : 14 }}>
+      {cells.map((c, i) => (
+        <div key={i} style={{
+          padding: wide ? "10px 16px" : "12px 8px",
+          textAlign: "center",
+          borderLeft: wide && i > 0 ? "1px solid var(--hairline)" : "none",
+        }}>
+          <div style={{ ...KICKER, fontSize: 10, color: "var(--muted)", letterSpacing: "0.22em", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6, justifyContent: "center" }}>
+            {c.icon && <span style={{ color: c.color }}>{c.icon}</span>}
+            {c.kicker}
+          </div>
+          <div className="num counter-tick" style={{ marginTop: 6, fontSize: wide ? 38 : 30, fontWeight: 300, color: c.color, lineHeight: 1, letterSpacing: "-0.02em" }}>
+            {c.big}{c.sub2 && <span style={{ fontSize: wide ? 18 : 14, color: "var(--faint)", fontWeight: 400, marginLeft: 2 }}>{c.sub2}</span>}
+          </div>
+          <div className="num" style={{ marginTop: 4, fontSize: 11, color: "var(--faint)", fontWeight: 500, letterSpacing: "0.04em" }}>{c.sub}</div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -694,8 +720,8 @@ function ActivityRings({ streak, masteredPct, accuracyPct, size = 200 }) {
         {ring(r3, animated.accuracy, "url(#ring-accuracy)", "drop-shadow(0 0 8px rgba(52,211,153,0.55))")}
       </svg>
       <div className="label-center">
-        <div style={{ fontFamily: FONT_JP_DISPLAY, fontSize: size * 0.18, fontWeight: 800, color: "#fff", letterSpacing: "0.04em", lineHeight: 1 }}>{masteredPct}<span style={{ fontSize: size * 0.08, color: "rgba(255,255,255,0.55)", marginLeft: 2 }}>%</span></div>
-        <div style={{ ...KICKER, fontSize: 9, color: "rgba(255,255,255,0.55)", marginTop: 4 }}>習得 · MASTERY</div>
+        <div style={{ fontFamily: FONT_JP_DISPLAY, fontSize: size * 0.18, fontWeight: 800, color: "#fff", letterSpacing: "0.04em", lineHeight: 1 }}>{masteredPct}<span style={{ fontSize: size * 0.08, color: "var(--muted)", marginLeft: 2 }}>%</span></div>
+        <div style={{ ...KICKER, fontSize: 9, color: "var(--muted)", marginTop: 4 }}>習得 · MASTERY</div>
       </div>
     </div>
   );
@@ -705,9 +731,9 @@ function ActivityRings({ streak, masteredPct, accuracyPct, size = 200 }) {
 function ActivityLegend({ streak, masteredCount, totalItems, accuracyPct, sessions }) {
   const items = [
     { kicker: "Streak",   val: streak,         suffix: "d",            color: "#FB923C", icon: <IconFlame size={14} /> },
-    { kicker: "Mastery",  val: masteredCount,  suffix: `/ ${totalItems}`, color: "#A78BFA", icon: null },
+    { kicker: "Mastery",  val: masteredCount,  suffix: `/ ${totalItems}`, color: "var(--kanji-tint)", icon: null },
     { kicker: "Accuracy", val: accuracyPct,    suffix: "%",            color: "#34D399", icon: null },
-    { kicker: "Sessions", val: sessions,       suffix: "",             color: "rgba(255,255,255,0.95)", icon: null },
+    { kicker: "Sessions", val: sessions,       suffix: "",             color: "var(--ink)", icon: null },
   ];
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, marginTop: 16 }}>
@@ -715,7 +741,7 @@ function ActivityLegend({ streak, masteredCount, totalItems, accuracyPct, sessio
         <div key={i} style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "12px 14px", borderRadius: 12,
-          background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
+          background: "var(--soft-bg)", border: "1px solid rgba(255,255,255,0.12)",
         }}>
           <span style={{ ...KICKER, fontSize: 11, color: "rgba(255,255,255,0.72)", display: "inline-flex", alignItems: "center", gap: 7, letterSpacing: "0.16em", fontWeight: 600 }}>
             {it.icon && <span style={{ color: it.color }}>{it.icon}</span>}
@@ -723,7 +749,7 @@ function ActivityLegend({ streak, masteredCount, totalItems, accuracyPct, sessio
           </span>
           <span className="num" style={{ display: "inline-flex", alignItems: "baseline", gap: 5, color: it.color, fontWeight: 700 }}>
             <span style={{ fontSize: 24, lineHeight: 1, letterSpacing: "-0.02em" }}>{it.val}</span>
-            {it.suffix && <span style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>{it.suffix}</span>}
+            {it.suffix && <span style={{ fontSize: 12, color: "var(--muted)", fontWeight: 500 }}>{it.suffix}</span>}
           </span>
         </div>
       ))}
@@ -817,13 +843,13 @@ function TodayBrief({ filteredCount, numQuestions, setNumQuestions, timerMin, se
   const sliderVal = Math.min(numQuestions, filteredCount);
   const sliderPct = sliderMax > sliderMin ? ((sliderVal - sliderMin) / (sliderMax - sliderMin)) * 100 : 0;
   const fmtTime = `${timerMin}:${timerSec.toString().padStart(2, "0")}`;
-  const TXT = { primary: "#FBF7F1", secondary: "rgba(255,255,255,0.72)", muted: "rgba(255,255,255,0.55)", faint: "rgba(255,255,255,0.4)" };
-  const numStyle = { ...numInputStyle, background: "rgba(0,0,0,0.30)", border: "1px solid rgba(255,255,255,0.14)", color: TXT.primary };
+  const TXT = { primary: "var(--ink)", secondary: "var(--ink-dim)", muted: "var(--muted)", faint: "var(--faint)" };
+  const numStyle = { ...numInputStyle, background: "var(--soft-bg)", border: "1px solid var(--hairline-strong)", color: "var(--ink)" };
   return (
     <div className="glass-strong" style={{ borderRadius: 20, overflow: "hidden" }}>
-      <div style={{ padding: "20px 22px 18px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, borderBottom: "1px solid rgba(255,255,255,0.08)", background: "linear-gradient(135deg, rgba(188,0,45,0.20) 0%, rgba(124,58,237,0.10) 100%)" }}>
+      <div style={{ padding: "20px 22px 18px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, borderBottom: "1px solid var(--hairline)", background: "linear-gradient(135deg, rgba(188,0,45,0.20) 0%, rgba(124,58,237,0.10) 100%)" }}>
         <div>
-          <div style={{ ...KICKER, fontSize: 10, color: "#FCA5A5", marginBottom: 6, letterSpacing: "0.22em" }}>稽古 · TODAY'S DRILL</div>
+          <div style={{ ...KICKER, fontSize: 10, color: "var(--accent)", marginBottom: 6, letterSpacing: "0.22em" }}>稽古 · TODAY'S DRILL</div>
           <div className="jp-display" style={{ fontFamily: FONT_JP_DISPLAY, fontSize: 36, fontWeight: 800, color: TXT.primary, letterSpacing: "0.02em", lineHeight: 1.05 }}>
             復<span style={{ background: "linear-gradient(135deg, #F43A5C, #BC002D)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>習</span>テスト
           </div>
@@ -834,7 +860,7 @@ function TodayBrief({ filteredCount, numQuestions, setNumQuestions, timerMin, se
             <span className="num counter-tick" style={{ fontSize: 44, fontWeight: 300, color: "#fff", lineHeight: 1, letterSpacing: "-0.03em", textShadow: "0 4px 18px rgba(244,58,92,0.55)" }}>{sliderVal}</span>
             <span style={{ ...KICKER, fontSize: 10, color: TXT.faint }}>Q</span>
           </div>
-          <div className="num" style={{ ...KICKER, fontSize: 10, color: TXT.muted, display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 10px", background: "rgba(0,0,0,0.25)", borderRadius: 100, border: "1px solid rgba(255,255,255,0.10)" }}>
+          <div className="num" style={{ ...KICKER, fontSize: 10, color: TXT.muted, display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 10px", background: "rgba(0,0,0,0.25)", borderRadius: 100, border: "1px solid var(--hairline)" }}>
             <IconClock size={11} /> {fmtTime}
           </div>
         </div>
@@ -843,7 +869,7 @@ function TodayBrief({ filteredCount, numQuestions, setNumQuestions, timerMin, se
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 9 }}>
           <span style={{ ...KICKER, fontSize: 10, color: TXT.muted }}>Question Count</span>
           <span className="num" style={{ fontSize: 12, fontWeight: 500, color: TXT.faint }}>
-            <span style={{ color: "#F43A5C", fontWeight: 600 }}>{selectedCount}</span><span style={{ margin: "0 5px" }}>/</span>{totalCats} cats
+            <span style={{ color: "var(--accent-strong)", fontWeight: 600 }}>{selectedCount}</span><span style={{ margin: "0 5px" }}>/</span>{totalCats} cats
           </span>
         </div>
         <input
@@ -859,7 +885,7 @@ function TodayBrief({ filteredCount, numQuestions, setNumQuestions, timerMin, se
           <span>{sliderMin}</span>
           <span>{sliderMax}</span>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16, padding: "12px 14px", background: "rgba(0,0,0,0.25)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16, padding: "12px 14px", background: "rgba(0,0,0,0.25)", borderRadius: 10, border: "1px solid var(--hairline)" }}>
           <span style={{ ...KICKER, fontSize: 10, color: TXT.muted, display: "inline-flex", alignItems: "center", gap: 6 }}>
             <IconClock size={12} /> Timer
           </span>
@@ -878,7 +904,7 @@ function TodayBrief({ filteredCount, numQuestions, setNumQuestions, timerMin, se
           borderRadius: 14, cursor: canStart ? "pointer" : "not-allowed", fontFamily: FONT_LATIN,
           display: "flex", alignItems: "center", justifyContent: "center", gap: 14,
         }}>
-          <span style={{ ...KICKER, fontSize: 9, color: "rgba(255,255,255,0.65)", letterSpacing: "0.32em" }}>始</span>
+          <span style={{ ...KICKER, fontSize: 9, color: "var(--muted)", letterSpacing: "0.32em" }}>始</span>
           <span style={{ position: "relative", zIndex: 1 }}>Begin Drill</span>
           <span className="start-arrow" style={{ fontSize: 22, lineHeight: 1, fontWeight: 400, position: "relative", zIndex: 1 }}>→</span>
         </button>
@@ -919,7 +945,7 @@ function HistoryArea({ history, onPointClick }) {
   const deltaBg = delta > 0 ? C.passSoft : delta < 0 ? C.accentSoft : C.mutedBg;
   const deltaBorder = delta > 0 ? C.passLine : delta < 0 ? C.accentLine : C.border;
 
-  const TXT = { primary: "#FBF7F1", secondary: "rgba(255,255,255,0.78)", muted: "rgba(255,255,255,0.65)", faint: "rgba(255,255,255,0.5)" };
+  const TXT = { primary: "var(--ink)", secondary: "var(--ink-dim)", muted: "var(--muted)", faint: "var(--faint)" };
   // Per-test list: latest 8 tests, newest at top, with click-to-review-mistakes
   const listItems = recent.slice().reverse().slice(0, 8).map((s) => {
     const idx = history.indexOf(s);
@@ -990,7 +1016,7 @@ function HistoryArea({ history, onPointClick }) {
         </svg>
       </div>
       {/* Per-test list — clickable rows to review mistakes */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.10)" }}>
+      <div style={{ borderTop: "1px solid var(--hairline)" }}>
         <div style={{ padding: "12px 22px 10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ ...KICKER, fontSize: 10, color: TXT.muted, letterSpacing: "0.22em", fontWeight: 600 }}>Recent Sessions</span>
           <span style={{ ...KICKER, fontSize: 10, color: TXT.faint }}>tap to review</span>
@@ -1026,8 +1052,8 @@ function HistoryArea({ history, onPointClick }) {
               </span>
               {wrongs > 0 ? (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 11px", background: "rgba(244,58,92,0.18)", border: "1px solid rgba(244,58,92,0.40)", borderRadius: 100 }}>
-                  <span className="num" style={{ fontSize: 12, color: "#FCA5A5", fontWeight: 700 }}>×{wrongs}</span>
-                  <IconChevRt size={12} style={{ color: "#FCA5A5" }} />
+                  <span className="num" style={{ fontSize: 12, color: "var(--accent)", fontWeight: 700 }}>×{wrongs}</span>
+                  <IconChevRt size={12} style={{ color: "var(--accent)" }} />
                 </span>
               ) : (
                 <span style={{ ...KICKER, fontSize: 9, color: "#34D399", padding: "5px 10px", background: "rgba(52,211,153,0.12)", border: "1px solid rgba(52,211,153,0.30)", borderRadius: 100 }}>Perfect</span>
@@ -2130,34 +2156,34 @@ export default function App() {
         cursor: "pointer", textAlign: "left", display: "block", fontFamily: FONT_LATIN, overflow: "hidden",
         marginTop: wide ? 12 : 12,
       }}>
-        <div style={{ padding: "14px 18px", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--hairline)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-            <IconBook size={16} style={{ color: "#A78BFA" }} />
-            <span style={{ ...KICKER, color: "#FBF7F1", fontSize: 12, letterSpacing: "0.22em" }}>索引 · INDEX</span>
+            <IconBook size={16} style={{ color: "var(--kanji-tint)" }} />
+            <span style={{ ...KICKER, color: "var(--ink)", fontSize: 12, letterSpacing: "0.22em" }}>索引 · INDEX</span>
           </span>
-          <IconChevRt size={14} style={{ color: "rgba(255,255,255,0.45)" }} />
+          <IconChevRt size={14} style={{ color: "var(--faint)" }} />
         </div>
         <div style={{ padding: "16px 18px", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
           <div style={{ textAlign: "center" }}>
-            <div className="num" style={{ fontSize: 24, fontWeight: 300, color: "#FBF7F1", lineHeight: 1 }}>{totalItems}</div>
-            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: "rgba(255,255,255,0.45)" }}>Terms</div>
+            <div className="num" style={{ fontSize: 24, fontWeight: 300, color: "var(--ink)", lineHeight: 1 }}>{totalItems}</div>
+            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: "var(--faint)" }}>Terms</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div className="num" style={{ fontSize: 24, fontWeight: 300, color: "#FB923C", lineHeight: 1, display: "inline-flex", alignItems: "center", gap: 4 }}>
               <IconStar size={14} filled style={{ verticalAlign: "middle" }} />{bookmarks.size}
             </div>
-            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: "rgba(255,255,255,0.45)" }}>Saved</div>
+            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: "var(--faint)" }}>Saved</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div className="num" style={{ fontSize: 24, fontWeight: 300, color: "#34D399", lineHeight: 1 }}>{masteredCount}</div>
-            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: "rgba(255,255,255,0.45)" }}>Mastered</div>
+            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: "var(--faint)" }}>Mastered</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div className="num" style={{ fontSize: 24, fontWeight: 300, color: "#F43A5C", lineHeight: 1 }}>{mistakenCount}</div>
-            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: "rgba(255,255,255,0.45)" }}>Mistaken</div>
+            <div className="num" style={{ fontSize: 24, fontWeight: 300, color: "var(--accent-strong)", lineHeight: 1 }}>{mistakenCount}</div>
+            <div style={{ ...KICKER, fontSize: 9, marginTop: 5, color: "var(--faint)" }}>Mistaken</div>
           </div>
         </div>
-        <div style={{ padding: "10px 18px 14px", color: "rgba(255,255,255,0.55)", fontSize: 12, borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.18)" }}>
+        <div style={{ padding: "10px 18px 14px", color: "var(--muted)", fontSize: 12, borderTop: "1px solid var(--hairline)", background: "rgba(0,0,0,0.18)" }}>
           Browse all terms · kanji stories · examples · bookmarks
         </div>
       </button>
@@ -2168,7 +2194,7 @@ export default function App() {
     const accuracyPct = (totalRight + totalWrong) > 0 ? Math.round((totalRight / (totalRight + totalWrong)) * 100) : 0;
     const masteredPct = totalItems > 0 ? Math.round((masteredCount / totalItems) * 100) : 0;
     return (
-      <div className="aurora-root menu-bottom-pad" style={{ ...PAGE, color: "#FBF7F1", overflow: "hidden", minHeight: "100dvh" }}>
+      <div className="aurora-root menu-bottom-pad" style={{ ...PAGE, color: "var(--ink)", overflow: "hidden", minHeight: "100dvh" }}>
         <AuroraBackdrop />
         <div style={{ position: "relative", zIndex: 1 }}>
         {/* HEADER — theme toggle + account chip */}
@@ -2180,14 +2206,11 @@ export default function App() {
           <AccountChip session={session} onClick={() => setAuthOpen(true)} />
         </div>
 
-        {/* HERO BLOCK — aurora glass with massive 道場 + activity rings */}
-        <div className="glass-strong" style={{ borderRadius: 24, padding: wide ? "32px 28px 26px" : "22px 20px 22px", marginBottom: wide ? 22 : 18, position: "relative", overflow: "hidden" }}>
+        {/* HERO BLOCK — aurora glass with massive 道場 + clean 4-stat strip */}
+        <div className="glass-strong" style={{ borderRadius: 24, padding: wide ? "28px 28px 22px" : "20px 18px 18px", marginBottom: wide ? 22 : 18, position: "relative", overflow: "hidden" }}>
           <HeroDisplay wide={wide} />
-          <div style={{ display: wide ? "grid" : "flex", gridTemplateColumns: wide ? "auto 1fr" : undefined, flexDirection: "column", alignItems: "center", gap: wide ? 28 : 18, marginTop: wide ? 24 : 18 }}>
-            <ActivityRings streak={dailyStreak} masteredPct={masteredPct} accuracyPct={accuracyPct} size={wide ? 220 : 180} />
-            <div style={{ width: wide ? "auto" : "100%", maxWidth: 420 }}>
-              <ActivityLegend streak={dailyStreak} masteredCount={masteredCount} totalItems={totalItems} accuracyPct={accuracyPct} sessions={history.length} />
-            </div>
+          <div style={{ marginTop: wide ? 18 : 14, paddingTop: wide ? 18 : 14, borderTop: "1px solid var(--hairline)" }}>
+            <HeroStats streak={dailyStreak} masteredCount={masteredCount} totalItems={totalItems} accuracyPct={accuracyPct} sessions={history.length} wide={wide} />
           </div>
         </div>
 
@@ -2207,13 +2230,13 @@ export default function App() {
                 }}
               >
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-                  <IconStar size={16} filled style={{ color: "#F43A5C" }} />
-                  <span style={{ ...KICKER, color: "#FBF7F1", fontSize: 12 }}>Bookmarks · 保存</span>
-                  <span className="num" style={{ color: "#F43A5C", fontSize: 14, fontWeight: 500, marginLeft: 4 }}>{bookmarks.size}</span>
+                  <IconStar size={16} filled style={{ color: "var(--accent-strong)" }} />
+                  <span style={{ ...KICKER, color: "var(--ink)", fontSize: 12 }}>Bookmarks · 保存</span>
+                  <span className="num" style={{ color: "var(--accent-strong)", fontSize: 14, fontWeight: 500, marginLeft: 4 }}>{bookmarks.size}</span>
                 </span>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-                  {!bookmarksOpen && <span style={{ ...KICKER, color: "rgba(255,255,255,0.45)", fontSize: 10 }}>Tap to view</span>}
-                  <IconChevDn size={14} style={{ color: "rgba(255,255,255,0.55)", transform: bookmarksOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+                  {!bookmarksOpen && <span style={{ ...KICKER, color: "var(--faint)", fontSize: 10 }}>Tap to view</span>}
+                  <IconChevDn size={14} style={{ color: "var(--muted)", transform: bookmarksOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
                 </span>
               </button>
               {bookmarksOpen && (
@@ -2252,10 +2275,10 @@ export default function App() {
               padding: 0, display: "flex", alignItems: "center", gap: 10, fontFamily: FONT_LATIN, textAlign: "left", color: "inherit",
             }}>
               <span style={{ fontSize: 14 }}>🎯</span>
-              <span style={{ ...KICKER, color: "#FBF7F1", fontSize: 12 }}>My Quizzes · 自作</span>
-              <span className="num" style={{ color: "#F43A5C", fontSize: 14, fontWeight: 500, marginLeft: 4 }}>{customQuizzes.length}</span>
-              {!customOpen && customQuizzes.length > 0 && <span style={{ ...KICKER, color: "rgba(255,255,255,0.45)", fontSize: 10, marginLeft: "auto" }}>Tap to view</span>}
-              <IconChevDn size={14} style={{ color: "rgba(255,255,255,0.55)", transform: customOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", marginLeft: customOpen || customQuizzes.length === 0 ? "auto" : 0 }} />
+              <span style={{ ...KICKER, color: "var(--ink)", fontSize: 12 }}>My Quizzes · 自作</span>
+              <span className="num" style={{ color: "var(--accent-strong)", fontSize: 14, fontWeight: 500, marginLeft: 4 }}>{customQuizzes.length}</span>
+              {!customOpen && customQuizzes.length > 0 && <span style={{ ...KICKER, color: "var(--faint)", fontSize: 10, marginLeft: "auto" }}>Tap to view</span>}
+              <IconChevDn size={14} style={{ color: "var(--muted)", transform: customOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", marginLeft: customOpen || customQuizzes.length === 0 ? "auto" : 0 }} />
             </button>
             <button onClick={() => setCustomCreateOpen(true)} className="btn-hover" style={{
               marginLeft: 12, padding: "6px 12px", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase",
@@ -2270,14 +2293,14 @@ export default function App() {
               maxHeight: 520, overflowY: "auto",
             }}>
               {customQuizzes.length === 0 ? (
-                <div style={{ padding: "24px 18px", textAlign: "center", color: "rgba(255,255,255,0.65)", fontSize: 13 }}>
-                  No custom quizzes yet. Tap <span style={{ color: "#F43A5C", fontWeight: 600 }}>+ New</span> to paste vocab and let AI build one.
+                <div style={{ padding: "24px 18px", textAlign: "center", color: "var(--muted)", fontSize: 13 }}>
+                  No custom quizzes yet. Tap <span style={{ color: "var(--accent-strong)", fontWeight: 600 }}>+ New</span> to paste vocab and let AI build one.
                 </div>
               ) : customQuizzes.map((quiz, qi) => (
                 <div key={quiz.id} style={{ padding: "14px 18px", borderBottom: qi === customQuizzes.length - 1 ? "none" : "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: "#FBF7F1", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{quiz.name}</div>
-                    <div style={{ ...KICKER, fontSize: 10, color: "rgba(255,255,255,0.45)", marginTop: 3 }}>{quiz.items.length} items · {new Date(quiz.createdAt).toLocaleDateString()}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{quiz.name}</div>
+                    <div style={{ ...KICKER, fontSize: 10, color: "var(--faint)", marginTop: 3 }}>{quiz.items.length} items · {new Date(quiz.createdAt).toLocaleDateString()}</div>
                   </div>
                   <button onClick={() => startCustomQuiz(quiz)} className="btn-hover" style={{
                     padding: "7px 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase",
@@ -2289,7 +2312,7 @@ export default function App() {
                     const next = customQuizzes.filter(q => q.id !== quiz.id);
                     setCustomQuizzes(next); saveCustomQuizzes(next);
                   }} aria-label="Delete quiz" className="btn-hover" style={{
-                    background: "transparent", border: "none", padding: 4, cursor: "pointer", color: "rgba(255,255,255,0.45)",
+                    background: "transparent", border: "none", padding: 4, cursor: "pointer", color: "var(--faint)",
                     display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 6,
                   }}>
                     <IconX size={14} />
@@ -2304,8 +2327,8 @@ export default function App() {
           {/* LEFT COLUMN: CATEGORIES + (wide) INDEX */}
           <div>
           <div className="glass" style={{ borderRadius: 16, overflow: "hidden" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 18px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-              <span style={{ ...KICKER, color: "#A78BFA", letterSpacing: "0.22em" }}>\u5206\u91ce \u00b7 CATEGORIES</span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 18px", borderBottom: "1px solid var(--hairline)" }}>
+              <span style={{ ...KICKER, color: "var(--kanji-tint)", letterSpacing: "0.22em" }}>\u5206\u91ce \u00b7 CATEGORIES</span>
               <div style={{ display: "flex", gap: 6 }}>
                 <button onClick={() => setSelectedCats(Object.keys(CATEGORIES))} className="btn-hover" style={{ background: "rgba(244,58,92,0.18)", color: "#F87171", border: "1px solid rgba(244,58,92,0.40)", borderRadius: 6, padding: "5px 10px", fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", fontFamily: FONT_LATIN }}>All</button>
                 <button onClick={() => setSelectedCats([])} className="btn-hover" style={{ background: "transparent", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 6, padding: "5px 10px", fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", fontFamily: FONT_LATIN }}>None</button>
@@ -2334,7 +2357,7 @@ export default function App() {
                       </span>
                       <span className="num" style={{ fontSize: 11, color: allOn ? "#FCA5A5" : "rgba(255,255,255,0.4)" }}>{groupCount}</span>
                       {!isSingle && (
-                        <span onClick={toggleExpand} style={{ color: "rgba(255,255,255,0.5)", display: "inline-flex", padding: "2px 2px", borderRadius: 4 }}>
+                        <span onClick={toggleExpand} style={{ color: "var(--faint)", display: "inline-flex", padding: "2px 2px", borderRadius: 4 }}>
                           <IconChevDn size={12} style={{ transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
                         </span>
                       )}
@@ -2391,7 +2414,7 @@ export default function App() {
 
         {/* STICKY MOBILE CTA — floats above the bottom of the viewport on small screens */}
         <button onClick={startQuiz} disabled={filteredCount < 4} className="sticky-cta-mobile mega-cta" aria-label="Start test (sticky)">
-          <span style={{ ...KICKER, fontSize: 9, color: "rgba(255,255,255,0.65)", letterSpacing: "0.32em" }}>始</span>
+          <span style={{ ...KICKER, fontSize: 9, color: "var(--muted)", letterSpacing: "0.32em" }}>始</span>
           <span>Begin Drill</span>
           <span className="start-arrow" style={{ fontSize: 22, lineHeight: 1, fontWeight: 400 }}>→</span>
         </button>
