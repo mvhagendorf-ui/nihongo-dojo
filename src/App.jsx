@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { CATEGORIES, CATEGORY_GROUPS, SIM_GROUPS, ALL_DATA, PASS_SCORE, QUESTIONS_PER_TEST, TIMER_SECONDS } from "./data";
 import { playSound } from "./audio";
 import { loadHistory, saveSession, updateSRS, getSRSWeights, loadSRS, loadBookmarks, saveBookmarks, loadCustomQuizzes, saveCustomQuizzes } from "./storage";
@@ -472,15 +473,33 @@ function lookupConn(token) {
 function ConnToken({ token, color, bg, beginner }) {
   const info = lookupConn(token);
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState(null);
   const ref = useRef(null);
   useEffect(() => {
     if (!open) return;
     const onDocClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     const onEsc = (e) => { if (e.key === "Escape") setOpen(false); };
+    const onScroll = () => setOpen(false);
     document.addEventListener("mousedown", onDocClick);
     document.addEventListener("keydown", onEsc);
-    return () => { document.removeEventListener("mousedown", onDocClick); document.removeEventListener("keydown", onEsc); };
+    window.addEventListener("scroll", onScroll, true);
+    return () => { document.removeEventListener("mousedown", onDocClick); document.removeEventListener("keydown", onEsc); window.removeEventListener("scroll", onScroll, true); };
   }, [open]);
+
+  // Compute portal position from the trigger's viewport rect, choosing top/bottom based on space
+  const showPopover = (e) => {
+    if (!info || !ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const popHeight = 140; // approximate
+    const placeBelow = r.bottom + popHeight + 8 < window.innerHeight;
+    setPos({
+      placement: placeBelow ? "below" : "above",
+      top: placeBelow ? r.bottom + 8 : r.top - 8,
+      left: r.left + r.width / 2,
+    });
+    setOpen(true);
+  };
+  const hidePopover = () => setOpen(false);
 
   const tokenContent = info?.read
     ? <ruby>{token}<rt style={{ fontSize: "0.55em", fontWeight: 500 }}>{info.read}</rt></ruby>
@@ -491,9 +510,9 @@ function ConnToken({ token, color, bg, beginner }) {
   return (
     <span
       ref={ref}
-      onMouseEnter={() => info && setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onClick={(e) => { if (!info) return; e.stopPropagation(); setOpen(o => !o); }}
+      onMouseEnter={showPopover}
+      onMouseLeave={hidePopover}
+      onClick={(e) => { if (!info) return; e.stopPropagation(); if (open) hidePopover(); else showPopover(); }}
       style={{
         position: "relative", display: "inline-block",
         color, background: bg, padding: "1px 6px", borderRadius: 4, fontWeight: 700,
@@ -508,18 +527,30 @@ function ConnToken({ token, color, bg, beginner }) {
           · {info.short}
         </span>
       )}
-      {open && info && (
+      {open && info && pos && typeof document !== "undefined" && createPortal(
         <span role="tooltip" style={{
-          position: "absolute", top: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)",
+          position: "fixed",
+          top: pos.placement === "below" ? pos.top : undefined,
+          bottom: pos.placement === "above" ? (window.innerHeight - pos.top) : undefined,
+          left: pos.left, transform: "translateX(-50%)",
           background: "#FFFFFF", border: `2px solid ${color}`,
           borderRadius: 10, padding: "10px 14px",
-          minWidth: 200, maxWidth: 280,
-          boxShadow: "0 8px 24px -4px rgba(0,0,0,0.18)",
-          zIndex: 100, whiteSpace: "normal", textAlign: "left",
+          minWidth: 220, maxWidth: 320,
+          boxShadow: "0 12px 32px -6px rgba(0,0,0,0.30)",
+          zIndex: 9999, whiteSpace: "normal", textAlign: "left",
           color: C.ink, fontWeight: 400,
           pointerEvents: "none",
         }}>
-          <span style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%) rotate(45deg)", width: 12, height: 12, background: "#FFFFFF", borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}`, display: "block" }} />
+          <span style={{
+            position: "absolute",
+            top: pos.placement === "below" ? -8 : undefined,
+            bottom: pos.placement === "above" ? -8 : undefined,
+            left: "50%",
+            transform: pos.placement === "below" ? "translateX(-50%) rotate(45deg)" : "translateX(-50%) rotate(225deg)",
+            width: 12, height: 12,
+            background: "#FFFFFF",
+            borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}`, display: "block"
+          }} />
           <span style={{ display: "block", fontWeight: 800, fontSize: 13, color, marginBottom: 4 }}>
             {token}{info.read ? ` · ${info.read}` : ""} <span style={{ color: C.muted, fontWeight: 600 }}>· {info.short}</span>
           </span>
@@ -531,7 +562,8 @@ function ConnToken({ token, color, bg, beginner }) {
               <span style={{ ...KICKER, fontSize: 9, marginRight: 6, color: C.faint }}>例</span>{info.example}
             </span>
           )}
-        </span>
+        </span>,
+        document.body
       )}
     </span>
   );
