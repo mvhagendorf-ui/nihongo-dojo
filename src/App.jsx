@@ -534,11 +534,11 @@ function ConnToken({ token, color, bg, beginner }) {
           bottom: pos.placement === "above" ? (window.innerHeight - pos.top) : undefined,
           left: pos.left, transform: "translateX(-50%)",
           background: "#FFFFFF", border: `2px solid ${color}`,
-          borderRadius: 10, padding: "10px 14px",
-          minWidth: 220, maxWidth: 320,
-          boxShadow: "0 12px 32px -6px rgba(0,0,0,0.30)",
+          borderRadius: 12, padding: "14px 18px",
+          minWidth: 260, maxWidth: 360,
+          boxShadow: `0 0 0 1px ${color}33, 0 24px 48px -12px rgba(0,0,0,0.55), 0 8px 16px -4px rgba(0,0,0,0.30)`,
           zIndex: 9999, whiteSpace: "normal", textAlign: "left",
-          color: C.ink, fontWeight: 400,
+          color: "#0F0F0F", fontWeight: 400,
           pointerEvents: "none",
         }}>
           <span style={{
@@ -551,15 +551,15 @@ function ConnToken({ token, color, bg, beginner }) {
             background: "#FFFFFF",
             borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}`, display: "block"
           }} />
-          <span style={{ display: "block", fontWeight: 800, fontSize: 13, color, marginBottom: 4 }}>
-            {token}{info.read ? ` · ${info.read}` : ""} <span style={{ color: C.muted, fontWeight: 600 }}>· {info.short}</span>
+          <span style={{ display: "block", fontWeight: 800, fontSize: 14, color, marginBottom: 6, letterSpacing: "0.01em" }}>
+            {token}{info.read ? ` · ${info.read}` : ""} <span style={{ color: "#3F3F3F", fontWeight: 700 }}>· {info.short}</span>
           </span>
-          <span style={{ display: "block", fontSize: 12, color: C.inkDim, lineHeight: 1.5, marginBottom: info.example ? 6 : 0, fontFamily: "var(--font-latin)" }}>
+          <span style={{ display: "block", fontSize: 13, color: "#1F1F1F", lineHeight: 1.55, marginBottom: info.example ? 8 : 0, fontFamily: "var(--font-latin)", fontWeight: 500 }}>
             {info.desc}
           </span>
           {info.example && (
-            <span className="jp" style={{ display: "block", fontSize: 12.5, color: C.muted, lineHeight: 1.4 }}>
-              <span style={{ ...KICKER, fontSize: 9, marginRight: 6, color: C.faint }}>例</span>{info.example}
+            <span className="jp" style={{ display: "block", fontSize: 13.5, color: "#0F0F0F", lineHeight: 1.5, paddingTop: 6, borderTop: "1px dashed rgba(0,0,0,0.10)", fontWeight: 600 }}>
+              <span style={{ ...KICKER, fontSize: 10, marginRight: 8, color: "#7A7468", fontWeight: 700 }}>例</span>{info.example}
             </span>
           )}
         </span>,
